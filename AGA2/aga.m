@@ -1,7 +1,7 @@
 function [lop,fop,nite,history]=aga(ninfo,label, ... 
                            pop, ... 
                            ng,N, goal, ... 
-                           funique,fitfun,mutfun,reproduccio,ranfun,prifun)  
+                           funique,fitfun,mutfun,repfun,ranfun,prifun)  
 
                        % 1-parfor que sigui opcional
                        % 2-si alguna funcio es empty que no la cridi si no es
@@ -49,126 +49,137 @@ function [lop,fop,nite,history]=aga(ninfo,label, ...
 %           mutfun should return a mutant individual. Fitness is given
 %           in case mutation intensity is to be decreased when close to
 %           the goal
-% reproduccio: Given two individuals, returns a descendant 
+% repfun:   Given two individuals, returns a descendant 
 % ranfun:   Returns a random individual
 % prifun:   Prints individual
 %
 % aga returns:
-% lop:      list with the population sorted by  fitness  
+% lop:      list with the population sorted by fitness  
 % fop:      minimum value of fitfun found
 % nite:     number of iterations performed 
 % history:  vector with the best value found after each iteration
        
-
+% Build population if required
 if isnumeric(pop) 
-    NI=pop;
+    NI = pop;
     pop = cell(1,NI);
     for i=1:NI
-        pop{i}=ranfun();
-    end
-end
-    
-ne=N(1); 
-nm=N(2);
-nn=N(3);
-na=N(4);
-ps=length(pop);
+        pop{i} = ranfun(); % Create random individual
+    end;
+end;
 
-history=[];
+% Population size
+ne = N(1); % Number of elites
+nm = N(2); % Number of mutants
+nn = N(3); % Number of newcomers
+na = N(4); % Number of breeders (selected from the best individuals)
+ps = length(pop); % Population size
+nd = ps - N(1) - N(2) - N(3); % Number of descendants
 
-nd=ps-N(1)-N(2)-N(3);
+% History
+history = [];
+
+ % Safety checks
 if nn<0
     error('aga: nn must be positive');
-end
+end;
 
-g=1; % generation
+% Iterate through generations
+for g=1:ng
+    
+    % Save current generation index
+    nite = g;
 
-    while true
-        nite=g;
+    % Clean population: remove repeated individuals
+    pop = funique(pop); % Return unique individuals
+    cps = length(pop); % Length of clean population
 
-        pop=funique(pop);
-        
-        if length(pop)<na 
-                if (info>0)
-                    fprintf('GA label=%d degenerate population\n',label);
-                end
-                break
-        end
-        
-        for i=length(pop)+1:ps % repopulation
-            pop{end+1}=ranfun();
-        end
-            
-        parfor i=1:ps % parfor
-            fi(i)=feval(fitfun,pop{i});
-        end
-        
-        
-        [fi,i]=sort(fi);
-        pop=pop(i);
-
-        history(end+1)=fi(1);
-
-        if ninfo>2
-            fprintf('GA label=%d g=%3d ng=%d best=%e ',label,g,ng,fi(1));
-            if ~isempty(prifun)
-                prifun(pop{1});
-                fprintf('\n');
-            else
-                fprintf('\n');
-            end
-        
-        end
-        
-        
-        if fi(1)<=goal | g==ng 
-            lop=pop;
-            fop=fi(1);
-            if ninfo>0 
-                fprintf('GA label=%d best=%e ',label,fop);
-                if ~isempty(prifun)
-                    prifun(pop{1});
-                    fprintf(' ');
-                end             
-                if fop<goal
-                    fprintf('goal=%e achieved !!\n',goal);
-                else
-                    fprintf('max. iterations reached, leaving\n');
-                end
-            end
-            return; %%%%%
-        end
-        
-        % next generation:
-        pos=1;
-        
-        for i=1:ne % elite
-            pop2{pos}=pop{pos};
-            pos=pos+1;
-        end
-        
-        for i=1:nm % mutants
-            pop2{pos}=mutfun(pop{pos},fi(pos));
-            pos=pos+1;
-        end
-        
-        for i=1:nd % descendants
-            pare=randi([1,na]); % parents are choosen among np best 
-            mare=randi([1,na]);            
-            pop2{pos}=reproduccio(pop{pare},pop{mare});
-            pos=pos+1;
-        end       
-                
-        for i=1:nn % newcommers
-            pop2{pos}=ranfun();
-            pos=pos+1;
-        end
-
-        pop=pop2;
-        
-        g=g+1; % next generation
+    % Avoid population degeneration (i.e., poor genetic pool)
+    if cps<na % Clean population size is less than breeders size
+        if info>0
+            fprintf('GA label=%d degenerate population\n',label);
+        end;
+        break; % Break execution
     end
 
+    % Repopulation: fill clean population pool with new individuals
+    for i=cps+1:ps % Fill up to initial population size
+        pop{i} = ranfun(); % Create new random individual
+    end
 
+    % Evaluate fitness function
+    parfor i=1:ps
+        fi(i) = feval(fitfun,pop{i});
+    end;
+
+    % Sort population individuals by their fitness level
+    [fi,i] = sort(fi); % Sort fitness by increasing value (lower is best)
+    pop = pop(i); % Sort population by their fitness value
+
+    % Save fitness history
+    history(g) = fi(1); %#ok
+
+    % Show info if required
+    if ninfo>2
+        fprintf('GA label=%d g=%3d ng=%d best=%e ',label,g,ng,fi(1));
+        if ~isempty(prifun)
+            prifun(pop{1}); % Print best individual
+        end;
+        fprintf('\n');
+    end;
+
+    % Simulation end: either reached target fitness or max generations 
+    if fi(1)<=goal || g>=ng
+        
+        % Save last population data
+        lop = pop; % Save population
+        fop = fi(1); % Save best fitness level
+        
+        % Show info if required
+        if ninfo>0
+            fprintf('GA label=%d best=%e ',label,fop);
+            if ~isempty(prifun)
+                prifun(pop{1}); % Print best individual
+            end;
+            if fop<goal % Goal achieved
+                fprintf('goal=%e achieved !!\n',goal);
+            else % Maximum generations reached (goal not achieved)
+                fprintf('max. iterations reached, leaving\n');
+            end;
+        end;
+        return; % Return from function
+    end
+
+    % Next generation:
+    % <<[elites, mutants, descendants, newcomers]<<
+    pop_next = cell(1,ne+nm+nd+nn);
+    k = 1;
+
+    for i=1:ne % Elites
+        pop_next{k} = pop{k}; % Copy
+        k=k+1;
+    end
+
+    for i=1:nm % Mutants
+        pop_next{k} = mutfun(pop{k},fi(k)); % Mutate
+        k=k+1;
+    end
+
+    for i=1:nd % Descendants
+        parentA = randi([1,na]); % Parent is choosen among np best 
+        parentB = randi([1,na]); % Parent is choosen among np best 
+        pop_next{k} = repfun(pop{parentA},pop{parentB}); % Breed
+        k=k+1;
+    end       
+
+    for i=1:nn % Newcommers
+        pop_next{k} = ranfun(); % Random individual
+        k=k+1;
+    end
     
+    % Update population 
+    pop = pop_next;
+    
+end;
+
 end

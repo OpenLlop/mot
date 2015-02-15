@@ -17,7 +17,7 @@ function [lop,fop,nite,history]=aga(ninfo,label, ...
                        % cost de buscarlo es creixent amn NCACHE*NP
                        
                        
-% Iterates to find mimumum of a function using Genetic Algorithm v1.01
+% Iterates to find minimum of a function using Genetic Algorithm v1.01
 % (c) 2013 - Manel Soria - ETSEIAT 
 %
 % ninfo:    iteration control; prints every ninfo iterations 

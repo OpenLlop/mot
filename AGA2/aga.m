@@ -120,7 +120,7 @@ for g=1:ng
     history(g) = fi(1); %#ok
 
     % Show info if required
-    if ninfo>2
+    if ninfo>1
         fprintf('GA label=%d g=%3d ng=%d best=%e ',label,g,ng,fi(1));
         if ~isempty(prifun)
             prifun(pop{1}); % Print best individual

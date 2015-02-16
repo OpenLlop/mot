@@ -1,7 +1,6 @@
 function [pops,fops,best,fbest]=aga_islands(ninfo,label,...
-                                          pops,  ... 
-                                          ngg, nemi, ng, N, goal,... %  
-                                          funique,fitfun,mutfun,reproduccio,ranfun,prifun)
+    pops, ngg, nemi, ng, N, goal,... %  
+    funique,fitfun,mutfun,reproduccio,ranfun,prifun)
 
 % pops: either a
 %  -list of lists with population OR
@@ -17,9 +16,9 @@ if (~iscell(pops))  % Only population size is given
     ni=pops(1);
     np=pops(2);
     pops={};
-    for illa=1:ni
+    for island=1:ni
         for i=1:np
-            pops{illa}{i}=ranfun(); 
+            pops{island}{i}=ranfun(); 
         end
     end
 else % Initial population is given .. we check it
@@ -48,21 +47,22 @@ end
     
     
 if ninfo>0
-      fprintf('aga_islands begin ni=%d np=%d ngg=%d ng=%d \n',ni,np,ngg,ng);
+      fprintf('aga_islands begin ni=%d np=%d ngg=%d ng=%d \n',...
+          ni,np,ngg,ng);
 end
 
 gg=1; % global generation
 while true
     fops=zeros(ni,1); 
-    for illa=1:ni % each island evolves separately
-        [lop,fops(illa),nite]=aga(  ninfo-1,label+gg*1000+illa,...
-                                    pops{illa},...
+    for island=1:ni % each island evolves separately
+        [lop,fops(island),nite,history]=aga(  ninfo-1,label+gg*1000+island,...
+                                    pops{island},...
                                     ng,N, goal,...
                                     funique,fitfun,mutfun,reproduccio,ranfun,prifun);
-        pops{illa}=lop; % population at the end of local iterations
+        pops{island}=lop; % population at the end of local iterations
         if ninfo>1
             fprintf('aga_islands label= %d end ite global= %d illa= %d fbest= %e ',...
-                label,gg,illa,fops(illa));
+                label,gg,island,fops(island));
             if ~isempty(prifun) 
                 fprintf('best: ');
                 prifun(lop{1});
@@ -74,7 +74,8 @@ while true
     
     [fbest,ibest]=min(fops); % optimal of all the islands, island where it lives
     if ninfo>0
-        fprintf('aga_islands label= %d gg= %d fbest= %8.3e island= %d ',label,gg,fbest,ibest);
+        fprintf('aga_islands label= %d gg= %d fbest= %8.3e island= %d ',...
+            label,gg,fbest,ibest);
         if ~isempty(prifun) 
             fprintf('best: ');
             prifun(lop{1});
@@ -95,14 +96,14 @@ while true
         break;
     end
     
-    for illa=1:ni % emigration
-            dest=illa;
-            orig=illa+1;
+    for island=1:ni % emigration
+            dest=island;
+            orig=island+1;
             if orig>ni
                 orig=1;
             end
             for q=1:nemi
-                mor=length(pops{illa})-q+1;
+                mor=length(pops{island})-q+1;
                 emigra=q;
                 if ninfo>10
                     fprintf('aga_islands emigrates from island=%d indi=%d to replace island=%d indi=%d \n',...

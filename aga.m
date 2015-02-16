@@ -1,24 +1,23 @@
-function [lop,fop,nite,history]=aga(ninfo,label, ... 
-                           pop, ... 
-                           ng,N, goal, ... 
-                           funique,fitfun,mutfun,repfun,ranfun,prifun)  
+function [ lastpop, lastfit, nite, history ] = aga ( ninfo, label, ...
+    pop, ng, N, goal, ...
+    funique, fitfun, mutfun, repfun, ranfun, prifun )  
 
-                       % 1-parfor que sigui opcional
-                       % 2-si alguna funcio es empty que no la cridi si no es
-                       % imprescindible (ie, print, mutacio)
-                       % 3-abans de calcular, mirar si ja hem calculat
-                       %
-                       %-fem servir una funcio isequivalent(a,b) de l'usuari
-                       % si torna 1 -> no es recalcula
-                       % si torna 0 -> si es recalcula
-                       % -si isequivalent es empty, internament fa servir isequuak
-                       % va construint una llista de individuos coneguts, fins arribar a NCACHE
-                       % si NCACHE=0, no fa res d'aixo (en algun cas sera lo millor ja que el 
-                       % cost de buscarlo es creixent amn NCACHE*NP
+% 1-parfor que sigui opcional
+% 2-si alguna funcio es empty que no la cridi si no es
+% imprescindible (ie, print, mutacio)
+% 3-abans de calcular, mirar si ja hem calculat
+%
+%-fem servir una funcio isequivalent(a,b) de l'usuari
+% si torna 1 -> no es recalcula
+% si torna 0 -> si es recalcula
+% -si isequivalent es empty, internament fa servir isequuak
+% va construint una llista de individuos coneguts, fins arribar a NCACHE
+% si NCACHE=0, no fa res d'aixo (en algun cas sera lo millor ja que el 
+% cost de buscarlo es creixent amn NCACHE*NP
                        
-                       
-% Iterates to find minimum of a function using Genetic Algorithm v1.01
-% (c) 2013 - Manel Soria - ETSEIAT 
+% Iterates to find minimum of a function using Genetic Algorithm
+% (c) 2013 - Manel Soria - ETSEIAT - v1.01
+% (c) 2015 - Manel Soria, David de la Torre - ETSEIAT - v1.02
 %
 % ninfo:    iteration control; prints every ninfo iterations 
 % label:    integer number that precedes the prints in case output is to be
@@ -54,9 +53,9 @@ function [lop,fop,nite,history]=aga(ninfo,label, ...
 % prifun:   Prints individual
 %
 % aga returns:
-% lop:      list with the population sorted by fitness  
-% fop:      minimum value of fitfun found
-% nite:     number of iterations performed 
+% lastpop:  list with the latest population sorted by fitness
+% lastfit:  minimum value of fitfun found (from latest population)
+% nite:     number of iterations performed
 % history:  vector with the best value found after each iteration
        
 % Build population if required
@@ -131,17 +130,17 @@ for g=1:ng
     % Simulation end: either reached target fitness or max generations 
     if fi(1)<=goal || g>=ng
         
-        % Save last population data
-        lop = pop; % Save population
-        fop = fi(1); % Save best fitness level
+        % Save last iteration data
+        lastpop = pop; % Save population
+        lastfit = fi(1); % Save best fitness level
         
         % Show info if required
         if ninfo>0
-            fprintf('GA label=%d best=%e ',label,fop);
+            fprintf('GA label=%d best=%e ',label,lastfit);
             if ~isempty(prifun)
                 prifun(pop{1}); % Print best individual
             end;
-            if fop<goal % Goal achieved
+            if lastfit<goal % Goal achieved
                 fprintf('goal=%e achieved !!\n',goal);
             else % Maximum generations reached (goal not achieved)
                 fprintf('max. iterations reached, leaving\n');
@@ -152,8 +151,8 @@ for g=1:ng
 
     % Next generation:
     % <<[elites, mutants, descendants, newcomers]<<
-    pop_next = cell(1,ne+nm+nd+nn);
-    k = 1;
+    pop_next = cell(1,ne+nm+nd+nn); % Temp population
+    k = 1; % Iteration index
 
     for i=1:ne % Elites
         pop_next{k} = pop{k}; % Copy
@@ -178,8 +177,10 @@ for g=1:ng
     end
     
     % Update population 
-    pop = pop_next;
+    pop = pop_next; % Update population
+    clear('pop_next'); % Clear temp variable to conserve memory
     
 end;
 
 end
+

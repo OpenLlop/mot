@@ -1,13 +1,17 @@
-function [ bestind, bestfit, nite, history ] = asa ( ninfo, label, ...
+function [ bestind, bestfit, nite, history ] = asa ( opts, ...
     A0, nitemax, mu, goal, ...
     fitfun, mutfun, prifun )
 % Iterates to find mimumum of a function using Simulated Annealing
 % (c) 2013 - Manel Soria - ETSEIAT - v1.0
 % (c) 2015 - Manel Soria, David de la Torre - ETSEIAT - v1.01
 %
-% ninfo:    prints information every ninfo iterations
-% label:    integer number preceding the prints in case output is to be
-%           filtered
+% opts:     function control parameters [struct]
+%   ninfo:  iteration control; prints every ninfo iterations
+%   label:  integer number that precedes the prints in case output is to
+%           be filtered
+%   einfo:  prints extended information every ninfo iterations [1,0]
+%   fhist:  return full history 
+%           (history{nite,:} = {A,B,fita,fitb,bestind,bestfit}) [1,0]
 % A0:       initial guess
 % nitemax:  maxim number of iteracions
 % mu:       Simulated annealing parameter (eg, 0.2, read below)
@@ -34,8 +38,11 @@ function [ bestind, bestfit, nite, history ] = asa ( ninfo, label, ...
 % value of Mu is a tradeoff between these extremes and the absolute value 
 % needs to be empirically determined for different models.
 
-% Print extra info (for debugging purposes)
-extrainfo = 0;
+% Get options
+if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 0; end;
+if isfield(opts,'label'), label = opts.label; else label = 0; end;
+if isfield(opts,'einfo'), einfo = opts.einfo; else einfo = 0; end;
+if isfield(opts,'fhist'), fhist = opts.fhist; else fhist = 0; end;
 
 % History
 history = [];
@@ -50,7 +57,7 @@ bestfit = fita; % Best fitness
 for nite=1:nitemax
     
     % Must print something
-    mustprint = (nite==1 || mod(nite,ninfo)==0);
+    mustprint = nite==1 || mod(nite,ninfo)==0;
     
     % Print info
     if mustprint
@@ -76,8 +83,17 @@ for nite=1:nitemax
         bestfit = fitb; % Best fitness
     end;
     
-    % Save fitness history
-    history(nite) = bestfit; %#ok
+    % Save history
+    if fhist % Save full history {A,B,fita,fitb}
+        history{nite,1} = A; %#ok
+        history{nite,2} = B; %#ok
+        history{nite,3} = fita; %#ok
+        history{nite,4} = fitb; %#ok
+        history{nite,5} = bestind; %#ok
+        history{nite,6} = bestfit; %#ok
+    else % Save best fitness only
+        history(nite) = bestfit; %#ok
+    end;
 
     % Compute fitness difference between B and A
     deltafit = fitb - fita;
@@ -86,7 +102,7 @@ for nite=1:nitemax
     probability = exp(-deltafit / (mu * abs(fita)));
     
     % Print extra info
-    if mustprint && extrainfo
+    if mustprint && einfo
         fprintf('   fitb=%8.2e deltafit=%+8.2e deltafit/fit=%+8.2e probability=%+8.2e  ',...
                     fitb,      deltafit,       deltafit/abs(fita), probability);  
     end;
@@ -95,14 +111,14 @@ for nite=1:nitemax
     if rand<probability % Jump
         A = B; % Jump from A to B
         fita = fitb; % Update fitness value
-        if mustprint && extrainfo % Print extra info
+        if mustprint && einfo % Print extra info
             fprintf('jump '); 
             if deltafit<=0, fprintf('>= \n'); % Fitness improved
             else fprintf('< \n'); % Fitness worsened
             end;
         end;
     else % Do not jump
-        if mustprint && extrainfo % Print extra info
+        if mustprint && einfo % Print extra info
             fprintf('= \n'); % Fitness does not change
         end;
     end;

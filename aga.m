@@ -1,8 +1,7 @@
-function [ lastpop, lastfit, nite, history ] = aga ( ninfo, label, ...
+function [ lastpop, lastfit, nite, history ] = aga ( opts, ...
     pop, ng, N, goal, ...
     funique, fitfun, mutfun, repfun, ranfun, prifun )  
 
-% 1-parfor que sigui opcional
 % 2-si alguna funcio es empty que no la cridi si no es
 % imprescindible (ie, print, mutacio)
 % 3-abans de calcular, mirar si ja hem calculat
@@ -14,14 +13,17 @@ function [ lastpop, lastfit, nite, history ] = aga ( ninfo, label, ...
 % va construint una llista de individuos coneguts, fins arribar a NCACHE
 % si NCACHE=0, no fa res d'aixo (en algun cas sera lo millor ja que el 
 % cost de buscarlo es creixent amn NCACHE*NP
-                       
+
 % Iterates to find minimum of a function using Genetic Algorithm
 % (c) 2013 - Manel Soria - ETSEIAT - v1.01
 % (c) 2015 - Manel Soria, David de la Torre - ETSEIAT - v1.02
 %
-% ninfo:    iteration control; prints every ninfo iterations 
-% label:    integer number that precedes the prints in case output is to be
-%           filtered
+% opts:     function control parameters [struct]
+%   ninfo:  iteration control; prints every ninfo iterations
+%   label:  integer number that precedes the prints in case output is to
+%           be filtered
+%   paral:  parallel execution of fitness function [1,0]
+%   fhist:  return full history (history{ng,:} = {pop,fitness}) [1,0]
 % pop:      list with initial population elements
 % ng:       number of generations
 % N:        population control parameters
@@ -57,7 +59,13 @@ function [ lastpop, lastfit, nite, history ] = aga ( ninfo, label, ...
 % lastfit:  minimum value of fitfun found (from latest population)
 % nite:     number of iterations performed
 % history:  vector with the best value found after each iteration
-       
+
+% Get options
+if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 0; end;
+if isfield(opts,'label'), label = opts.label; else label = 0; end;
+if isfield(opts,'paral'), paral = opts.paral; else paral = 0; end;
+if isfield(opts,'fhist'), fhist = opts.fhist; else fhist = 0; end;
+
 % Build population if required
 if isnumeric(pop) 
     NI = pop;
@@ -107,16 +115,24 @@ for g=1:ng
     end
 
     % Evaluate fitness function
-    parfor i=1:ps
-        fi(i) = feval(fitfun,pop{i});
+    fi = zeros(ps,1); % Preallocate var
+    if paral % Parallel execution
+        parfor i=1:ps, fi(i) = feval(fitfun,pop{i}); end;
+    else % Serial execution
+        for i=1:ps, fi(i) = feval(fitfun,pop{i}); end;
     end;
 
     % Sort population individuals by their fitness level
     [fi,i] = sort(fi); % Sort fitness by increasing value (lower is best)
     pop = pop(i); % Sort population by their fitness value
 
-    % Save fitness history
-    history(g) = fi(1); %#ok
+    % Save history
+    if fhist % Save full history {population,fitness}
+        history{g,1} = pop; %#ok
+        history{g,2} = fi; %#ok
+    else % Save best fitness only
+        history(g) = fi(1); %#ok
+    end;
 
     % Show info if required
     if ninfo>1

@@ -12,14 +12,16 @@ clear;
 % The global minimum is at (1,1), and its value is 0
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
+% Define SA function options
+opts.ninfo = 10; % Verbosity level (print every # iterations)
+opts.label = 10; % Label (identification purposes)
+opts.einfo = 0; % Print extended information
+opts.fhist = 1; % Return full history
+
 % Define SA parameters
 nitemax = 100; % Maximum number of iterations
 mu = 0.2; % Thermal transition probability parameter
 goal = 1E-5; % Target fitness value
-
-% Define SA info data
-ninfo = 10; % Verbosity level (print every # iterations)
-label = 10; % Label (identification purposes)
 
 % Auxiliary function
 ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
@@ -30,12 +32,11 @@ mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random mov
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 
 % Initial guess
-A0 = [0.23; 1.45];
+A0 = [2*rand(); 2*rand()];
 
 % Execute Simulated Annealing
 [bestIndSA,bestFitSA,...
-    nite,history] = asa(label,ninfo,...
-                        A0,nitemax,mu,goal,...
+    nite,history] = asa(opts,A0,nitemax,mu,goal,...
                         fitfun,mutfun,prifun);
 
 % Now, we can easily improve the accuracy of the local extremum found
@@ -47,18 +48,80 @@ fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
 fprintf('ASA \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndSA,bestFitSA);
 fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
-%% Plot history
+%% Plot fitness
+
+% Get fitness history
+if opts.fhist % Full history; get fitness values
+    history_fitness = zeros(length(history),1);
+    for i=1:length(history)
+        history_fitness(i) = history{i,6};
+    end;
+else history_fitness = history; % Simple history
+end;
 
 % Create figure
-fh = figure();
-fh.Position = [400,200,900,600];
+fh1 = figure('Position',[400,200,900,600]);
 
 % Plot history
-semilogy(history,'o-');
+semilogy(history_fitness,'o-');
 
 % Beautify plot
 grid minor;
 title('Rastrigin function | Simulated Annealing optimization');
-xlabel('Generation [#]');
+xlabel('Iteration [#]');
 ylabel('Fitness function value');
+
+
+%% Plot iterations
+
+% Only show generations when outputting full history
+if opts.fhist && iscell(history)
+
+    % Create figure
+    fh2 = figure('Position',[400,200,900,600]);
+
+    % Plot rastrigin function
+    [x,y] = meshgrid(-3:0.05:3,-3:0.05:3); z = ras(x,y);
+    bh = surf(x,y,z,'LineStyle','none');
+    colorbar('Location','EastOutside');
+    view(0,90); hold on;
+    
+    % Virtual position for population
+    z = 100;
+    
+    % Legend
+    lh = plot3(0,0,-z,'rx',0,0,-z,'mo',0,0,-z,'co');
+    legend(lh,'Best','A','B','Location','NorthEastOutside');
+
+    % Plot generations
+    ph = cell(length(history),3); % Handles
+    for iter=1:length(history)
+
+        % Title
+        title({'Genetic Algorithm optimization | Rastrigin function';...
+            sprintf('Iteration %03.0f',iter)});
+        
+        % Plot best
+        x = history{iter,5}(1); y = history{iter,5}(2);
+        ph{iter,1} = plot3(x,y,z,'rx','MarkerSize',8);
+
+        % Plot A
+        x = history{iter,1}(1); y = history{iter,1}(2);
+        ph{iter,2} = plot3(x,y,z,'mo','MarkerSize',8);
+
+        % Plot B
+        x = history{iter,2}(1); y = history{iter,2}(2);
+        ph{iter,3} = plot3(x,y,z,'co','MarkerSize',8);
+
+        % Wait
+        pause(0.1);
+
+        % Delete individuals
+        if iter~=length(history) % Keep last frame
+            for i=1:3, delete(ph{iter,i}); end;
+        end;
+
+    end;
+
+end;
 

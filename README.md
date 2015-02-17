@@ -4,11 +4,13 @@ MOT v1.0
 Matlab Optimisation Toolbox (MOT) is a library of optimisation functions for Matlab.
 
 The toolbox includes the following algorithms:
+
 * Genetic algorithm (GA)
 * Genetic algorithm with islands (GA + islands)
 * Simulated annealing (SA)
 
 They are intended to be used for optimization of functions of real arguments, integer arguments, a mixture of both or actually any kind of argument, since call-back functions are used. This means that any data type can be used to represent the problem.
+
 Example codes are provided. Some examples show how to improve the result of genetic algorithm with a conventional optimization code.
 
 Code files
@@ -19,6 +21,9 @@ Code files
 | aga | Iterates to find minimum of a function using Genetic Algorithm
 | aga_islands | Iterates to find minimum of a function using Genetic Algorithm + Islands
 | asa | Iterates to find minimum of a function using Simulated Annealing
+
+Example scripts
+---------------
 
 | Example | Description
 |---------|------------

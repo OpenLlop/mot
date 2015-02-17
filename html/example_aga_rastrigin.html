@@ -1,0 +1,364 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>example_aga_rastrigin</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-02-18"><meta name="DC.source" content="example_aga_rastrigin.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Example AGA</a></li><li><a href="#2">Plot fitness</a></li><li><a href="#3">Plot generations</a></li></ul></div><h2>Example AGA<a name="1"></a></h2><p>Find minima of a function with Genetic Algorithm Manel Soria, David de la Torre and Arnau Miro - ETSEIAT</p><pre class="codeinput"><span class="comment">% Clean-up</span>
+close <span class="string">all</span>;
+clear;
+
+<span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function. It is</span>
+<span class="comment">% challenging because it has infinite local extrema, located at integer</span>
+<span class="comment">% numbers (ie, 8,-9)</span>
+<span class="comment">% The global minimum is at (1,1), and its value is 0</span>
+ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
+
+<span class="comment">% Define GA function options</span>
+opts.ninfo = 2; <span class="comment">% Verbosity level (0=none, 1=minimal, 2=extended)</span>
+opts.label = 10; <span class="comment">% Label (identification purposes)</span>
+opts.paral = 1; <span class="comment">% Parallel execution of fitness function</span>
+opts.fhist = 2; <span class="comment">% Saved history level (0=none, 1=fitness, 2=full)</span>
+
+<span class="comment">% Define GA parameters</span>
+ng = 50; <span class="comment">% Number of generations</span>
+np = 200; <span class="comment">% Population size</span>
+N = [3,<span class="keyword">...</span><span class="comment"> % Number of elites</span>
+    floor(np*0.1),<span class="keyword">...</span><span class="comment"> % Number of mutants</span>
+    floor(np*0.05),<span class="keyword">...</span><span class="comment">% Number of newcomers</span>
+    floor(np*0.2)]; <span class="comment">% Number of parents</span>
+goal = 1E-5; <span class="comment">% Target fitness value</span>
+
+<span class="comment">% Auxiliary function</span>
+ranrange = @(a,b,n) a + (b-a)*rand(n,1); <span class="comment">% n random values between a i b</span>
+
+<span class="comment">% Define GA functions</span>
+funique = @(x) x; <span class="comment">% Discard identical individuals: currently not in use</span>
+fitfun = @(x) ras(x(1),x(2)); <span class="comment">% Fitness function - TO BE MINIMIZED</span>
+mutfun = @(x,f) x + ranrange(-0.1,0.1,2); <span class="comment">% Mutation: small random mov</span>
+repfun = @(x,y) (x+y)/2; <span class="comment">% Reproduction: average</span>
+ranfun = @() ranrange(-5,5,2); <span class="comment">% Random individual</span>
+prifun = @(x) fprintf(<span class="string">'%f %f '</span>,x(1),x(2)); <span class="comment">% Print an individual</span>
+
+<span class="comment">% Randomize random seed</span>
+rng(<span class="string">'shuffle'</span>); <span class="comment">% We don't want repeatability in the GA</span>
+
+<span class="comment">% Execute Genetic Algorithm</span>
+[lastPopGA,bestFitGA, <span class="keyword">...</span>
+    nite,history] = aga(opts,np,ng,N,goal,<span class="keyword">...</span>
+                        funique,fitfun,mutfun,repfun,ranfun,prifun);
+
+<span class="comment">% Now, we can easily improve the accuracy of the local extremum found</span>
+options = optimset(<span class="string">'TolFun'</span>,1e-8,<span class="string">'Display'</span>,<span class="string">'none'</span>);
+[bestIndFMS,bestFitFMS] = fminsearch(fitfun,lastPopGA{1},options);
+
+<span class="comment">% Display results of aga and fminsearch algorithms</span>
+fprintf(<span class="string">'\nAlgorithm \tBest individual (x,y) \tValue\n'</span>);
+fprintf(<span class="string">'AGA \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,lastPopGA{1},bestFitGA);
+fprintf(<span class="string">'FMS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndFMS,bestFitFMS);
+</pre><pre class="codeoutput">GA label=10 g=  1 ng=50 best=4.579523e+00 -0.070856 2.081671 
+GA label=10 g=  2 ng=50 best=1.042950e+00 1.982870 1.009801 
+GA label=10 g=  3 ng=50 best=4.407446e-01 0.983969 0.955530 
+GA label=10 g=  4 ng=50 best=2.655336e-02 1.011255 1.002685 
+GA label=10 g=  5 ng=50 best=6.965530e-03 0.994110 0.999352 
+GA label=10 g=  6 ng=50 best=4.059983e-03 0.997230 0.996423 
+GA label=10 g=  7 ng=50 best=2.197082e-05 0.999736 1.000202 
+GA label=10 g=  8 ng=50 best=5.477901e-06 1.000013 0.999834 
+GA label=10 best=5.477901e-06 1.000013 0.999834 goal=1.000000e-05 achieved !!
+
+Algorithm 	Best individual (x,y) 	Value
+AGA 		1.000013,0.999834 		5.477901E-06
+FMS 		1.000003,1.000004 		3.828461E-09
+</pre><h2>Plot fitness<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
+<span class="keyword">if</span> opts.fhist&gt;1 <span class="comment">% Full history; get fitness values</span>
+    history_fitness = zeros(length(history),1);
+    <span class="keyword">for</span> i=1:length(history)
+        history_fitness(i) = history{i,2}(1);
+    <span class="keyword">end</span>;
+<span class="keyword">else</span> history_fitness = history; <span class="comment">% Simple history</span>
+<span class="keyword">end</span>;
+
+<span class="comment">% Create figure</span>
+fh1 = figure(<span class="string">'Position'</span>,[400,200,900,600]);
+
+<span class="comment">% Plot history</span>
+semilogy(history_fitness,<span class="string">'o-'</span>);
+
+<span class="comment">% Beautify plot</span>
+grid <span class="string">minor</span>;
+title(<span class="string">'Genetic Algorithm optimization | Rastrigin function'</span>);
+xlabel(<span class="string">'Generation [#]'</span>);
+ylabel(<span class="string">'Fitness function value [log]'</span>);
+</pre><img vspace="5" hspace="5" src="example_aga_rastrigin_01.png" alt=""> <h2>Plot generations<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
+<span class="keyword">if</span> opts.fhist&gt;1 &amp;&amp; iscell(history)
+
+    <span class="comment">% Create figure</span>
+    fh2 = figure(<span class="string">'Position'</span>,[400,200,900,600]);
+
+    <span class="comment">% Plot rastrigin function</span>
+    [x,y] = meshgrid(-5:0.05:5,-5:0.05:5); z = ras(x,y);
+    bh = surf(x,y,z,<span class="string">'LineStyle'</span>,<span class="string">'none'</span>);
+    colorbar(<span class="string">'Location'</span>,<span class="string">'EastOutside'</span>);
+    view(0,90); hold <span class="string">on</span>;
+
+    <span class="comment">% Virtual position for population</span>
+    z = 100;
+
+    <span class="comment">% Legend</span>
+    lh = plot3(0,0,-z,<span class="string">'rv'</span>,0,0,-z,<span class="string">'bo'</span>,0,0,-z,<span class="string">'mo'</span>,0,0,-z,<span class="string">'ko'</span>);
+    legend(lh,<span class="string">'Elites'</span>,<span class="string">'Mutants'</span>,<span class="string">'Descendants'</span>,<span class="string">'Newcomers'</span>,<span class="keyword">...</span>
+        <span class="string">'Location'</span>,<span class="string">'NorthEastOutside'</span>);
+
+    <span class="comment">% Plot generations</span>
+    ph = cell(length(history),np); <span class="comment">% Handles</span>
+    <span class="keyword">for</span> g=1:length(history)
+
+        <span class="comment">% Title</span>
+        title({<span class="string">'Genetic Algorithm optimization | Rastrigin function'</span>;<span class="keyword">...</span>
+            sprintf(<span class="string">'Generation %03.0f'</span>,g)});
+
+        <span class="comment">% Plot individuals</span>
+        <span class="keyword">for</span> i=1:np
+
+            <span class="comment">% Select plotting marker (elite, mutant, normal, newcomer)</span>
+            <span class="keyword">if</span> g==1 <span class="comment">% First generation: plot initial population as newcomer</span>
+                marker = <span class="string">'ko'</span>; <span class="comment">% Newcomers</span>
+            <span class="keyword">else</span> <span class="comment">% Following generations: plot evolved population</span>
+                nd = length(history{g,1})-N(1)-N(2)-N(3); <span class="comment">% descendants</span>
+                <span class="keyword">if</span> i&lt;N(1), marker = <span class="string">'rv'</span>; <span class="comment">% Elites</span>
+                <span class="keyword">elseif</span> i&lt;N(1)+N(2), marker = <span class="string">'bo'</span>; <span class="comment">% Mutants</span>
+                <span class="keyword">elseif</span> i&lt;N(1)+N(2)+nd, marker = <span class="string">'mo'</span>; <span class="comment">% Descendants</span>
+                <span class="keyword">else</span> marker = <span class="string">'ko'</span>; <span class="comment">% Newcomers</span>
+                <span class="keyword">end</span>;
+            <span class="keyword">end</span>;
+
+            <span class="comment">% Plot individual</span>
+            x = history{g,1}{i}(1);
+            y = history{g,1}{i}(2);
+            ph{g,i} = plot3(x,y,z,marker,<span class="string">'MarkerSize'</span>,4);
+
+        <span class="keyword">end</span>;
+
+        <span class="comment">% Wait</span>
+        pause(1);
+
+        <span class="comment">% Delete individuals</span>
+        <span class="keyword">if</span> g~=length(history) <span class="comment">% Keep last frame</span>
+            <span class="keyword">for</span> i=1:np, delete(ph{g,i}); <span class="keyword">end</span>;
+        <span class="keyword">end</span>;
+
+    <span class="keyword">end</span>;
+
+<span class="keyword">end</span>;
+</pre><img vspace="5" hspace="5" src="example_aga_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Example AGA
+% Find minima of a function with Genetic Algorithm
+% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
+
+% Clean-up
+close all;
+clear;
+
+% Our test is a R^2->R function based on Rastrigin function. It is 
+% challenging because it has infinite local extrema, located at integer
+% numbers (ie, 8,-9) 
+% The global minimum is at (1,1), and its value is 0
+ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
+
+% Define GA function options
+opts.ninfo = 2; % Verbosity level (0=none, 1=minimal, 2=extended)
+opts.label = 10; % Label (identification purposes)
+opts.paral = 1; % Parallel execution of fitness function
+opts.fhist = 2; % Saved history level (0=none, 1=fitness, 2=full)
+
+% Define GA parameters
+ng = 50; % Number of generations
+np = 200; % Population size
+N = [3,... % Number of elites
+    floor(np*0.1),... % Number of mutants
+    floor(np*0.05),...% Number of newcomers
+    floor(np*0.2)]; % Number of parents
+goal = 1E-5; % Target fitness value
+
+% Auxiliary function
+ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
+
+% Define GA functions
+funique = @(x) x; % Discard identical individuals: currently not in use
+fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
+mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random mov
+repfun = @(x,y) (x+y)/2; % Reproduction: average
+ranfun = @() ranrange(-5,5,2); % Random individual
+prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
+
+% Randomize random seed
+rng('shuffle'); % We don't want repeatability in the GA
+
+% Execute Genetic Algorithm
+[lastPopGA,bestFitGA, ...
+    nite,history] = aga(opts,np,ng,N,goal,...
+                        funique,fitfun,mutfun,repfun,ranfun,prifun);
+
+% Now, we can easily improve the accuracy of the local extremum found
+options = optimset('TolFun',1e-8,'Display','none');
+[bestIndFMS,bestFitFMS] = fminsearch(fitfun,lastPopGA{1},options);
+
+% Display results of aga and fminsearch algorithms
+fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
+fprintf('AGA \t\t%1.6f,%1.6f \t\t%1.6E\n',lastPopGA{1},bestFitGA);
+fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
+
+%% Plot fitness
+
+% Get fitness history
+if opts.fhist>1 % Full history; get fitness values
+    history_fitness = zeros(length(history),1);
+    for i=1:length(history)
+        history_fitness(i) = history{i,2}(1);
+    end;
+else history_fitness = history; % Simple history
+end;
+
+% Create figure
+fh1 = figure('Position',[400,200,900,600]);
+
+% Plot history
+semilogy(history_fitness,'o-');
+
+% Beautify plot
+grid minor;
+title('Genetic Algorithm optimization | Rastrigin function');
+xlabel('Generation [#]');
+ylabel('Fitness function value [log]');
+
+
+%% Plot generations
+
+% Only show generations when outputting full history
+if opts.fhist>1 && iscell(history)
+
+    % Create figure
+    fh2 = figure('Position',[400,200,900,600]);
+
+    % Plot rastrigin function
+    [x,y] = meshgrid(-5:0.05:5,-5:0.05:5); z = ras(x,y);
+    bh = surf(x,y,z,'LineStyle','none');
+    colorbar('Location','EastOutside');
+    view(0,90); hold on;
+
+    % Virtual position for population
+    z = 100;
+
+    % Legend
+    lh = plot3(0,0,-z,'rv',0,0,-z,'bo',0,0,-z,'mo',0,0,-z,'ko');
+    legend(lh,'Elites','Mutants','Descendants','Newcomers',...
+        'Location','NorthEastOutside');
+
+    % Plot generations
+    ph = cell(length(history),np); % Handles
+    for g=1:length(history)
+
+        % Title
+        title({'Genetic Algorithm optimization | Rastrigin function';...
+            sprintf('Generation %03.0f',g)});
+        
+        % Plot individuals
+        for i=1:np
+
+            % Select plotting marker (elite, mutant, normal, newcomer)
+            if g==1 % First generation: plot initial population as newcomer
+                marker = 'ko'; % Newcomers
+            else % Following generations: plot evolved population
+                nd = length(history{g,1})-N(1)-N(2)-N(3); % descendants
+                if i<N(1), marker = 'rv'; % Elites
+                elseif i<N(1)+N(2), marker = 'bo'; % Mutants
+                elseif i<N(1)+N(2)+nd, marker = 'mo'; % Descendants
+                else marker = 'ko'; % Newcomers
+                end;
+            end;
+
+            % Plot individual
+            x = history{g,1}{i}(1);
+            y = history{g,1}{i}(2);
+            ph{g,i} = plot3(x,y,z,marker,'MarkerSize',4);
+
+        end;
+
+        % Wait
+        pause(1);
+
+        % Delete individuals
+        if g~=length(history) % Keep last frame
+            for i=1:np, delete(ph{g,i}); end;
+        end;
+
+    end;
+
+end;
+
+
+##### SOURCE END #####
+--></body></html>

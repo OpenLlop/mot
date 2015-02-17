@@ -1,0 +1,325 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>example_asa_rastrigin</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-02-18"><meta name="DC.source" content="example_asa_rastrigin.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Example ASA</a></li><li><a href="#2">Plot fitness</a></li><li><a href="#3">Plot iterations</a></li></ul></div><h2>Example ASA<a name="1"></a></h2><p>Find minima of a function with Simulated Annealing Manel Soria, David de la Torre and Arnau Miro - ETSEIAT</p><pre class="codeinput"><span class="comment">% Clean-up</span>
+close <span class="string">all</span>;
+clear;
+
+<span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function. It is</span>
+<span class="comment">% challenging because it has infinite local extrema, located at integer</span>
+<span class="comment">% numbers (ie, 8,-9)</span>
+<span class="comment">% The global minimum is at (1,1), and its value is 0</span>
+ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
+
+<span class="comment">% Define SA function options</span>
+opts.ninfo = 10; <span class="comment">% Verbosity level (print every # iterations)</span>
+opts.label = 10; <span class="comment">% Label (identification purposes)</span>
+opts.einfo = 0; <span class="comment">% Print extended information</span>
+opts.fhist = 2; <span class="comment">% Return full history</span>
+
+<span class="comment">% Define SA parameters</span>
+nitemax = 50; <span class="comment">% Maximum number of iterations</span>
+mu = 0.2; <span class="comment">% Thermal transition probability parameter</span>
+goal = 1E-5; <span class="comment">% Target fitness value</span>
+
+<span class="comment">% Auxiliary function</span>
+ranrange = @(a,b,n) a + (b-a)*rand(n,1); <span class="comment">% n random values between a i b</span>
+
+<span class="comment">% Define SA functions</span>
+fitfun = @(x) ras(x(1),x(2)); <span class="comment">% Fitness function - TO BE MINIMIZED</span>
+mutfun = @(x,f) x + ranrange(-0.1,0.1,2); <span class="comment">% Mutation: small random mov</span>
+prifun = @(x) fprintf(<span class="string">'%f %f '</span>,x(1),x(2)); <span class="comment">% Print an individual</span>
+
+<span class="comment">% Initial guess</span>
+A0 = [2*rand(); 2*rand()];
+
+<span class="comment">% Execute Simulated Annealing</span>
+[bestIndSA,bestFitSA,<span class="keyword">...</span>
+    nite,history] = asa(opts,A0,nitemax,mu,goal,<span class="keyword">...</span>
+                        fitfun,mutfun,prifun);
+
+<span class="comment">% Now, we can easily improve the accuracy of the local extremum found</span>
+options = optimset(<span class="string">'TolFun'</span>,1e-8,<span class="string">'Display'</span>,<span class="string">'none'</span>);
+[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndSA,options);
+
+<span class="comment">% Display results of aga and fminsearch algorithms</span>
+fprintf(<span class="string">'\nAlgorithm \tBest individual (x,y) \tValue\n'</span>);
+fprintf(<span class="string">'ASA \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndSA,bestFitSA);
+fprintf(<span class="string">'FMS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndFMS,bestFitFMS);
+</pre><pre class="codeoutput">SA label=10 nite=1 1.266332 0.962190  fitA=11.377580 fitbest=11.377580 
+SA label=10 nite=10 1.188235 1.027128  fitA=6.396959 fitbest=6.376806 
+SA label=10 nite=20 1.033096 1.002188  fitA=0.217480 fitbest=0.217480 
+SA label=10 nite=30 1.001987 1.014630  fitA=0.043215 fitbest=0.043215 
+SA label=10 nite=40 0.998048 1.005182  fitA=0.006084 fitbest=0.006084 
+SA label=10 nite=50 0.998048 1.005182  fitA=0.006084 fitbest=0.006084 
+
+Algorithm 	Best individual (x,y) 	Value
+ASA 		0.998048,1.005182 		6.083963E-03
+FMS 		1.000001,1.000005 		6.100777E-09
+</pre><h2>Plot fitness<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
+<span class="keyword">if</span> opts.fhist&gt;1 <span class="comment">% Full history; get fitness values</span>
+    history_fitness = zeros(length(history),1);
+    <span class="keyword">for</span> i=1:length(history)
+        history_fitness(i) = history{i,6};
+    <span class="keyword">end</span>;
+<span class="keyword">else</span> history_fitness = history; <span class="comment">% Simple history</span>
+<span class="keyword">end</span>;
+
+<span class="comment">% Create figure</span>
+fh1 = figure(<span class="string">'Position'</span>,[400,200,900,600]);
+
+<span class="comment">% Plot history</span>
+semilogy(history_fitness,<span class="string">'o-'</span>);
+
+<span class="comment">% Beautify plot</span>
+grid <span class="string">minor</span>;
+title(<span class="string">'Rastrigin function | Simulated Annealing optimization'</span>);
+xlabel(<span class="string">'Iteration [#]'</span>);
+ylabel(<span class="string">'Fitness function value [log]'</span>);
+</pre><img vspace="5" hspace="5" src="example_asa_rastrigin_01.png" alt=""> <h2>Plot iterations<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
+<span class="keyword">if</span> opts.fhist&gt;1 &amp;&amp; iscell(history)
+
+    <span class="comment">% Create figure</span>
+    fh2 = figure(<span class="string">'Position'</span>,[400,200,900,600]);
+
+    <span class="comment">% Plot rastrigin function</span>
+    [x,y] = meshgrid(-3:0.05:3,-3:0.05:3); z = ras(x,y);
+    bh = surf(x,y,z,<span class="string">'LineStyle'</span>,<span class="string">'none'</span>);
+    colorbar(<span class="string">'Location'</span>,<span class="string">'EastOutside'</span>);
+    view(0,90); hold <span class="string">on</span>;
+
+    <span class="comment">% Virtual position for population</span>
+    z = 100;
+
+    <span class="comment">% Legend</span>
+    lh = plot3(0,0,-z,<span class="string">'rx'</span>,0,0,-z,<span class="string">'mo'</span>,0,0,-z,<span class="string">'co'</span>);
+    legend(lh,<span class="string">'Best'</span>,<span class="string">'A'</span>,<span class="string">'B'</span>,<span class="string">'Location'</span>,<span class="string">'NorthEastOutside'</span>);
+
+    <span class="comment">% Plot generations</span>
+    ph = cell(length(history),3); <span class="comment">% Handles</span>
+    <span class="keyword">for</span> iter=1:length(history)
+
+        <span class="comment">% Title</span>
+        title({<span class="string">'Genetic Algorithm optimization | Rastrigin function'</span>;<span class="keyword">...</span>
+            sprintf(<span class="string">'Iteration %03.0f'</span>,iter)});
+
+        <span class="comment">% Plot best</span>
+        x = history{iter,5}(1); y = history{iter,5}(2);
+        ph{iter,1} = plot3(x,y,z,<span class="string">'rx'</span>,<span class="string">'MarkerSize'</span>,8);
+
+        <span class="comment">% Plot A</span>
+        x = history{iter,1}(1); y = history{iter,1}(2);
+        ph{iter,2} = plot3(x,y,z,<span class="string">'mo'</span>,<span class="string">'MarkerSize'</span>,8);
+
+        <span class="comment">% Plot B</span>
+        x = history{iter,2}(1); y = history{iter,2}(2);
+        ph{iter,3} = plot3(x,y,z,<span class="string">'co'</span>,<span class="string">'MarkerSize'</span>,8);
+
+        <span class="comment">% Wait</span>
+        pause(0.1);
+
+        <span class="comment">% Delete individuals</span>
+        <span class="keyword">if</span> iter~=length(history) <span class="comment">% Keep last frame</span>
+            <span class="keyword">for</span> i=1:3, delete(ph{iter,i}); <span class="keyword">end</span>;
+        <span class="keyword">end</span>;
+
+    <span class="keyword">end</span>;
+
+<span class="keyword">end</span>;
+</pre><img vspace="5" hspace="5" src="example_asa_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Example ASA
+% Find minima of a function with Simulated Annealing
+% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
+
+% Clean-up
+close all;
+clear;
+
+% Our test is a R^2->R function based on Rastrigin function. It is 
+% challenging because it has infinite local extrema, located at integer
+% numbers (ie, 8,-9) 
+% The global minimum is at (1,1), and its value is 0
+ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
+
+% Define SA function options
+opts.ninfo = 10; % Verbosity level (print every # iterations)
+opts.label = 10; % Label (identification purposes)
+opts.einfo = 0; % Print extended information
+opts.fhist = 2; % Return full history
+
+% Define SA parameters
+nitemax = 50; % Maximum number of iterations
+mu = 0.2; % Thermal transition probability parameter
+goal = 1E-5; % Target fitness value
+
+% Auxiliary function
+ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
+
+% Define SA functions
+fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
+mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random mov
+prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
+
+% Initial guess
+A0 = [2*rand(); 2*rand()];
+
+% Execute Simulated Annealing
+[bestIndSA,bestFitSA,...
+    nite,history] = asa(opts,A0,nitemax,mu,goal,...
+                        fitfun,mutfun,prifun);
+
+% Now, we can easily improve the accuracy of the local extremum found
+options = optimset('TolFun',1e-8,'Display','none');
+[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndSA,options);
+
+% Display results of aga and fminsearch algorithms
+fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
+fprintf('ASA \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndSA,bestFitSA);
+fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
+
+%% Plot fitness
+
+% Get fitness history
+if opts.fhist>1 % Full history; get fitness values
+    history_fitness = zeros(length(history),1);
+    for i=1:length(history)
+        history_fitness(i) = history{i,6};
+    end;
+else history_fitness = history; % Simple history
+end;
+
+% Create figure
+fh1 = figure('Position',[400,200,900,600]);
+
+% Plot history
+semilogy(history_fitness,'o-');
+
+% Beautify plot
+grid minor;
+title('Rastrigin function | Simulated Annealing optimization');
+xlabel('Iteration [#]');
+ylabel('Fitness function value [log]');
+
+
+%% Plot iterations
+
+% Only show generations when outputting full history
+if opts.fhist>1 && iscell(history)
+
+    % Create figure
+    fh2 = figure('Position',[400,200,900,600]);
+
+    % Plot rastrigin function
+    [x,y] = meshgrid(-3:0.05:3,-3:0.05:3); z = ras(x,y);
+    bh = surf(x,y,z,'LineStyle','none');
+    colorbar('Location','EastOutside');
+    view(0,90); hold on;
+    
+    % Virtual position for population
+    z = 100;
+    
+    % Legend
+    lh = plot3(0,0,-z,'rx',0,0,-z,'mo',0,0,-z,'co');
+    legend(lh,'Best','A','B','Location','NorthEastOutside');
+
+    % Plot generations
+    ph = cell(length(history),3); % Handles
+    for iter=1:length(history)
+
+        % Title
+        title({'Genetic Algorithm optimization | Rastrigin function';...
+            sprintf('Iteration %03.0f',iter)});
+        
+        % Plot best
+        x = history{iter,5}(1); y = history{iter,5}(2);
+        ph{iter,1} = plot3(x,y,z,'rx','MarkerSize',8);
+
+        % Plot A
+        x = history{iter,1}(1); y = history{iter,1}(2);
+        ph{iter,2} = plot3(x,y,z,'mo','MarkerSize',8);
+
+        % Plot B
+        x = history{iter,2}(1); y = history{iter,2}(2);
+        ph{iter,3} = plot3(x,y,z,'co','MarkerSize',8);
+
+        % Wait
+        pause(0.1);
+
+        % Delete individuals
+        if iter~=length(history) % Keep last frame
+            for i=1:3, delete(ph{iter,i}); end;
+        end;
+
+    end;
+
+end;
+
+
+##### SOURCE END #####
+--></body></html>

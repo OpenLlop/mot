@@ -99,6 +99,9 @@ for g=1:ng
     
     % Save current generation index
     nite = g;
+    
+    % Preallocate vars
+    fi = zeros(ps,1); % Preallocate var
 
     % Clean population: remove repeated individuals
     pop = funique(pop); % Return unique individuals
@@ -106,10 +109,19 @@ for g=1:ng
 
     % Avoid population degeneration (i.e., poor genetic pool)
     if cps<na % Clean population size is less than breeders size
-        if info>0
+        
+        % Info
+        if ninfo>0
             fprintf('GA label=%d degenerate population\n',label);
         end;
-        break; % Break execution
+        
+        % Save last iteration data
+        lastpop = pop; % Save last population
+        bestfit = fi(1); % Save fitness level of last best individual
+        
+        % Break execution
+        break;
+        
     end
 
     % Repopulation: fill clean population pool with new individuals
@@ -118,7 +130,6 @@ for g=1:ng
     end
 
     % Evaluate fitness function
-    fi = zeros(ps,1); % Preallocate var
     if paral % Parallel execution
         parfor i=1:ps, fi(i) = feval(fitfun,pop{i}); end;
     else % Serial execution
@@ -146,7 +157,7 @@ for g=1:ng
         fprintf('\n');
     end;
 
-    % Simulation end: either reached target fitness or max generations 
+    % Check if reached target fitness or max generations 
     if fi(1)<=goal || g>=ng
         
         % Save last iteration data

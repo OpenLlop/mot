@@ -68,8 +68,8 @@ for nite=1:nitemax
         fprintf(' fitA=%f fitbest=%f \n',fita,bestfit); % Print fitness
     end;
 
-    % Break iteration if convergence is achieved
-    if fita<goal
+    % Check if reached target fitness or max iterations 
+    if fita<goal || nite>=nitemax
         break;
     end;
     

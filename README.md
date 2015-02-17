@@ -17,17 +17,17 @@ Code files
 ----------
 
 | Function | Description
-|----------|------------
-| aga | Iterates to find minimum of a function using Genetic Algorithm
-| aga_islands | Iterates to find minimum of a function using Genetic Algorithm + Islands
-| asa | Iterates to find minimum of a function using Simulated Annealing
+|---------:|:-----------
+| `aga` | Iterates to find minimum of a function using Genetic Algorithm
+| `aga_islands` | Iterates to find minimum of a function using Genetic Algorithm + Islands
+| `asa` | Iterates to find minimum of a function using Simulated Annealing
 
 Example scripts
 ---------------
 
 | Example | Description
-|---------|------------
-| example_aga_rastrigin | Find local minima of a R^2->R function based on Rastrigin function using AGA
-| example_aga_islands_rastrigin | Find local minima of a R^2->R function based on Rastrigin function using AGA + Islands
-| example_asa_rastrigin | Find local minima of a R^2->R function based on Rastrigin function using ASA
+|--------:|:-----------
+| `example_aga_rastrigin` | Find local minima of a R^2->R function based on Rastrigin function using AGA
+| `example_aga_islands_rastrigin` | Find local minima of a R^2->R function based on Rastrigin function using AGA + Islands
+| `example_asa_rastrigin` | Find local minima of a R^2->R function based on Rastrigin function using ASA
 

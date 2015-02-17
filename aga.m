@@ -1,4 +1,4 @@
-function [ lastpop, lastfit, nite, history ] = aga ( opts, ...
+function [ lastpop, bestfit, nite, history ] = aga ( opts, ...
     pop, ng, N, goal, ...
     funique, fitfun, mutfun, repfun, ranfun, prifun )  
 
@@ -19,11 +19,14 @@ function [ lastpop, lastfit, nite, history ] = aga ( opts, ...
 % (c) 2015 - Manel Soria, David de la Torre - ETSEIAT - v1.02
 %
 % opts:     function control parameters [struct]
-%   ninfo:  iteration control; prints every ninfo iterations
+%   ninfo:  verbosity level (0=none, 1=minimal, 2=extended)
 %   label:  integer number that precedes the prints in case output is to
 %           be filtered
 %   paral:  parallel execution of fitness function [1,0]
-%   fhist:  return full history (history{ng,:} = {pop,fitness}) [1,0]
+%   fhist:  saved history level (0=none, 1=just fitness, 2=all data)
+%               0: history = []
+%               1: history(ng) = bestfit(i)
+%               2: history{ng,1:2} = {pop,fitness}
 % pop:      list with initial population elements
 % ng:       number of generations
 % N:        population control parameters
@@ -55,22 +58,22 @@ function [ lastpop, lastfit, nite, history ] = aga ( opts, ...
 % prifun:   Prints individual
 %
 % aga returns:
-% lastpop:  list with the latest population sorted by fitness
-% lastfit:  minimum value of fitfun found (from latest population)
-% nite:     number of iterations performed
-% history:  vector with the best value found after each iteration
+% lastpop:  population from the last generation
+% bestfit:  fitness value of best individual from the last population
+% nite:     number of iterations (generations) performed
+% history:  vector with the best fitness value found after each iteration
 
 % Get options
-if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 0; end;
+if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 1; end;
 if isfield(opts,'label'), label = opts.label; else label = 0; end;
 if isfield(opts,'paral'), paral = opts.paral; else paral = 0; end;
-if isfield(opts,'fhist'), fhist = opts.fhist; else fhist = 0; end;
+if isfield(opts,'fhist'), fhist = opts.fhist; else fhist = 1; end;
 
 % Build population if required
 if isnumeric(pop) 
-    NI = pop;
-    pop = cell(1,NI);
-    for i=1:NI
+    NI = pop; % Population size
+    pop = cell(1,NI); % Preallocate var
+    for i=1:NI % Fill population
         pop{i} = ranfun(); % Create random individual
     end;
 end;
@@ -83,7 +86,7 @@ na = N(4); % Number of breeders (selected from the best individuals)
 ps = length(pop); % Population size
 nd = ps - N(1) - N(2) - N(3); % Number of descendants
 
-% History
+% Declare history var
 history = [];
 
  % Safety checks
@@ -127,10 +130,10 @@ for g=1:ng
     pop = pop(i); % Sort population by their fitness value
 
     % Save history
-    if fhist % Save full history {population,fitness}
+    if fhist>1 % Save full history {population,fitness}
         history{g,1} = pop; %#ok
         history{g,2} = fi; %#ok
-    else % Save best fitness only
+    elseif fhist>0 % Save best fitness only
         history(g) = fi(1); %#ok
     end;
 
@@ -147,16 +150,16 @@ for g=1:ng
     if fi(1)<=goal || g>=ng
         
         % Save last iteration data
-        lastpop = pop; % Save population
-        lastfit = fi(1); % Save best fitness level
+        lastpop = pop; % Save last population
+        bestfit = fi(1); % Save fitness level of last best individual
         
         % Show info if required
         if ninfo>0
-            fprintf('GA label=%d best=%e ',label,lastfit);
+            fprintf('GA label=%d best=%e ',label,bestfit);
             if ~isempty(prifun)
                 prifun(pop{1}); % Print best individual
             end;
-            if lastfit<goal % Goal achieved
+            if bestfit<goal % Goal achieved
                 fprintf('goal=%e achieved !!\n',goal);
             else % Maximum generations reached (goal not achieved)
                 fprintf('max. iterations reached, leaving\n');

@@ -10,8 +10,10 @@ function [ bestind, bestfit, nite, history ] = asa ( opts, ...
 %   label:  integer number that precedes the prints in case output is to
 %           be filtered
 %   einfo:  prints extended information every ninfo iterations [1,0]
-%   fhist:  return full history 
-%           (history{nite,:} = {A,B,fita,fitb,bestind,bestfit}) [1,0]
+%   fhist:  saved history level (0=none, 1=just fitness, 2=all data)
+%               0: history = []
+%               1: history(nite) = bestfit(i)
+%               2: history{nite,1:6} = {A,B,fita,fitb,bestind,bestfit}
 % A0:       initial guess
 % nitemax:  maxim number of iteracions
 % mu:       Simulated annealing parameter (eg, 0.2, read below)
@@ -39,10 +41,10 @@ function [ bestind, bestfit, nite, history ] = asa ( opts, ...
 % needs to be empirically determined for different models.
 
 % Get options
-if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 0; end;
+if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 1; end;
 if isfield(opts,'label'), label = opts.label; else label = 0; end;
 if isfield(opts,'einfo'), einfo = opts.einfo; else einfo = 0; end;
-if isfield(opts,'fhist'), fhist = opts.fhist; else fhist = 0; end;
+if isfield(opts,'fhist'), fhist = opts.fhist; else fhist = 1; end;
 
 % History
 history = [];
@@ -84,14 +86,14 @@ for nite=1:nitemax
     end;
     
     % Save history
-    if fhist % Save full history {A,B,fita,fitb}
+    if fhist>1 % Save full history {A,B,fita,fitb}
         history{nite,1} = A; %#ok
         history{nite,2} = B; %#ok
         history{nite,3} = fita; %#ok
         history{nite,4} = fitb; %#ok
         history{nite,5} = bestind; %#ok
         history{nite,6} = bestfit; %#ok
-    else % Save best fitness only
+    elseif fhist>0 % Save best fitness only
         history(nite) = bestfit; %#ok
     end;
 

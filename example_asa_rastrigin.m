@@ -16,7 +16,7 @@ ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 opts.ninfo = 10; % Verbosity level (print every # iterations)
 opts.label = 10; % Label (identification purposes)
 opts.einfo = 0; % Print extended information
-opts.fhist = 1; % Return full history
+opts.fhist = 2; % Return full history
 
 % Define SA parameters
 nitemax = 100; % Maximum number of iterations
@@ -51,7 +51,7 @@ fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 %% Plot fitness
 
 % Get fitness history
-if opts.fhist % Full history; get fitness values
+if opts.fhist>1 % Full history; get fitness values
     history_fitness = zeros(length(history),1);
     for i=1:length(history)
         history_fitness(i) = history{i,6};
@@ -69,13 +69,13 @@ semilogy(history_fitness,'o-');
 grid minor;
 title('Rastrigin function | Simulated Annealing optimization');
 xlabel('Iteration [#]');
-ylabel('Fitness function value');
+ylabel('Fitness function value [log]');
 
 
 %% Plot iterations
 
 % Only show generations when outputting full history
-if opts.fhist && iscell(history)
+if opts.fhist>1 && iscell(history)
 
     % Create figure
     fh2 = figure('Position',[400,200,900,600]);

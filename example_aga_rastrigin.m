@@ -13,10 +13,10 @@ clear;
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
 % Define GA function options
-opts.ninfo = 2; % Verbosity level (1=minimal, 2=extended)
+opts.ninfo = 2; % Verbosity level (0=none, 1=minimal, 2=extended)
 opts.label = 10; % Label (identification purposes)
 opts.paral = 1; % Parallel execution of fitness function
-opts.fhist = 1; % Return full history
+opts.fhist = 2; % Saved history level (0=none, 1=fitness, 2=full)
 
 % Define GA parameters
 ng = 50; % Number of generations
@@ -42,26 +42,23 @@ prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 rng('shuffle'); % We don't want repeatability in the GA
 
 % Execute Genetic Algorithm
-[bestPopGA,bestFitGA, ...
+[lastPopGA,bestFitGA, ...
     nite,history] = aga(opts,np,ng,N,goal,...
                         funique,fitfun,mutfun,repfun,ranfun,prifun);
 
-% Best Individual of GA algorithm
-bestIndGA = bestPopGA{1};
-
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1e-8,'Display','none');
-[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndGA,options);
+[bestIndFMS,bestFitFMS] = fminsearch(fitfun,lastPopGA{1},options);
 
 % Display results of aga and fminsearch algorithms
 fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
-fprintf('AGA \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndGA,bestFitGA);
+fprintf('AGA \t\t%1.6f,%1.6f \t\t%1.6E\n',lastPopGA{1},bestFitGA);
 fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 %% Plot fitness
 
 % Get fitness history
-if opts.fhist % Full history; get fitness values
+if opts.fhist>1 % Full history; get fitness values
     history_fitness = zeros(length(history),1);
     for i=1:length(history)
         history_fitness(i) = history{i,2}(1);
@@ -79,13 +76,13 @@ semilogy(history_fitness,'o-');
 grid minor;
 title('Genetic Algorithm optimization | Rastrigin function');
 xlabel('Generation [#]');
-ylabel('Fitness function value');
+ylabel('Fitness function value [log]');
 
 
 %% Plot generations
 
 % Only show generations when outputting full history
-if opts.fhist && iscell(history)
+if opts.fhist>1 && iscell(history)
 
     % Create figure
     fh2 = figure('Position',[400,200,900,600]);

@@ -27,7 +27,7 @@ Example scripts
 
 | Example | Description
 |--------:|:-----------
-| `example_aga_rastrigin` | Find local minima of a R^2->R function based on Rastrigin function using **GA**
-| `example_aga_islands_rastrigin` | Find local minima of a R^2->R function based on Rastrigin function using **GA** + **Islands**
-| `example_asa_rastrigin` | Find local minima of a R^2->R function based on Rastrigin function using **SA**
+| `example_aga_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **GA**
+| `example_aga_islands_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **GA** + **Islands**
+| `example_asa_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **SA**
 

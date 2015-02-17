@@ -16,18 +16,18 @@ Example scripts are provided. Some examples show how to improve the result of ge
 Code files
 ----------
 
-| Function | Description
-|---------:|:-----------
-| `aga` | Iterates to find minimum of a function using **GA**
-| `aga_islands` | Iterates to find minimum of a function using **GA** + **Islands**
-| `asa` | Iterates to find minimum of a function using **SA**
+| Function | Description | Dependencies
+|---------:|:------------|:-----------:
+| `aga` | Iterates to find minimum of a function using **GA** | 
+| `aga_islands` | Iterates to find minimum of a function using **GA** + **Islands** | `aga`
+| `asa` | Iterates to find minimum of a function using **SA** | 
 
 Example scripts
 ---------------
 
-| Example | Description
-|--------:|:-----------
-| `example_aga_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **GA**
-| `example_aga_islands_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **GA** + **Islands**
-| `example_asa_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **SA**
+| Example | Description | Dependencies
+|--------:|:------------|:-----------:
+| `example_aga_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **GA** | `aga`
+| `example_aga_islands_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **GA** + **Islands** | `aga` `aga_islands`
+| `example_asa_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **SA** | `asa`
 

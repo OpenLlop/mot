@@ -19,7 +19,7 @@ opts.einfo = 0; % Print extended information
 opts.fhist = 2; % Return full history
 
 % Define SA parameters
-nitemax = 100; % Maximum number of iterations
+nitemax = 50; % Maximum number of iterations
 mu = 0.2; % Thermal transition probability parameter
 goal = 1E-5; % Target fitness value
 

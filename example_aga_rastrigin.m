@@ -76,7 +76,7 @@ semilogy(history_fitness,'o-');
 grid minor;
 title('Genetic Algorithm optimization | Rastrigin function');
 xlabel('Generation [#]');
-ylabel('Fitness function value [log]');
+ylabel('Best fitness function value [log]');
 
 
 %% Plot generations

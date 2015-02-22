@@ -69,7 +69,7 @@ semilogy(history_fitness,'o-');
 grid minor;
 title('Rastrigin function | Simulated Annealing optimization');
 xlabel('Iteration [#]');
-ylabel('Fitness function value [log]');
+ylabel('Best fitness function value [log]');
 
 
 %% Plot iterations

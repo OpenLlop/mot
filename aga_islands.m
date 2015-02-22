@@ -2,17 +2,6 @@ function [ lastpops, bestfits, bestind, bestfit, history ] = ...
     aga_islands( opts, ...
     pops, ngg, nemi, ng, N, goal, ...
     funique, fitfun, mutfun, repfun, ranfun, prifun )
-
-% pops: either a
-%  -list of lists with population OR
-%  -a two components vector
-%    with the number of islands and the number of individuals per island
-
-% lpops: last populations
-% fops: fitness of the best in each island
-% best: best invidual
-% fbest: its fitness
-
 % Iterates to find minimum of a function using Genetic Algorithm
 % (c) 2013 - Manel Soria - ETSEIAT - v1.01
 % (c) 2015 - Manel Soria, David de la Torre - ETSEIAT - v1.02
@@ -65,7 +54,7 @@ function [ lastpops, bestfits, bestind, bestfit, history ] = ...
 % bestfit:  fitness value of best individual
 % history:  array (ngg,ni) with the best value found after each iteration
 
-% Get options
+% Set default options
 if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 0; end;
 if isfield(opts,'label'), label = opts.label; else label = 0; end;
 if isfield(opts,'fhist'), fhist = opts.fhist; else fhist = 0; end;

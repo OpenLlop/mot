@@ -40,7 +40,7 @@ function [ bestind, bestfit, nite, history ] = asa ( opts, ...
 % value of Mu is a tradeoff between these extremes and the absolute value 
 % needs to be empirically determined for different models.
 
-% Get options
+% Set default options
 if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 1; end;
 if isfield(opts,'label'), label = opts.label; else label = 0; end;
 if isfield(opts,'einfo'), einfo = opts.einfo; else einfo = 0; end;

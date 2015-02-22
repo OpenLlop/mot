@@ -1,19 +1,6 @@
 function [ lastpop, bestfit, nite, history ] = aga ( opts, ...
     pop, ng, N, goal, ...
-    funique, fitfun, mutfun, repfun, ranfun, prifun )  
-
-% 2-si alguna funcio es empty que no la cridi si no es
-% imprescindible (ie, print, mutacio)
-% 3-abans de calcular, mirar si ja hem calculat
-%
-%-fem servir una funcio isequivalent(a,b) de l'usuari
-% si torna 1 -> no es recalcula
-% si torna 0 -> si es recalcula
-% -si isequivalent es empty, internament fa servir isequuak
-% va construint una llista de individuos coneguts, fins arribar a NCACHE
-% si NCACHE=0, no fa res d'aixo (en algun cas sera lo millor ja que el 
-% cost de buscarlo es creixent amn NCACHE*NP
-
+    funique, fitfun, mutfun, repfun, ranfun, prifun )
 % Iterates to find minimum of a function using Genetic Algorithm
 % (c) 2013 - Manel Soria - ETSEIAT - v1.01
 % (c) 2015 - Manel Soria, David de la Torre - ETSEIAT - v1.02
@@ -62,8 +49,21 @@ function [ lastpop, bestfit, nite, history ] = aga ( opts, ...
 % bestfit:  fitness value of best individual from the last population
 % nite:     number of iterations (generations) performed
 % history:  vector with the best fitness value found after each iteration
+  
+% TODO:
+% 2-si alguna funcio es empty que no la cridi si no es
+% imprescindible (ie, print, mutacio)
+% 3-abans de calcular, mirar si ja hem calculat (cache)
+%
+%-fem servir una funcio isequivalent(a,b) de l'usuari
+% si torna 1 -> no es recalcula
+% si torna 0 -> si es recalcula
+% -si isequivalent es empty, internament fa servir isequuak
+% va construint una llista de individuos coneguts, fins arribar a NCACHE
+% si NCACHE=0, no fa res d'aixo (en algun cas sera lo millor ja que el 
+% cost de buscarlo es creixent amn NCACHE*NP
 
-% Get options
+% Set default options
 if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 1; end;
 if isfield(opts,'label'), label = opts.label; else label = 0; end;
 if isfield(opts,'paral'), paral = opts.paral; else paral = 0; end;

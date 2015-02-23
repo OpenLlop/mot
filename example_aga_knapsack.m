@@ -18,7 +18,7 @@ function example_aga_knapsack
 opts.ninfo = 2; % Verbosity level (0=none, 1=minimal, 2=extended)
 opts.label = 10; % Label (identification purposes)
 opts.paral = 1; % Parallel execution of fitness function
-opts.fhist = 1; % Saved history level (0=none, 1=fitness, 2=full)
+opts.nhist = 1; % Saved history level (0=none, 1=fitness, 2=full)
 
 % Define Knapsack parameters
 rng(50); % Use a known random seed for repetabiliy of the problem
@@ -57,7 +57,7 @@ end;
 %% Plot history
 
 % Get fitness history
-if opts.fhist>1 % Full history; get fitness values
+if opts.nhist>1 && iscell(history) % Full history; get fitness values
     history_fitness = zeros(length(history),1);
     for i=1:length(history)
         history_fitness(i) = history{i,2}(1);

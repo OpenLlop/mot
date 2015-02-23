@@ -16,7 +16,9 @@ ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 opts.ninfo = 1; % Verbosity level (0=none, 1=minimal, 2=extended)
 opts.label = 10; % Label (identification purposes)
 opts.paral = 1; % Parallel execution of fitness function
-opts.fhist = 2; % Saved history level (0=none, 1=fitness, 2=full)
+opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
+opts.plotf = 0; % Plot fitness (0=none, 1=plot, 2=plot+save)
+opts.plotp = 0; % Plot population (0=none, 1=plot, 2=plot+save)
 
 % Define GA_Islands parameters
 ni = 3; % Number of islands
@@ -71,7 +73,7 @@ fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 %% Plot fitness
 
 % Get fitness history
-if opts.fhist>1 % Full history; get fitness values
+if opts.nhist>1 && iscell(history) % Full history; get fitness values
     history_fitness = zeros(size(history,1),1);
     for g=1:size(history,1)
         history_fitness(g) = history{g,ni+2};
@@ -79,23 +81,27 @@ if opts.fhist>1 % Full history; get fitness values
 else history_fitness = min(history,[],2); % Simple history
 end;
 
-% Create figure
-fh1 = figure('Position',[400,200,900,600]);
+% Plot data
+if ~isempty(history_fitness)
 
-% Plot history
-semilogy(history_fitness,'o-');
+    % Create figure
+    fh1 = figure('Position',[400,200,900,600]);
 
-% Beautify plot
-grid minor;
-title('Genetic Algorithm optimization | Rastrigin function');
-xlabel('Generation [#]');
-ylabel('Best fitness function value [log]');
+    % Plot history
+    semilogy(history_fitness,'o-');
 
+    % Beautify plot
+    grid minor;
+    title('Genetic Algorithm optimization | Rastrigin function');
+    xlabel('Generation [#]');
+    ylabel('Best fitness function value [log]');
+
+end;
 
 %% Plot generations
 
 % Only show generations when outputting full history
-if opts.fhist>1 && iscell(history)
+if opts.nhist>1 && iscell(history)
 
     % Create figure
     fh2 = figure('Position',[400,200,900,600]);
@@ -106,13 +112,10 @@ if opts.fhist>1 && iscell(history)
     colorbar('Location','EastOutside');
     view(0,90); hold on;
 
-    % Virtual position for population
-    z = 100;
-
-    % Legend
-    lh = plot3(0,0,-z,'rv',0,0,-z,'bo',0,0,-z,'mo',0,0,-z,'ko');
-    legend(lh,'Elites','Mutants','Descendants','Newcomers',...
-        'Location','NorthEastOutside');
+    % Population size
+    ne = N(1); % Number of elites
+    nm = N(2); % Number of mutants
+    nd = np - N(1) - N(2) - N(3); % Number of descendants
 
     % Plot global generations
     for gg=1:ngg
@@ -121,8 +124,10 @@ if opts.fhist>1 && iscell(history)
         for g=1:ng
 
             % Title
-            title({'Genetic Algorithm optimization | Rastrigin function';...
-                sprintf('Generation %03.0f | Local generation %03.0f',gg,g)});
+            title({['Genetic Algorithm optimization + Islands',...
+                ' | Rastrigin function'];...
+                sprintf(['Generation %03.0f',...
+                ' | Local generation %03.0f'],gg,g)});
 
             % Handles
             ph = cell(ni,np);
@@ -133,29 +138,39 @@ if opts.fhist>1 && iscell(history)
                 % Plot individuals
                 for i=1:np
 
-                    % Select plotting marker (elite, mutant, normal, newcomer)
-                    if g==1 % First generation: plot initials as newcomers
-                        marker = 'ko'; % Newcomers
-                    else % Following generations: plot evolved population
-                        nd = length(history{gg,s}{1}{g,1})-N(1)-N(2)-N(3); % descend
-                        if i<N(1), marker = 'rv'; % Elites
-                        elseif i<N(1)+N(2), marker = 'bo'; % Mutants
-                        elseif i<N(1)+N(2)+nd, marker = 'mo'; % Descendants
-                        else marker = 'ko'; % Newcomers
-                        end;
+                    % Select plotting marker
+                    if i<=ne, marker = 'rv'; % Elites range
+                    elseif i<=ne+nm, marker = 'mo'; % Mutants range
+                    elseif i<=ne+nm+nd, marker = 'bx'; % Descendants range
+                    else marker = 'ks'; % Newcomers range
                     end;
 
                     % Plot individual
                     x = history{gg,s}{1}{g,1}{i}(1);
                     y = history{gg,s}{1}{g,1}{i}(2);
+                    z = 100;
                     ph{s,i} = plot3(x,y,z,marker,'MarkerSize',4);
+
+                    % Save legend ticks
+                    if i==ne, lh(1) = ph{s,i}; % Elite
+                    elseif i==ne+nm, lh(2) = ph{s,i}; % Mutant
+                    elseif i==ne+nm+nd, lh(3) = ph{s,i}; % Descendant
+                    elseif i==ne+nm+nd+1, lh(4) = ph{s,i}; % Newcomer
+                    end;
 
                 end;
 
             end;
 
+            % Legend
+            legend(lh,'Elites','Mutants','Descendants','Newcomers',...
+                'Location','NorthEastOutside');
+
+            % Do events
+            drawnow;
+
             % Wait
-            pause(1.0);
+            pause(0.5);
 
             % Delete individuals
             if ~(gg==ngg && g==ng) % Keep only last plot)

@@ -1,19 +1,27 @@
 function [ lastpop, bestfit, nite, history ] = aga ( opts, ...
     pop, ng, N, goal, ...
     funique, fitfun, mutfun, repfun, ranfun, prifun )
-% Iterates to find minimum of a function using Genetic Algorithm
+%AGA Finds minimum of a function using Genetic Algorithm (GA)
 % (c) 2013 - Manel Soria - ETSEIAT - v1.01
 % (c) 2015 - Manel Soria, David de la Torre - ETSEIAT - v1.02
 %
-% opts:     function control parameters [struct]
+% opts:     function control parameters [struct] (optional)
 %   ninfo:  verbosity level (0=none, 1=minimal, 2=extended)
 %   label:  integer number that precedes the prints in case output is to
 %           be filtered
 %   paral:  parallel execution of fitness function [1,0]
-%   fhist:  saved history level (0=none, 1=just fitness, 2=all data)
+%   nhist:  save history (0=none, 1=fitness, 2=all{pop,fit})
 %               0: history = []
 %               1: history(ng) = bestfit(i)
 %               2: history{ng,1:2} = {pop,fitness}
+%   plotf:  plot fitness (0=none, 1=plot, 2=plot+save)
+%               0: no plot
+%               1: plot on each generation
+%               2: plot on each generation + save plot to file
+%   plotp:  plot population (0=none, 1=plot, 2=plot+save)
+%               0: no plot
+%               1: plot on each generation
+%               2: plot on each generation + save plot to file
 % pop:      list with initial population elements
 % ng:       number of generations
 % N:        population control parameters
@@ -67,7 +75,9 @@ function [ lastpop, bestfit, nite, history ] = aga ( opts, ...
 if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 1; end;
 if isfield(opts,'label'), label = opts.label; else label = 0; end;
 if isfield(opts,'paral'), paral = opts.paral; else paral = 0; end;
-if isfield(opts,'fhist'), fhist = opts.fhist; else fhist = 1; end;
+if isfield(opts,'nhist'), nhist = opts.nhist; else nhist = 1; end;
+if isfield(opts,'plotf'), plotf = opts.plotf; else plotf = 0; end;
+if isfield(opts,'plotp'), plotp = opts.plotp; else plotp = 0; end;
 
 % Build population if required
 if isnumeric(pop) 
@@ -86,13 +96,11 @@ na = N(4); % Number of breeders (selected from the best individuals)
 ps = length(pop); % Population size
 nd = ps - N(1) - N(2) - N(3); % Number of descendants
 
+% Safety checks
+if nn<0, error('aga: nn must be positive'); end;
+
 % Declare history var
 history = [];
-
- % Safety checks
-if nn<0
-    error('aga: nn must be positive');
-end;
 
 % Iterate through generations
 for g=1:ng
@@ -119,15 +127,15 @@ for g=1:ng
         lastpop = pop; % Save last population
         bestfit = fi(1); % Save fitness level of last best individual
         
-        % Break execution
-        break;
+        % Return from function
+        return;
         
-    end
+    end;
 
     % Repopulation: fill clean population pool with new individuals
     for i=cps+1:ps % Fill up to initial population size
         pop{i} = ranfun(); % Create new random individual
-    end
+    end;
 
     % Evaluate fitness function
     if paral % Parallel execution
@@ -141,11 +149,23 @@ for g=1:ng
     pop = pop(i); % Sort population by their fitness value
 
     % Save history
-    if fhist>1 % Save full history {population,fitness}
+    if nhist>1 % Save full history {population,fitness}
         history{g,1} = pop; %#ok
         history{g,2} = fi; %#ok
-    elseif fhist>0 % Save best fitness only
+    elseif nhist>0 % Save best fitness only
         history(g) = fi(1); %#ok
+    end;
+    
+    % Plot fitness if required
+    if plotf>0
+       if ~exist('fhf','var'), [fhf] = InitializePlotFitFigure(); end;
+       PlotFitnessHistory(fhf); % Plot fitness history
+    end;
+
+    % Plot generation if required
+    if plotp>0 && length(pop{1})>1
+       if ~exist('fhp','var'), [fhp,ph] = InitializePlotGenFigure(); end;
+       PlotCurrentPopulation(fhp); % Plot generation
     end;
 
     % Show info if required
@@ -176,10 +196,13 @@ for g=1:ng
                 fprintf('max. iterations reached, leaving\n');
             end;
         end;
-        return; % Return from function
-    end
+        
+        % Return from function
+        return;
+        
+    end;
 
-    % Next generation:
+    % Compute population for next generation:
     % <<[elites, mutants, descendants, newcomers]<<
     pop_next = cell(1,ne+nm+nd+nn); % Temp population
     k = 1; % Iteration index
@@ -187,30 +210,156 @@ for g=1:ng
     for i=1:ne % Elites
         pop_next{k} = pop{k}; % Copy
         k=k+1;
-    end
+    end;
 
     for i=1:nm % Mutants
-        pop_next{k} = mutfun(pop{k},fi(k)); % Mutate
+        if isempty(mutfun), pop_next{k} = pop{k}; % Do not mutate
+        else pop_next{k} = mutfun(pop{k},fi(k)); % Mutate
+        end;
         k=k+1;
-    end
+    end;
 
     for i=1:nd % Descendants
         parentA = randi([1,na]); % Parent is choosen among np best 
         parentB = randi([1,na]); % Parent is choosen among np best 
         pop_next{k} = repfun(pop{parentA},pop{parentB}); % Breed
         k=k+1;
-    end       
+    end;
 
     for i=1:nn % Newcommers
         pop_next{k} = ranfun(); % Random individual
         k=k+1;
-    end
+    end;
     
     % Update population 
     pop = pop_next; % Update population
     clear('pop_next'); % Clear temp variable to conserve memory
     
 end;
+
+
+%% Auxiliar functions
+
+    % Create fitness plot figure
+    function [fh] = InitializePlotFitFigure()
+
+        % Figure Sizing
+        SS = get(0,'ScreenSize'); % Get User's Screen Size
+        figW = 800; % Figure Width
+        figH = 600; % Figure Height
+        figW0 = SS(3)/2 - figW/2; % Initial x-Coordinate
+        figH0 = SS(4)/2 - figH/2; % Initial y-Coordinate
+
+        % Create figure
+        fh = figure('Position',[figW0,figH0,figW,figH],...
+            'PaperSizeMode','auto');
+        
+        % Plot settings
+        hold on; % Hold figure
+        box on; grid minor;
+        title('Genetic Algorithm optimization');
+        xlabel('Generation [#]');
+        ylabel('Best fitness function value');
+        
+    end
+
+    % Plot fitness history
+    function PlotFitnessHistory(fh)
+        
+        % Set current figure
+        figure(fh);
+        
+        % Plot history
+        plot(g,fi(1),'b*-');
+        
+        % Do events
+        drawnow;
+        
+        % Save plot to file
+        if plotf>1
+            if ~isdir('output'), mkdir('output'); end; % Create dir
+            print(fh,'-dpng','-r300',fullfile('output',...
+                sprintf('AGA_FIT_%d',label))); % Print plot
+        end;
+
+    end
+
+    % Create population plot figure
+    function [fh,ph] = InitializePlotGenFigure()
+
+        % Figure Sizing
+        SS = get(0,'ScreenSize'); % Get User's Screen Size
+        figW = 800; % Figure Width
+        figH = 600; % Figure Height
+        figW0 = SS(3)/2 - figW/2; % Initial x-Coordinate
+        figH0 = SS(4)/2 - figH/2; % Initial y-Coordinate
+
+        % Create figure
+        fh = figure('Position',[figW0,figH0,figW,figH],...
+            'PaperSizeMode','auto');
+        
+        % Plot settings
+        hold on; % Hold figure
+        view(0,90); box on; grid minor;
+
+        % Create plot handles
+        ph = cell(ps,1);
+        
+    end
+
+    % Plot current generation
+    function PlotCurrentPopulation(fh)
+
+        % Set current figure
+        figure(fh);
+        
+        % Title
+        title({'Genetic Algorithm optimization';...
+            sprintf('Generation %03d',g)});
+
+        % Delete old individuals
+        if g~=1, for ii=1:ps, delete(ph{ii}); end; end;
+
+        % Plot new individuals
+        for ii=1:ps
+
+            % Select plotting marker (elite, mutant, normal, newcomer)
+            if ii<=ne, marker = 'rv'; % Elites range
+            elseif ii<=ne+nm, marker = 'mo'; % Mutants range
+            elseif ii<=ne+nm+nd, marker = 'bx'; % Descendants range
+            else marker = 'ks'; % Newcomers range
+            end;
+
+            % Plot individual
+            x = pop{ii}(1); % X
+            y = pop{ii}(2); % Y
+            z = fi(ii); % Fitness
+            ph{ii} = plot3(x,y,z,marker,'MarkerSize',4); % Plot 3D
+            
+            % Save legend ticks
+            if ii==ne, lh(1) = ph{ii}; % Elite
+            elseif ii==ne+nm, lh(2) = ph{ii}; % Mutant
+            elseif ii==ne+nm+nd, lh(3) = ph{ii}; % Descendant
+            elseif ii==ne+nm+nd+1, lh(4) = ph{ii}; % Newcomer
+            end;
+
+        end;
+        
+        % Legend
+        legend(lh,'Elites','Mutants','Descendants','Newcomers',...
+            'Location','NorthEastOutside');
+
+        % Do events
+        drawnow;
+        
+        % Save plot to file
+        if plotp>1
+            if ~isdir('output'), mkdir('output'); end; % Create dir
+            print(fh,'-dpng','-r300',fullfile('output',...
+                sprintf('AGA_POP_%d_%03d',label,g))); % Print plot
+        end;
+
+    end
 
 end
 

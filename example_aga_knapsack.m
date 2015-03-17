@@ -107,7 +107,7 @@ ylabel('Best fitness function value');
     end
                 
     % Reproduction of two individuals
-    function c=repfun(a,b)
+    function c=repfun(a,fa,b,fb)
         e=size(a,1);
         p=randi(size(a,1));
         c=[ a(1:p-1); b(p:e) ];

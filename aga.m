@@ -48,7 +48,7 @@ function [ lastpop, bestfit, nite, history ] = aga ( opts, ...
 %           mutfun should return a mutant individual. Fitness is given
 %           in case mutation intensity is to be decreased when close to
 %           the goal
-% repfun:   Given two individuals, returns a descendant 
+% repfun:   Given two individuals and their fitness, returns a descendant 
 % ranfun:   Returns a random individual
 % prifun:   Prints individual
 %
@@ -222,7 +222,8 @@ for g=1:ng
     for i=1:nd % Descendants
         parentA = randi([1,na]); % Parent is choosen among np best 
         parentB = randi([1,na]); % Parent is choosen among np best 
-        pop_next{k} = repfun(pop{parentA},pop{parentB}); % Breed
+        pop_next{k} = repfun(pop{parentA},fi(parentA),...
+                             pop{parentB},fi(parentB)); % Breed
         k=k+1;
     end;
 

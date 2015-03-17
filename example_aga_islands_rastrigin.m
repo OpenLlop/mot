@@ -39,7 +39,7 @@ ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 funique = @(x) x; % Discard identical individuals: currently not in use
 fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
 mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random mov
-repfun = @(x,y) (x+y)/2; % Reproduction: average
+repfun = @(x,fx,y,fy) (x+y)/2; % Reproduction: average
 ranfun = @() ranrange(-5,5,2); % Random individual
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 

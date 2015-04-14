@@ -63,13 +63,13 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
 %   lastfit:    best fitness values of last population of each island
 %   history:    array with saved global history array
 
-% Set options
+% Get options
 if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 0; end;
 if isfield(opts,'label'), label = opts.label; else label = 0; end;
 if isfield(opts,'dopar'), dopar = opts.dopar; else dopar = 0; end;
 if isfield(opts,'nhist'), nhist = opts.nhist; else nhist = 0; end;
 
-% Declare history array
+% Create history array
 history = [];
 
 % Build population

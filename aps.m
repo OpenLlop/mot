@@ -48,14 +48,14 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
 %   lastfit:    fitness values of last population
 %   history:    array with saved history array
 
-% Set options
+% Get options
 if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 1; end;
 if isfield(opts,'label'), label = opts.label; else label = 0; end;
 if isfield(opts,'dopar'), dopar = opts.dopar; else dopar = 0; end;
 if isfield(opts,'nhist'), nhist = opts.nhist; else nhist = 1; end;
 
-% Declare history array, if required
-if nhist>0 || nargout>3, history = []; end;
+% Create history array
+history = [];
 
 % Preprocessing
 np = length(pop); % Population size

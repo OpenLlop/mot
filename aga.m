@@ -61,27 +61,14 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
 %   lastfit:    fitness values of last population
 %   history:    array with saved history array
 
-% TODO:
-% 2-si alguna funcio es empty que no la cridi si no es
-% imprescindible (ie, print, mutacio)
-% 3-abans de calcular, mirar si ja hem calculat (cache)
-%
-%-fem servir una funcio isequivalent(a,b) de l'usuari
-% si torna 1 -> no es recalcula
-% si torna 0 -> si es recalcula
-% -si isequivalent es empty, internament fa servir isequuak
-% va construint una llista de individuos coneguts, fins arribar a NCACHE
-% si NCACHE=0, no fa res d'aixo (en algun cas sera lo millor ja que el 
-% cost de buscarlo es creixent amn NCACHE*NP
-
-% Set options
+% Get options
 if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 1; end;
 if isfield(opts,'label'), label = opts.label; else label = 0; end;
 if isfield(opts,'dopar'), dopar = opts.dopar; else dopar = 0; end;
 if isfield(opts,'nhist'), nhist = opts.nhist; else nhist = 1; end;
 
-% Declare history array, if required
-if nhist>0 || nargout>3, history = []; end;
+% Create history array
+history = [];
 
 % Build population if required
 if isnumeric(pop) % Population size is given as input
@@ -106,8 +93,8 @@ if nn<0, error('aga: nn (number of newcomers) must be positive'); end;
 % Iterate through generations
 for g=1:ng
     
-    % Preallocate vars
-    fi = zeros(np,1); % Preallocate var
+    % Preallocate variables
+    fi = zeros(np,1); % Preallocate/clear fitness array
 
     % Clean population: remove repeated individuals
     pop = unifun(pop); % Return unique individuals
@@ -116,7 +103,7 @@ for g=1:ng
     % Avoid population degeneration (i.e., poor genetic pool)
     if ncleanpop<na % Clean population size is less than breeders size
         
-        % Info
+        % Show info
         if ninfo>0
             fprintf('GA label=%d degenerate population\n',label);
         end;
@@ -147,7 +134,7 @@ for g=1:ng
 
     % Sort population individuals by their fitness level
     [fi,i] = sort(fi); % Sort fitness by increasing value (lower is best)
-    pop = pop(i); % Sort population by their fitness value
+    pop = pop(i); % Sort population by fitness
 
     % Save history
     if nhist>1 % Save full history {population,fitness}
@@ -157,7 +144,7 @@ for g=1:ng
         history(g) = fi(1); %#ok
     end;
     
-    % Show info if required
+    % Show extended info
     if ninfo>1
         fprintf('GA label=%d g=%3d ng=%d best=%e ',label,g,ng,fi(1));
         if ~isempty(prifun)
@@ -167,7 +154,7 @@ for g=1:ng
     end;
 
     % Check if reached target fitness or max generations 
-    if fi(1)<=goal || g>=ng % Target achieved; end simulation
+    if fi(1)<=goal || g>=ng % Target achieved
         
         % Save last iteration data
         bestind = pop{1}; % Save best individual
@@ -176,7 +163,7 @@ for g=1:ng
         lastpop = pop; % Save last population
         lastfit = fi; % Save last fitness values
         
-        % Show info if required
+        % Show info
         if ninfo>0
             fprintf('GA label=%d best=%e ',label,bestfit);
             if ~isempty(prifun)
@@ -196,37 +183,36 @@ for g=1:ng
 
     % Compute population for next generation:
     % <<[elites, mutants, descendants, newcomers]<<
-    nextpop = cell(1,ne+nm+nd+nn); % Temp population
-    k = 1; % Iteration index
+    nextpop = cell(1,ne+nm+nd+nn); % Preallocate/clear next population
+    k = 1; % Start individual counter index
 
     for i=1:ne % Elites
-        nextpop{k} = pop{k}; % Copy
-        k = k + 1;
+        nextpop{k} = pop{k}; % Copy elite into next generation
+        k = k + 1; % Next individual
     end;
 
     for i=1:nm % Mutants
         if isempty(mutfun), nextpop{k} = pop{k}; % Do not mutate
         else nextpop{k} = mutfun(pop{k},fi(k)); % Mutate
         end;
-        k = k + 1;
+        k = k + 1; % Next individual
     end;
 
     for i=1:nd % Descendants
-        parentA = randi([1,na]); % Parent is choosen among np best 
-        parentB = randi([1,na]); % Parent is choosen among np best 
+        parentA = randi([1,na]); % Parent A is choosen among the na best 
+        parentB = randi([1,na]); % Parent B is choosen among the na best 
         nextpop{k} = repfun(pop{parentA}, pop{parentB}, ...
-            fi(parentA), fi(parentB)); % Breed
-        k = k + 1;
+            fi(parentA), fi(parentB)); % Breed individuals A and B
+        k = k + 1; % Next individual
     end;
 
     for i=1:nn % Newcommers
         nextpop{k} = ranfun(); % Random individual
-        k = k + 1;
+        k = k + 1; % Next individual
     end;
     
     % Update population 
-    pop = nextpop; % Update population
-    clear('nextpop'); % Clear temp variable to conserve memory
+    pop = nextpop;
     
 end;
 

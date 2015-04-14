@@ -8,9 +8,9 @@ clear;
 
 %% AGA Islands
 
-% Our test is a R^2->R function based on Rastrigin function. It is 
-% challenging because it has infinite local extrema, located at integer
-% numbers (ie, 8,-9) 
+% Our test is a R^2->R function based on Rastrigin function.
+% It is challenging because it has infinite local extrema, located at
+% integer numbers (ie, 8,-9)
 % The global minimum is at (1,1), and its value is 0
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
@@ -74,21 +74,21 @@ fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 % Get fitness history
 if opts.nhist>1 && iscell(history) % Full history; get fitness values
-    history_fitness = zeros(size(history,1),1);
+    fithist = zeros(size(history,1),1);
     for g=1:size(history,1)
-        history_fitness(g) = history{g,ni+2};
+        fithist(g) = history{g,ni+2};
     end;
-else history_fitness = min(history,[],2); % Simple history
+else fithist = min(history,[],2); % Simple history
 end;
 
 % Plot data
-if ~isempty(history_fitness)
+if ~isempty(fithist)
 
     % Create figure
     fh1 = figure('Position',[400,200,900,600]);
 
     % Plot history
-    semilogy(history_fitness,'o-');
+    semilogy(fithist,'o-');
 
     % Beautify plot
     grid minor;

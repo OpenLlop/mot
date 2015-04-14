@@ -8,7 +8,7 @@ clear;
 
 %% AGA
 
-% Our test is a $R^2 \rightarrow R$ function based on Rastrigin function.
+% Our test is a R^2->R function based on Rastrigin function.
 % It is challenging because it has infinite local extrema, located at
 % integer numbers (ie, 8,-9)
 % The global minimum is at (1,1), and its value is 0
@@ -60,21 +60,21 @@ fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 % Get fitness history
 if opts.nhist>1 && iscell(history) % Full history; get fitness values
-    histFitness = zeros(length(history),1);
+    fithist = zeros(length(history),1);
     for i=1:length(history)
-        histFitness(i) = history{i,2}(1);
+        fithist(i) = history{i,2}(1);
     end;
-else histFitness = history; % Simple history
+else fithist = history; % Simple history
 end;
 
 % Plot data
-if ~isempty(histFitness)
+if ~isempty(fithist)
 
     % Create figure
     fh1 = figure('Position',[400,200,900,600]);
 
     % Plot history
-    semilogy(histFitness,'o-');
+    semilogy(fithist,'o-');
 
     % Beautify plot
     grid minor;

@@ -57,18 +57,18 @@ end;
 
 % Get fitness history
 if opts.nhist>1 && iscell(history) % Full history; get fitness values
-    history_fitness = zeros(length(history),1);
+    fithist = zeros(length(history),1);
     for i=1:length(history)
-        history_fitness(i) = history{i,2}(1);
+        fithist(i) = history{i,2}(1);
     end;
-else history_fitness = history; % Simple history
+else fithist = history; % Simple history
 end;
 
 % Create figure
 figure('Position',[400,200,900,600]);
 
 % Plot history
-plot(history_fitness,'o-');
+plot(fithist,'o-');
 
 % Beautify plot
 grid minor;

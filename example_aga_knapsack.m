@@ -1,10 +1,10 @@
 %% Example AGA Knapsack
-% Find minima of a function with Genetic Algorithm
+% Find minima of a function with Genetic Algorithm (GA)
 % Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
 
 function example_aga_knapsack
 % Knapsack problem solved with GA
-% In this example the search space is a a set of [0,1] integer values.
+% In this example the search space is a set of [0,1] integer values.
 %
 % Each item can be inside the sack (1) or outside (0).
 % If it is inside, contributes to value but also adds weight.
@@ -49,8 +49,9 @@ for i=1:np
 end;
 
 % Execute Genetic Algorithm
-[lastpop,bestfit,nite,history] = aga(opts,np,ng,N,goal,...
-    @funique,@fitness,@mutfun,@repfun,@ranfun,@prifun);
+[bestind, bestfit, nite, lastpop, lastfit, history] = ...
+    aga ( opts, np, ng, N, goal,...
+    @funique, @fitness, @mutfun, @repfun, @ranfun, @prifun );
 
                     
 %% Plot history

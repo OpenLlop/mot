@@ -1,5 +1,5 @@
-function [ lastpop, bestfit, nite, history ] = aga ( opts, ...
-    pop, ng, N, goal, ...
+function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
+    aga ( opts, pop, ng, N, goal, ...
     unifun, fitfun, mutfun, repfun, ranfun, prifun )
 %AGA Finds minimum of a function using Genetic Algorithm (GA)
 %
@@ -8,8 +8,8 @@ function [ lastpop, bestfit, nite, history ] = aga ( opts, ...
 %Date:          14/04/2015
 %Revision:      2
 %
-%Usage:         [lastpop, bestfit, nite, history] = aga ( opts, ...
-%                   pop, ng, N, goal, ...
+%Usage:         [bestind, bestfit, nite, lastpop, lastfit, history] = ...
+%                   aga ( opts, pop, ng, N, goal, ...
 %                   unifun, fitfun, mutfun, repfun, ranfun, prifun )
 %
 %Inputs:
@@ -23,7 +23,7 @@ function [ lastpop, bestfit, nite, history ] = aga ( opts, ...
 %                   1: history(ng) = bestfit(i)
 %                   2: history{ng,1:2} = {pop,fitness}
 %   pop:        list with initial population elements
-%   ng:         number of generations
+%   ng:         maximum number of generations allowed
 %   N:          population control parameters
 %       N(1)    ne: number of elite individuals that remain unchanged
 %       N(2)    nm: number of mutants
@@ -38,7 +38,7 @@ function [ lastpop, bestfit, nite, history ] = aga ( opts, ...
 %	If there are less than nm-1 non-identical indivials, population is 
 %	considered degenerate and iterations stop
 %
-%	Call back functions to be provided by user:
+%	Call back functions to be provided by the user:
 %   unifun:     Deletes repeated individuals in a population
 %               Receives a population and returns a population
 %               (a population is a list of individuals)
@@ -54,11 +54,12 @@ function [ lastpop, bestfit, nite, history ] = aga ( opts, ...
 %   prifun:     Prints individual
 %
 %Outputs:
-%   lastpop:    population from the last generation
+%   bestind:    best individual from the last generation
 %   bestfit:    fitness value of best individual from the last population
 %   nite:       number of iterations (generations) performed
-%   history:    array with the best fitness value found after each
-%               iteration
+%   lastpop:    population of last generation
+%   lastfit:    fitness values of last population
+%   history:    array with saved history array
 
 % TODO:
 % 2-si alguna funcio es empty que no la cridi si no es
@@ -80,7 +81,7 @@ if isfield(opts,'dopar'), dopar = opts.dopar; else dopar = 0; end;
 if isfield(opts,'nhist'), nhist = opts.nhist; else nhist = 1; end;
 
 % Declare history array, if required
-if nhist>0, history = []; end;
+if nhist>0 || nargout>3, history = []; end;
 
 % Build population if required
 if isnumeric(pop) % Population size is given as input
@@ -105,9 +106,6 @@ if nn<0, error('aga: nn (number of newcomers) must be positive'); end;
 % Iterate through generations
 for g=1:ng
     
-    % Save current generation index
-    nite = g;
-    
     % Preallocate vars
     fi = zeros(np,1); % Preallocate var
 
@@ -124,11 +122,14 @@ for g=1:ng
         end;
         
         % Save last iteration data
-        lastpop = pop; % Save last population
+        bestind = pop{1}; % Save best individual
         bestfit = fi(1); % Save fitness level of last best individual
+        nite = g; % Save current generation index
+        lastpop = pop; % Save last population
+        lastfit = fi; % Save last fitness values
         
-        % Return from function
-        return;
+        % Stop iterating
+        break;
         
     end;
 
@@ -169,8 +170,11 @@ for g=1:ng
     if fi(1)<=goal || g>=ng % Target achieved; end simulation
         
         % Save last iteration data
-        lastpop = pop; % Save last population
+        bestind = pop{1}; % Save best individual
         bestfit = fi(1); % Save fitness level of last best individual
+        nite = g; % Save current generation index
+        lastpop = pop; % Save last population
+        lastfit = fi; % Save last fitness values
         
         % Show info if required
         if ninfo>0
@@ -185,8 +189,8 @@ for g=1:ng
             end;
         end;
         
-        % Return from function
-        return;
+        % Stop iterating
+        break;
         
     end;
 
@@ -225,4 +229,6 @@ for g=1:ng
     clear('nextpop'); % Clear temp variable to conserve memory
     
 end;
+
+end
 

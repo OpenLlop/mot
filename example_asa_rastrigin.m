@@ -1,5 +1,5 @@
 % Example ASA
-% Find minima of a function with Simulated Annealing
+% Find minima of a function with Simulated Annealing (SA) algorithm
 % Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
 
 % Clean-up
@@ -37,16 +37,17 @@ prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 A0 = [2*rand(); 2*rand()];
 
 % Execute Simulated Annealing
-[bestIndSA,bestFitSA,nite,history] = asa(opts,A0,nitemax,mu,goal,...
-    fitfun,mutfun,prifun);
+[ bestIndASA, bestFitASA, nite, lastPopASA, lastFitASA, history ] = ...
+    asa ( opts, A0, nitemax, mu, goal, ...
+    fitfun, mutfun, prifun );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1e-8,'Display','none');
-[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndSA,options);
+[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndASA,options);
 
 % Display results of aga and fminsearch algorithms
 fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
-fprintf('ASA \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndSA,bestFitSA);
+fprintf('ASA \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndASA,bestFitASA);
 fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 %% Plot fitness

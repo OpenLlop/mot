@@ -1,5 +1,5 @@
 % Example AGA Islands
-% Find minima of a function with Genetic Algorithm + Islands
+% Find minima of a function with Genetic Algorithm (GA) + Islands
 % Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
 
 % Clean-up
@@ -56,10 +56,10 @@ for illa=1:ni
     end;
 end;
 
-% Execute Genetic Algorithm
-[lastpops,bestfits,bestind,bestfit,history] = ...
-    aga_islands(opts,pops,ngg,nemi,ng,N,goal,...
-    funique,fitfun,mutfun,repfun,ranfun,prifun);
+% Execute Genetic Algorithm (GA) + Islands
+[bestind, bestfit, nite, lastpop, lastfit, history] = ...
+    aga_islands ( opts, pops, ngg, nemi, ng, N, goal, ...
+    funique, fitfun, mutfun, repfun, ranfun, prifun );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1e-8,'Display','none');

@@ -1,20 +1,19 @@
-function [ lastpops, bestfits, bestind, bestfit, history ] = ...
-    aga_islands( opts, ...
-    pops, ngg, nemi, ng, N, goal, ...
-    funique, fitfun, mutfun, repfun, ranfun, prifun )
-% Iterates to find minimum of a function using Genetic Algorithm
+function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
+    aga_islands( opts, pops, ngg, nemi, ng, N, goal, ...
+    unifun, fitfun, mutfun, repfun, ranfun, prifun )
+% Iterates to find minimum of a function using Genetic Algorithm (GA)
 %
 %Programmers:   Manel Soria         (UPC/ETSEIAT)
 %               David de la Torre   (UPC/ETSEIAT)
 %Date:          14/04/2015
 %Revision:      2
 %
-%Usage:         [lastpop, bestfit, nite, history] = aga ( opts, ...
-%                   pop, ng, N, goal, ...
+%Usage:         [bestind, bestfit, nite, lastpop, lastfit, history] = ...
+%                   aga ( opts, pop, ng, N, goal, ...
 %                   unifun, fitfun, mutfun, repfun, ranfun, prifun )
 %
 %Inputs:
-%   opts:       function control parameters [struct]
+%   opts:       function control parameters [struct] (optional)
 %       ninfo:  verbosity level (0=none, 1=minimal, 2=extended)
 %       label:  integer number that precedes the prints in case output is
 %               to be filtered
@@ -41,8 +40,8 @@ function [ lastpops, bestfits, bestind, bestfit, history ] = ...
 %   If there are less than nm-1 non-identical indivials, population is 
 %   considered degenerate and iterations stop
 %
-%   Call back functions to be provided by user:
-%   funique:    Deletes repeated individuals in a population
+%   Call back functions to be provided by the user:
+%   unifun:     Deletes repeated individuals in a population
 %               Receives a population and returns a population
 %               (a population is a list of individuals)
 %   fitfun:     Fitness function, given one individual returns its fitness
@@ -57,12 +56,12 @@ function [ lastpops, bestfits, bestind, bestfit, history ] = ...
 %   prifun:     Prints individual
 %
 %Outputs:
-%   lastpops:   list with last populations sorted by fitness (all islands)
-%   lastfits:   best last fitness value (all islands)
 %   bestind:    best individual (among all the islands)
 %   bestfit:    fitness value of best individual
-%   history:    array (ngg,ni) with the best value found after each
-%               iteration
+%   nite:       number of global iterations (generations) performed
+%   lastpop:    list with last populations of each island
+%   lastfit:    best fitness values of last population of each island
+%   history:    array with saved global history array
 
 % Set options
 if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 0; end;
@@ -70,8 +69,8 @@ if isfield(opts,'label'), label = opts.label; else label = 0; end;
 if isfield(opts,'dopar'), dopar = opts.dopar; else dopar = 0; end;
 if isfield(opts,'nhist'), nhist = opts.nhist; else nhist = 0; end;
 
-% Declare history array, if required
-if nhist>0, history = []; end;
+% Declare history array
+history = [];
 
 % Build population
 if (~iscell(pops)) % Only population size is given                                   
@@ -119,27 +118,27 @@ for gg=1:ngg;
         iopts.nhist = nhist;
         
         % Execute AGA (Genetic Algorithm)
-        [lastpop, bestfit, nite, hist] = aga(iopts, ...
+        [ibestind, ibestfit, initer, ilastpop, ~, hist] = aga(iopts, ...
             pops{island}, ng, N, goal,...
-            funique, fitfun, mutfun, repfun, ranfun, prifun);
+            unifun, fitfun, mutfun, repfun, ranfun, prifun);
         
         % Save values at the end of local island iteration
-        pops{island} = lastpop; % Save last population
-        bestfits(island) = bestfit; % Save best fitness value
+        pops{island} = ilastpop; % Save last population
+        bestfits(island) = ibestfit; % Save best fitness value
 
         % Save history
         if nhist>1 % Save full history for each island
-            history{gg,island} = {hist,nite}; %#ok
+            history{gg,island} = {hist,initer}; %#ok
         elseif nhist>0 % Save best fitness only
-            history(gg,island) = bestfit; %#ok
+            history(gg,island) = ibestfit; %#ok
         end;
 
         % Show extended info
         if ninfo>1
             fprintf(['aga_islands label= %d end ite global= %d ',...
-                'illa= %d fbest= %e'],label,gg,island,bestfits(island));
+                'island= %d fbest= %e'],label,gg,island,bestfits(island));
             if ~isempty(prifun) % Print best individual
-                fprintf(' best: '); prifun(lastpop{1});
+                fprintf(' best: '); prifun(ibestind);
             end;
             fprintf('\n');
         end;
@@ -148,19 +147,21 @@ for gg=1:ngg;
     
     % Find best individual of all islands and island where it lives
     [fbest, ibest] = min(bestfits);
-    if ninfo>0 % Show info
+    
+    % Show info
+    if ninfo>0
         fprintf('aga_islands label= %d gg= %d fbest= %8.3e island= %d',...
             label,gg,fbest,ibest);
         if ~isempty(prifun)
-            fprintf(' best: '); prifun(lastpop{i});
+            fprintf(' best: '); prifun(pops{ibest}{1});
         end;
         fprintf('\n');
     end;
 
     % Save history
     if nhist>1 % Save full history for each island
-        history{gg,ni+1} = pops{ibest}{1}; %#ok
-        history{gg,ni+2} = fbest; %#ok
+        history{gg,ni+1} = pops{ibest}{1}; %#ok % Best individual
+        history{gg,ni+2} = fbest; %#ok % Fitness of best individual
     end;
 
     % Check if reached target fitness or max generations 
@@ -177,12 +178,14 @@ for gg=1:ngg;
             end;
         end;
         
-        % Save last values
-        lastpops = pops;
+        % Save output values
         bestind = pops{ibest}{1};
         bestfit = fbest;
+        nite = gg;
+        lastpop = pops;
+        lastfit = bestfits;
         
-        % Break iteration
+        % Stop iterating
         break;
         
     end;
@@ -211,6 +214,7 @@ for gg=1:ngg;
             end;
             
         end;
+        
     end;
 
 end;

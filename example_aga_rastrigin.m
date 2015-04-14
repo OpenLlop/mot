@@ -1,5 +1,5 @@
 % Example AGA
-% Find minima of a function with Genetic Algorithm
+% Find minima of a function with Genetic Algorithm (GA)
 % Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
 
 % Clean-up
@@ -33,7 +33,7 @@ goal = 1E-5; % Target fitness value
 ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 
 % Define GA functions
-funique = @(x) x; % Discard identical individuals: currently not in use
+unifun = @(x) x; % Discard identical individuals (unimplemented)
 fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
 mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random mov
 repfun = @(x,y,fx,fy) (x+y)/2; % Reproduction: average
@@ -43,17 +43,18 @@ prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 % Randomize random seed
 rng('shuffle'); % We don't want repeatability in the GA
 
-% Execute Genetic Algorithm
-[lastPopGA,bestFitGA,nite,history] = aga(opts,np,ng,N,goal,...
-    funique,fitfun,mutfun,repfun,ranfun,prifun);
+% Execute Genetic Algorithm (GA)
+[ bestIndAGA, bestFitAGA, nite, lastPopAGA, lastFitAGA, history ] = ...
+    aga ( opts, np, ng, N, goal, ...
+    unifun, fitfun, mutfun, repfun, ranfun, prifun );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1E-8,'Display','none');
-[bestIndFMS,bestFitFMS] = fminsearch(fitfun,lastPopGA{1},options);
+[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndAGA,options);
 
 % Display results of aga and fminsearch algorithms
 fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
-fprintf('AGA \t\t%1.6f,%1.6f \t\t%1.6E\n',lastPopGA{1},bestFitGA);
+fprintf('AGA \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndAGA,bestFitAGA);
 fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 %% Fitness plot

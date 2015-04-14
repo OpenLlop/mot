@@ -8,17 +8,17 @@ clear;
 
 %% ASA
 
-% Our test is a R^2->R function based on Rastrigin function. It is 
-% challenging because it has infinite local extrema, located at integer
-% numbers (ie, 8,-9) 
+% Our test is a R^2->R function based on Rastrigin function.
+% It is challenging because it has infinite local extrema, located at
+% integer numbers (ie, 8,-9)
 % The global minimum is at (1,1), and its value is 0
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
 % Define SA function options
 opts.ninfo = 10; % Verbosity level (print every # iterations)
-opts.label = 10; % Label (identification purposes)
 opts.einfo = 0; % Print extended information
-opts.fhist = 2; % Return full history
+opts.label = 10; % Label (identification purposes)
+opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all data)
 
 % Define SA parameters
 nitemax = 50; % Maximum number of iterations
@@ -37,9 +37,8 @@ prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 A0 = [2*rand(); 2*rand()];
 
 % Execute Simulated Annealing
-[bestIndSA,bestFitSA,...
-    nite,history] = asa(opts,A0,nitemax,mu,goal,...
-                        fitfun,mutfun,prifun);
+[bestIndSA,bestFitSA,nite,history] = asa(opts,A0,nitemax,mu,goal,...
+    fitfun,mutfun,prifun);
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1e-8,'Display','none');
@@ -53,31 +52,33 @@ fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 %% Plot fitness
 
 % Get fitness history
-if opts.fhist>1 % Full history; get fitness values
-    history_fitness = zeros(length(history),1);
+if opts.nhist>1 % Full history; get fitness values
+    fithist = zeros(length(history),1);
     for i=1:length(history)
-        history_fitness(i) = history{i,6};
+        fithist(i) = history{i,6};
     end;
-else history_fitness = history; % Simple history
+else fithist = history; % Simple history
 end;
 
 % Create figure
 fh1 = figure('Position',[400,200,900,600]);
+hold on;
 
 % Plot history
-semilogy(history_fitness,'o-');
+semilogy(fithist,'o-');
 
 % Beautify plot
 grid minor;
 title('Rastrigin function | Simulated Annealing optimization');
 xlabel('Iteration [#]');
 ylabel('Best fitness function value [log]');
+hold off;
 
 
 %% Plot iterations
 
 % Only show generations when outputting full history
-if opts.fhist>1 && iscell(history)
+if opts.nhist>1 && iscell(history)
 
     % Create figure
     fh2 = figure('Position',[400,200,900,600]);

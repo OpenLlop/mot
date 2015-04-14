@@ -19,8 +19,6 @@ opts.ninfo = 1; % Verbosity level (0=none, 1=minimal, 2=extended)
 opts.label = 10; % Label (identification purposes)
 opts.dopar = 1; % Parallel execution of fitness function
 opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
-opts.plotf = 0; % Plot fitness (0=none, 1=plot, 2=plot+save)
-opts.plotp = 0; % Plot population (0=none, 1=plot, 2=plot+save)
 
 % Define GA_Islands parameters
 ni = 3; % Number of islands

@@ -23,12 +23,12 @@ opts.nhist = 1; % Saved history level (0=none, 1=fitness, 2=full)
 % Define Knapsack parameters
 rng(50); % Use a known random seed for repetabiliy of the problem
 NN = 64; % Number of items in the knapsack
-maxval=100; % maximum possible value of one item
-maxw=20; % max weight 
+maxval = 100; % maximum possible value of one item
+maxw = 20; % max weight 
 weights = randi(maxw,NN,1); % Weights
 values = randi(maxval,NN,1); % Values
 capacity = floor(sum(weights)/2); % Capacity
-HUGE=NN*maxval*100; % Huge number
+HUGE = NN*maxval*100; % Huge number
 
 % Define GA parameters
 ng = 100; % Number of generations
@@ -45,7 +45,7 @@ rng('shuffle'); % We don't want repetability in the GA
 % Now we construct an initial population list
 pop = cell(1,np);
 for i=1:np
-    pop{i}=ranfun(); 
+    pop{i} = ranfun(); 
 end;
 
 % Execute Genetic Algorithm

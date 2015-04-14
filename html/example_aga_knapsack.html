@@ -1,0 +1,429 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>example_aga_knapsack</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-04-14"><meta name="DC.source" content="example_aga_knapsack.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Example AGA Knapsack</a></li><li><a href="#3">Plot history</a></li><li><a href="#4">Functions</a></li></ul></div><h2>Example AGA Knapsack<a name="1"></a></h2><p>Find minima of a function with Genetic Algorithm (GA) Manel Soria, David de la Torre and Arnau Miro - ETSEIAT</p><pre class="codeinput"><span class="keyword">function</span> example_aga_knapsack
+</pre><pre class="codeinput"><span class="comment">% Knapsack problem solved with GA</span>
+<span class="comment">% In this example the search space is a a set of [0,1] integer values.</span>
+<span class="comment">%</span>
+<span class="comment">% Each item can be inside the sack (1) or outside (0).</span>
+<span class="comment">% If it is inside, contributes to value but also adds weight.</span>
+<span class="comment">% We look for maximum value, for total weight &lt;= capacity.</span>
+<span class="comment">%</span>
+<span class="comment">% An individual will be a vector of 0,1 values, represented using</span>
+<span class="comment">% floating point numbers for simplicity, but aga would allow different</span>
+<span class="comment">% data types.</span>
+
+<span class="comment">% Define GA function options</span>
+opts.ninfo = 2; <span class="comment">% Verbosity level (0=none, 1=minimal, 2=extended)</span>
+opts.label = 10; <span class="comment">% Label (identification purposes)</span>
+opts.dopar = 1; <span class="comment">% Parallel execution of fitness function</span>
+opts.nhist = 1; <span class="comment">% Saved history level (0=none, 1=fitness, 2=full)</span>
+
+<span class="comment">% Define Knapsack parameters</span>
+rng(50); <span class="comment">% Use a known random seed for repetabiliy of the problem</span>
+NN = 64; <span class="comment">% Number of items in the knapsack</span>
+maxval=100; <span class="comment">% maximum possible value of one item</span>
+maxw=20; <span class="comment">% max weight</span>
+weights = randi(maxw,NN,1); <span class="comment">% Weights</span>
+values = randi(maxval,NN,1); <span class="comment">% Values</span>
+capacity = floor(sum(weights)/2); <span class="comment">% Capacity</span>
+HUGE=NN*maxval*100; <span class="comment">% Huge number</span>
+
+<span class="comment">% Define GA parameters</span>
+ng = 100; <span class="comment">% Number of generations</span>
+np = 100; <span class="comment">% Population size</span>
+N = [5,<span class="keyword">...</span><span class="comment"> % Number of elites</span>
+    floor(np*0.4),<span class="keyword">...</span><span class="comment"> % Number of mutants</span>
+    floor(np*0.05),<span class="keyword">...</span><span class="comment">% Number of newcomers</span>
+    floor(np*0.1)]; <span class="comment">% Number of parents</span>
+goal = -Inf; <span class="comment">% Target fitness value</span>
+
+<span class="comment">% Randomize random seed</span>
+rng(<span class="string">'shuffle'</span>); <span class="comment">% We don't want repetability in the GA</span>
+
+<span class="comment">% Now we construct an initial population list</span>
+pop = cell(1,np);
+<span class="keyword">for</span> i=1:np
+    pop{i}=ranfun();
+<span class="keyword">end</span>;
+
+<span class="comment">% Execute Genetic Algorithm</span>
+[bestind, bestfit, nite, lastpop, lastfit, history] = <span class="keyword">...</span>
+    aga ( opts, np, ng, N, goal,<span class="keyword">...</span>
+    @funique, @fitness, @mutfun, @repfun, @ranfun, @prifun );
+</pre><pre class="codeoutput">GA label=10 g=  1 ng=100 best=-1.978000e+03 1011100001001010101011011011110011000110011001100011110100111011 
+GA label=10 g=  2 ng=100 best=-1.978000e+03 1011100001001010101011011011110011000110011001100011110100111011 
+GA label=10 g=  3 ng=100 best=-2.067000e+03 1001111000111000110101111111000001000010001101110011110110001101 
+GA label=10 g=  4 ng=100 best=-2.124000e+03 1111101000111000101010011011110011000110011001100011110100111011 
+GA label=10 g=  5 ng=100 best=-2.184000e+03 1111101000111000100011010110100100100111101110111100110111010101 
+GA label=10 g=  6 ng=100 best=-2.191000e+03 1111101000111000101010001111110011000110011001110011110110001101 
+GA label=10 g=  7 ng=100 best=-2.284000e+03 1111101000111001010111111111001000000011001101110011110110001101 
+GA label=10 g=  8 ng=100 best=-2.301000e+03 1111101000111001010111111111001000000011001101110011110110001111 
+GA label=10 g=  9 ng=100 best=-2.342000e+03 1111101100111000110101111111000101000010011001110011110110001101 
+GA label=10 g= 10 ng=100 best=-2.370000e+03 1111101100111000110101111111000101000011001101110011110110001111 
+GA label=10 g= 11 ng=100 best=-2.370000e+03 1111101100111000110101111111000101000011001101110011110110001111 
+GA label=10 g= 12 ng=100 best=-2.370000e+03 1111101100111000110101111111000101000011001101110011110110001111 
+GA label=10 g= 13 ng=100 best=-2.370000e+03 1111101100111000110101111111000101000011001101110011110110001111 
+GA label=10 g= 14 ng=100 best=-2.370000e+03 1111101100111000110101111111000101000011001101110011110110001111 
+GA label=10 g= 15 ng=100 best=-2.373000e+03 1111100101111000110101111111000101000011001101110011110110001111 
+GA label=10 g= 16 ng=100 best=-2.373000e+03 1111100101111000110101111111000101000011001101110011110110001111 
+GA label=10 g= 17 ng=100 best=-2.426000e+03 1111101101111000110101111111000100100010011001110011010110001101 
+GA label=10 g= 18 ng=100 best=-2.426000e+03 1111101101111000110101111111000100100010011001110011010110001101 
+GA label=10 g= 19 ng=100 best=-2.426000e+03 1111101101111000110101111111000100100010011001110011010110001101 
+GA label=10 g= 20 ng=100 best=-2.426000e+03 1111101101111000110101111111000100100010011001110011010110001101 
+GA label=10 g= 21 ng=100 best=-2.426000e+03 1111101101111000110101111111000100100010011001110011010110001101 
+GA label=10 g= 22 ng=100 best=-2.426000e+03 1111101101111000110101111111000100100010011001110011010110001101 
+GA label=10 g= 23 ng=100 best=-2.426000e+03 1111101101111000110101111111000100100010011001110011010110001101 
+GA label=10 g= 24 ng=100 best=-2.463000e+03 1111101101111000110001111111000100100011011001110011010110001101 
+GA label=10 g= 25 ng=100 best=-2.463000e+03 1111101101111000110001111111000100100011011001110011010110001101 
+GA label=10 g= 26 ng=100 best=-2.463000e+03 1111101101111000110001111111000100100011011001110011010110001101 
+GA label=10 g= 27 ng=100 best=-2.463000e+03 1111101101111000110001111111000100100011011001110011010110001101 
+GA label=10 g= 28 ng=100 best=-2.463000e+03 1111101101111000110001111111000100100011011001110011010110001101 
+GA label=10 g= 29 ng=100 best=-2.463000e+03 1111101101111000110001111111000100100011011001110011010110001101 
+GA label=10 g= 30 ng=100 best=-2.463000e+03 1111101101111000110001111111000100100011011001110011010110001101 
+GA label=10 g= 31 ng=100 best=-2.463000e+03 1111101101111000110001111111000100100011011001110011010110001101 
+GA label=10 g= 32 ng=100 best=-2.466000e+03 1111101101111000110101111111000100100011011001110010010110001101 
+GA label=10 g= 33 ng=100 best=-2.466000e+03 1111101101111000110101111111000100100011011001110010010110001101 
+GA label=10 g= 34 ng=100 best=-2.466000e+03 1111101101111000110101111111000100100011011001110010010110001101 
+GA label=10 g= 35 ng=100 best=-2.471000e+03 1111101101111000110001111111000100100011011001110010010110001111 
+GA label=10 g= 36 ng=100 best=-2.471000e+03 1111101101111000110001111111000100100011011001110010010110001111 
+GA label=10 g= 37 ng=100 best=-2.471000e+03 1111101101111000110001111111000100100011011001110010010110001111 
+GA label=10 g= 38 ng=100 best=-2.471000e+03 1111101101111000110001111111000100100011011001110010010110001111 
+GA label=10 g= 39 ng=100 best=-2.471000e+03 1111101101111000110001111111000100100011011001110010010110001111 
+GA label=10 g= 40 ng=100 best=-2.484000e+03 1111101101111000110001111111000100100011011001110010110110001101 
+GA label=10 g= 41 ng=100 best=-2.484000e+03 1111101101111000110001111111000100100011011001110010110110001101 
+GA label=10 g= 42 ng=100 best=-2.484000e+03 1111101101111000110001111111000100100011011001110010110110001101 
+GA label=10 g= 43 ng=100 best=-2.484000e+03 1111101101111000110001111111000100100011011001110010110110001101 
+GA label=10 g= 44 ng=100 best=-2.484000e+03 1111101101111000110001111111000100100011011001110010110110001101 
+GA label=10 g= 45 ng=100 best=-2.484000e+03 1111101101111000110001111111000100100011011001110010110110001101 
+GA label=10 g= 46 ng=100 best=-2.484000e+03 1111101101111000110001111111000100100011011001110010110110001101 
+GA label=10 g= 47 ng=100 best=-2.484000e+03 1111101101111000110001111111000100100011011001110010110110001101 
+GA label=10 g= 48 ng=100 best=-2.484000e+03 1111101101111000110001111111000100100011011001110010110110001101 
+GA label=10 g= 49 ng=100 best=-2.484000e+03 1111101101111000110001111111000100100011011001110010110110001101 
+GA label=10 g= 50 ng=100 best=-2.484000e+03 1111101101111000110001111111000100100011011001110010110110001101 
+GA label=10 g= 51 ng=100 best=-2.484000e+03 1111101101111000110001111111000100100011011001110010110110001101 
+GA label=10 g= 52 ng=100 best=-2.491000e+03 1111101101111000110010011111100100100111011001110010110110001101 
+GA label=10 g= 53 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 54 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 55 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 56 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 57 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 58 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 59 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 60 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 61 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 62 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 63 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 64 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 65 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 66 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 67 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 68 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 69 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 70 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 71 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 72 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 73 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 74 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 75 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 76 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 77 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 78 ng=100 best=-2.499000e+03 1111101101111000110101011111100100100111011001110010110110001101 
+GA label=10 g= 79 ng=100 best=-2.506000e+03 1111101101111000110010111111000001100011001001110111010110101101 
+GA label=10 g= 80 ng=100 best=-2.506000e+03 1111101101111000110010111111000001100011001001110111010110101101 
+GA label=10 g= 81 ng=100 best=-2.569000e+03 1111101101111000110011011111000101100011001001110111010110101101 
+GA label=10 g= 82 ng=100 best=-2.569000e+03 1111101101111000110011011111000101100011001001110111010110101101 
+GA label=10 g= 83 ng=100 best=-2.569000e+03 1111101101111000110011011111000101100011001001110111010110101101 
+GA label=10 g= 84 ng=100 best=-2.569000e+03 1111101101111000110011011111000101100011001001110111010110101101 
+GA label=10 g= 85 ng=100 best=-2.569000e+03 1111101101111000110011011111000101100011001001110111010110101101 
+GA label=10 g= 86 ng=100 best=-2.569000e+03 1111101101111000110011011111000101100011001001110111010110101101 
+GA label=10 g= 87 ng=100 best=-2.569000e+03 1111101101111000110011011111000101100011001001110111010110101101 
+GA label=10 g= 88 ng=100 best=-2.569000e+03 1111101101111000110011011111000101100011001001110111010110101101 
+GA label=10 g= 89 ng=100 best=-2.614000e+03 1111101101111000010011011111000100100111011001110110010110101101 
+GA label=10 g= 90 ng=100 best=-2.617000e+03 1111101101111000010011011111000101100011011001110110010110101101 
+GA label=10 g= 91 ng=100 best=-2.617000e+03 1111101101111000010011011111000101100011011001110110010110101101 
+GA label=10 g= 92 ng=100 best=-2.617000e+03 1111101101111000010011011111000101100011011001110110010110101101 
+GA label=10 g= 93 ng=100 best=-2.617000e+03 1111101101111000010011011111000101100011011001110110010110101101 
+GA label=10 g= 94 ng=100 best=-2.617000e+03 1111101101111000010011011111000101100011011001110110010110101101 
+GA label=10 g= 95 ng=100 best=-2.617000e+03 1111101101111000010011011111000101100011011001110110010110101101 
+GA label=10 g= 96 ng=100 best=-2.617000e+03 1111101101111000010011011111000101100011011001110110010110101101 
+GA label=10 g= 97 ng=100 best=-2.617000e+03 1111101101111000010011011111000101100011011001110110010110101101 
+GA label=10 g= 98 ng=100 best=-2.617000e+03 1111101101111000010011011111000101100011011001110110010110101101 
+GA label=10 g= 99 ng=100 best=-2.617000e+03 1111101101111000010011011111000101100011011001110110010110101101 
+GA label=10 g=100 ng=100 best=-2.617000e+03 1111101101111000010011011111000101100011011001110110010110101101 
+GA label=10 best=-2.617000e+03 1111101101111000010011011111000101100011011001110110010110101101 max. iterations reached, leaving
+</pre><h2>Plot history<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
+<span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history) <span class="comment">% Full history; get fitness values</span>
+    fithist = zeros(length(history),1);
+    <span class="keyword">for</span> i=1:length(history)
+        fithist(i) = history{i,2}(1);
+    <span class="keyword">end</span>;
+<span class="keyword">else</span> fithist = history; <span class="comment">% Simple history</span>
+<span class="keyword">end</span>;
+
+<span class="comment">% Create figure</span>
+figure(<span class="string">'Position'</span>,[400,200,900,600]);
+
+<span class="comment">% Plot history</span>
+plot(fithist,<span class="string">'o-'</span>);
+
+<span class="comment">% Beautify plot</span>
+grid <span class="string">minor</span>;
+title(<span class="string">'Genetic Algorithm optimization | Knapsack problem'</span>);
+xlabel(<span class="string">'Generation [#]'</span>);
+ylabel(<span class="string">'Best fitness function value'</span>);
+</pre><img vspace="5" hspace="5" src="example_aga_knapsack_01.png" alt=""> <h2>Functions<a name="4"></a></h2><pre class="codeinput">    <span class="comment">% Random individual</span>
+    <span class="keyword">function</span> x = ranfun()
+        x = transpose(randi([0,1],[1,NN]));
+    <span class="keyword">end</span>
+
+    <span class="comment">% Fitness function</span>
+    <span class="keyword">function</span> f = fitness(x)
+        f = -dot(x,values)+HUGE*NN*(dot(x,weights)&gt;capacity);
+    <span class="keyword">end</span>
+
+    <span class="comment">% Discard identical individuals</span>
+    <span class="keyword">function</span> popu = funique(pop)
+        <span class="comment">% Convert population to a matrix, individuals by rows</span>
+        mat = transpose(reshape(cell2mat(pop),NN,np));
+        matu = transpose(unique(mat,<span class="string">'rows'</span>)); <span class="comment">% Get unique individuals</span>
+        popu = mat2cell(matu,NN,ones(1,size(matu,2)));
+    <span class="keyword">end</span>
+
+    <span class="comment">% Mutate an individual</span>
+    <span class="keyword">function</span> x = mutfun(x,f)
+        <span class="keyword">for</span> ii=1:4
+            p=randi(size(x,1));
+            x(p)=1-x(p);
+        <span class="keyword">end</span>;
+    <span class="keyword">end</span>
+
+    <span class="comment">% Reproduction of two individuals</span>
+    <span class="keyword">function</span> c=repfun(a,b,fa,fb)
+        e=size(a,1);
+        p=randi(size(a,1));
+        c=[ a(1:p-1); b(p:e) ];
+    <span class="keyword">end</span>
+
+    <span class="comment">% Print and individual</span>
+    <span class="keyword">function</span> prifun(x)
+        <span class="keyword">for</span> ii=1:size(x,1)
+            fprintf(<span class="string">'%d'</span>,x(ii,1));
+        <span class="keyword">end</span>;
+        fprintf(<span class="string">' '</span>);
+    <span class="keyword">end</span>
+
+    <span class="comment">% Print entire population</span>
+    <span class="keyword">function</span> printpop(pop)
+        <span class="keyword">for</span> ii=1:length(pop)
+            <span class="keyword">for</span> j=1:length(pop{ii})
+                fprintf(<span class="string">'%d'</span>,pop{ii}(j));
+            <span class="keyword">end</span>;
+            fprintf(<span class="string">'\n'</span>);
+        <span class="keyword">end</span>;
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Example AGA Knapsack
+% Find minima of a function with Genetic Algorithm (GA)
+% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
+
+function example_aga_knapsack
+% Knapsack problem solved with GA
+% In this example the search space is a a set of [0,1] integer values.
+%
+% Each item can be inside the sack (1) or outside (0).
+% If it is inside, contributes to value but also adds weight.
+% We look for maximum value, for total weight <= capacity.
+%
+% An individual will be a vector of 0,1 values, represented using
+% floating point numbers for simplicity, but aga would allow different
+% data types.
+
+% Define GA function options
+opts.ninfo = 2; % Verbosity level (0=none, 1=minimal, 2=extended)
+opts.label = 10; % Label (identification purposes)
+opts.dopar = 1; % Parallel execution of fitness function
+opts.nhist = 1; % Saved history level (0=none, 1=fitness, 2=full)
+
+% Define Knapsack parameters
+rng(50); % Use a known random seed for repetabiliy of the problem
+NN = 64; % Number of items in the knapsack
+maxval=100; % maximum possible value of one item
+maxw=20; % max weight 
+weights = randi(maxw,NN,1); % Weights
+values = randi(maxval,NN,1); % Values
+capacity = floor(sum(weights)/2); % Capacity
+HUGE=NN*maxval*100; % Huge number
+
+% Define GA parameters
+ng = 100; % Number of generations
+np = 100; % Population size
+N = [5,... % Number of elites
+    floor(np*0.4),... % Number of mutants
+    floor(np*0.05),...% Number of newcomers
+    floor(np*0.1)]; % Number of parents
+goal = -Inf; % Target fitness value
+
+% Randomize random seed
+rng('shuffle'); % We don't want repetability in the GA 
+
+% Now we construct an initial population list
+pop = cell(1,np);
+for i=1:np
+    pop{i}=ranfun(); 
+end;
+
+% Execute Genetic Algorithm
+[bestind, bestfit, nite, lastpop, lastfit, history] = ...
+    aga ( opts, np, ng, N, goal,...
+    @funique, @fitness, @mutfun, @repfun, @ranfun, @prifun );
+
+                    
+%% Plot history
+
+% Get fitness history
+if opts.nhist>1 && iscell(history) % Full history; get fitness values
+    fithist = zeros(length(history),1);
+    for i=1:length(history)
+        fithist(i) = history{i,2}(1);
+    end;
+else fithist = history; % Simple history
+end;
+
+% Create figure
+figure('Position',[400,200,900,600]);
+
+% Plot history
+plot(fithist,'o-');
+
+% Beautify plot
+grid minor;
+title('Genetic Algorithm optimization | Knapsack problem');
+xlabel('Generation [#]');
+ylabel('Best fitness function value');
+
+
+%% Functions
+
+    % Random individual
+    function x = ranfun()
+        x = transpose(randi([0,1],[1,NN]));
+    end
+
+    % Fitness function
+    function f = fitness(x) 
+        f = -dot(x,values)+HUGE*NN*(dot(x,weights)>capacity);
+    end
+
+    % Discard identical individuals
+    function popu = funique(pop)
+        % Convert population to a matrix, individuals by rows
+        mat = transpose(reshape(cell2mat(pop),NN,np));
+        matu = transpose(unique(mat,'rows')); % Get unique individuals
+        popu = mat2cell(matu,NN,ones(1,size(matu,2)));
+    end
+
+    % Mutate an individual
+    function x = mutfun(x,f) 
+        for ii=1:4
+            p=randi(size(x,1));
+            x(p)=1-x(p);
+        end;
+    end
+                
+    % Reproduction of two individuals
+    function c=repfun(a,b,fa,fb)
+        e=size(a,1);
+        p=randi(size(a,1));
+        c=[ a(1:p-1); b(p:e) ];
+    end
+
+    % Print and individual
+    function prifun(x)
+        for ii=1:size(x,1)
+            fprintf('%d',x(ii,1));
+        end;
+        fprintf(' ');
+    end
+
+    % Print entire population
+    function printpop(pop) 
+        for ii=1:length(pop)
+            for j=1:length(pop{ii})
+                fprintf('%d',pop{ii}(j));
+            end;
+            fprintf('\n');
+        end;
+    end
+
+end
+
+##### SOURCE END #####
+--></body></html>

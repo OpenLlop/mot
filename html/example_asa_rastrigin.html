@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>example_asa_rastrigin</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-02-18"><meta name="DC.source" content="example_asa_rastrigin.m"><style type="text/css">
+      --><title>example_asa_rastrigin</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-04-14"><meta name="DC.source" content="example_asa_rastrigin.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,21 +66,24 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Example ASA</a></li><li><a href="#2">Plot fitness</a></li><li><a href="#3">Plot iterations</a></li></ul></div><h2>Example ASA<a name="1"></a></h2><p>Find minima of a function with Simulated Annealing Manel Soria, David de la Torre and Arnau Miro - ETSEIAT</p><pre class="codeinput"><span class="comment">% Clean-up</span>
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">ASA</a></li><li><a href="#3">Plot fitness</a></li><li><a href="#4">Plot iterations</a></li></ul></div><pre class="codeinput"><span class="comment">% Example ASA</span>
+<span class="comment">% Find minima of a function with Simulated Annealing (SA) algorithm</span>
+<span class="comment">% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT</span>
+
+<span class="comment">% Clean-up</span>
 close <span class="string">all</span>;
 clear;
-
-<span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function. It is</span>
-<span class="comment">% challenging because it has infinite local extrema, located at integer</span>
-<span class="comment">% numbers (ie, 8,-9)</span>
+</pre><h2>ASA<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function.</span>
+<span class="comment">% It is challenging because it has infinite local extrema, located at</span>
+<span class="comment">% integer numbers (ie, 8,-9)</span>
 <span class="comment">% The global minimum is at (1,1), and its value is 0</span>
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
 <span class="comment">% Define SA function options</span>
 opts.ninfo = 10; <span class="comment">% Verbosity level (print every # iterations)</span>
-opts.label = 10; <span class="comment">% Label (identification purposes)</span>
 opts.einfo = 0; <span class="comment">% Print extended information</span>
-opts.fhist = 2; <span class="comment">% Return full history</span>
+opts.label = 10; <span class="comment">% Label (identification purposes)</span>
+opts.nhist = 2; <span class="comment">% Save history (0=none, 1=fitness, 2=all data)</span>
 
 <span class="comment">% Define SA parameters</span>
 nitemax = 50; <span class="comment">% Maximum number of iterations</span>
@@ -99,50 +102,52 @@ prifun = @(x) fprintf(<span class="string">'%f %f '</span>,x(1),x(2)); <span cla
 A0 = [2*rand(); 2*rand()];
 
 <span class="comment">% Execute Simulated Annealing</span>
-[bestIndSA,bestFitSA,<span class="keyword">...</span>
-    nite,history] = asa(opts,A0,nitemax,mu,goal,<span class="keyword">...</span>
-                        fitfun,mutfun,prifun);
+[ bestIndASA, bestFitASA, nite, lastPopASA, lastFitASA, history ] = <span class="keyword">...</span>
+    asa ( opts, A0, nitemax, mu, goal, <span class="keyword">...</span>
+    fitfun, mutfun, prifun );
 
 <span class="comment">% Now, we can easily improve the accuracy of the local extremum found</span>
 options = optimset(<span class="string">'TolFun'</span>,1e-8,<span class="string">'Display'</span>,<span class="string">'none'</span>);
-[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndSA,options);
+[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndASA,options);
 
 <span class="comment">% Display results of aga and fminsearch algorithms</span>
 fprintf(<span class="string">'\nAlgorithm \tBest individual (x,y) \tValue\n'</span>);
-fprintf(<span class="string">'ASA \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndSA,bestFitSA);
+fprintf(<span class="string">'ASA \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndASA,bestFitASA);
 fprintf(<span class="string">'FMS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndFMS,bestFitFMS);
-</pre><pre class="codeoutput">SA label=10 nite=1 1.266332 0.962190  fitA=11.377580 fitbest=11.377580 
-SA label=10 nite=10 1.188235 1.027128  fitA=6.396959 fitbest=6.376806 
-SA label=10 nite=20 1.033096 1.002188  fitA=0.217480 fitbest=0.217480 
-SA label=10 nite=30 1.001987 1.014630  fitA=0.043215 fitbest=0.043215 
-SA label=10 nite=40 0.998048 1.005182  fitA=0.006084 fitbest=0.006084 
-SA label=10 nite=50 0.998048 1.005182  fitA=0.006084 fitbest=0.006084 
+</pre><pre class="codeoutput">SA label=10 nite=1  best= 0.759174 1.433037  fitA=28.797312 fitbest=28.797312 
+SA label=10 nite=10  best= 0.998782 1.499391  fitA=20.249612 fitbest=18.831405 
+SA label=10 nite=20  best= 1.147204 1.240031  fitA=13.434262 fitbest=13.434262 
+SA label=10 nite=30  best= 1.055326 0.999894  fitA=0.601220 fitbest=0.601220 
+SA label=10 nite=40  best= 1.000822 0.989084  fitA=0.023767 fitbest=0.023767 
+SA label=10 nite=50  best= 1.000822 0.989084  fitA=0.023767 fitbest=0.023767 
 
 Algorithm 	Best individual (x,y) 	Value
-ASA 		0.998048,1.005182 		6.083963E-03
-FMS 		1.000001,1.000005 		6.100777E-09
-</pre><h2>Plot fitness<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
-<span class="keyword">if</span> opts.fhist&gt;1 <span class="comment">% Full history; get fitness values</span>
-    history_fitness = zeros(length(history),1);
+ASA 		1.000822,0.989084 		2.376710E-02
+FMS 		0.999999,0.999997 		2.479560E-09
+</pre><h2>Plot fitness<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
+<span class="keyword">if</span> opts.nhist&gt;1 <span class="comment">% Full history; get fitness values</span>
+    fithist = zeros(length(history),1);
     <span class="keyword">for</span> i=1:length(history)
-        history_fitness(i) = history{i,6};
+        fithist(i) = history{i,6};
     <span class="keyword">end</span>;
-<span class="keyword">else</span> history_fitness = history; <span class="comment">% Simple history</span>
+<span class="keyword">else</span> fithist = history; <span class="comment">% Simple history</span>
 <span class="keyword">end</span>;
 
 <span class="comment">% Create figure</span>
 fh1 = figure(<span class="string">'Position'</span>,[400,200,900,600]);
+hold <span class="string">on</span>;
 
 <span class="comment">% Plot history</span>
-semilogy(history_fitness,<span class="string">'o-'</span>);
+semilogy(fithist,<span class="string">'o-'</span>);
 
 <span class="comment">% Beautify plot</span>
 grid <span class="string">minor</span>;
 title(<span class="string">'Rastrigin function | Simulated Annealing optimization'</span>);
 xlabel(<span class="string">'Iteration [#]'</span>);
-ylabel(<span class="string">'Fitness function value [log]'</span>);
-</pre><img vspace="5" hspace="5" src="example_asa_rastrigin_01.png" alt=""> <h2>Plot iterations<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
-<span class="keyword">if</span> opts.fhist&gt;1 &amp;&amp; iscell(history)
+ylabel(<span class="string">'Best fitness function value [log]'</span>);
+hold <span class="string">off</span>;
+</pre><img vspace="5" hspace="5" src="example_asa_rastrigin_01.png" alt=""> <h2>Plot iterations<a name="4"></a></h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
+<span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history)
 
     <span class="comment">% Create figure</span>
     fh2 = figure(<span class="string">'Position'</span>,[400,200,900,600]);
@@ -193,25 +198,27 @@ ylabel(<span class="string">'Fitness function value [log]'</span>);
 <span class="keyword">end</span>;
 </pre><img vspace="5" hspace="5" src="example_asa_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
-%% Example ASA
-% Find minima of a function with Simulated Annealing
+% Example ASA
+% Find minima of a function with Simulated Annealing (SA) algorithm
 % Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
 
 % Clean-up
 close all;
 clear;
 
-% Our test is a R^2->R function based on Rastrigin function. It is 
-% challenging because it has infinite local extrema, located at integer
-% numbers (ie, 8,-9) 
+%% ASA
+
+% Our test is a R^2->R function based on Rastrigin function.
+% It is challenging because it has infinite local extrema, located at
+% integer numbers (ie, 8,-9)
 % The global minimum is at (1,1), and its value is 0
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
 % Define SA function options
 opts.ninfo = 10; % Verbosity level (print every # iterations)
-opts.label = 10; % Label (identification purposes)
 opts.einfo = 0; % Print extended information
-opts.fhist = 2; % Return full history
+opts.label = 10; % Label (identification purposes)
+opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all data)
 
 % Define SA parameters
 nitemax = 50; % Maximum number of iterations
@@ -230,47 +237,49 @@ prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 A0 = [2*rand(); 2*rand()];
 
 % Execute Simulated Annealing
-[bestIndSA,bestFitSA,...
-    nite,history] = asa(opts,A0,nitemax,mu,goal,...
-                        fitfun,mutfun,prifun);
+[ bestIndASA, bestFitASA, nite, lastPopASA, lastFitASA, history ] = ...
+    asa ( opts, A0, nitemax, mu, goal, ...
+    fitfun, mutfun, prifun );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1e-8,'Display','none');
-[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndSA,options);
+[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndASA,options);
 
 % Display results of aga and fminsearch algorithms
 fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
-fprintf('ASA \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndSA,bestFitSA);
+fprintf('ASA \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndASA,bestFitASA);
 fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 %% Plot fitness
 
 % Get fitness history
-if opts.fhist>1 % Full history; get fitness values
-    history_fitness = zeros(length(history),1);
+if opts.nhist>1 % Full history; get fitness values
+    fithist = zeros(length(history),1);
     for i=1:length(history)
-        history_fitness(i) = history{i,6};
+        fithist(i) = history{i,6};
     end;
-else history_fitness = history; % Simple history
+else fithist = history; % Simple history
 end;
 
 % Create figure
 fh1 = figure('Position',[400,200,900,600]);
+hold on;
 
 % Plot history
-semilogy(history_fitness,'o-');
+semilogy(fithist,'o-');
 
 % Beautify plot
 grid minor;
 title('Rastrigin function | Simulated Annealing optimization');
 xlabel('Iteration [#]');
-ylabel('Fitness function value [log]');
+ylabel('Best fitness function value [log]');
+hold off;
 
 
 %% Plot iterations
 
 % Only show generations when outputting full history
-if opts.fhist>1 && iscell(history)
+if opts.nhist>1 && iscell(history)
 
     % Create figure
     fh2 = figure('Position',[400,200,900,600]);

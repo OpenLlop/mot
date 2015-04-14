@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>example_aga_rastrigin</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-04-14"><meta name="DC.source" content="example_aga_rastrigin.m"><style type="text/css">
+      --><title>example_aps_rastrigin</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-04-14"><meta name="DC.source" content="example_aps_rastrigin.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,74 +66,117 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">AGA</a></li><li><a href="#3">Fitness plot</a></li><li><a href="#4">Generations plot</a></li></ul></div><pre class="codeinput"><span class="comment">% Example AGA</span>
-<span class="comment">% Find minima of a function with Genetic Algorithm (GA)</span>
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">APS</a></li><li><a href="#3">Fitness plot</a></li><li><a href="#4">Generations plot</a></li></ul></div><pre class="codeinput"><span class="comment">% Example APS</span>
+<span class="comment">% Find minima of a function with Particle Swarm (PS) algorithm</span>
 <span class="comment">% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT</span>
 
 <span class="comment">% Clean-up</span>
 close <span class="string">all</span>;
 clear;
-</pre><h2>AGA<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function.</span>
+</pre><h2>APS<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function.</span>
 <span class="comment">% It is challenging because it has infinite local extrema, located at</span>
 <span class="comment">% integer numbers (ie, 8,-9)</span>
 <span class="comment">% The global minimum is at (1,1), and its value is 0</span>
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
-<span class="comment">% Define GA function options (optional)</span>
+<span class="comment">% Define PS function options (optional)</span>
 opts.ninfo = 2; <span class="comment">% Verbosity level (0=none, 1=minimal, 2=extended)</span>
 opts.label = 10; <span class="comment">% Label (identification purposes)</span>
-opts.dopar = 1; <span class="comment">% Parallel execution of fitness function</span>
+opts.dopar = 0; <span class="comment">% Parallel execution of fitness function</span>
 opts.nhist = 2; <span class="comment">% Save history (0=none, 1=fitness, 2=all{pop,fit})</span>
 
-<span class="comment">% Define GA parameters</span>
-ng = 50; <span class="comment">% Number of generations</span>
-np = 200; <span class="comment">% Population size</span>
-N = [3,<span class="keyword">...</span><span class="comment"> % Number of elites</span>
-    floor(np*0.1),<span class="keyword">...</span><span class="comment"> % Number of mutants</span>
-    floor(np*0.05),<span class="keyword">...</span><span class="comment">% Number of newcomers</span>
-    floor(np*0.2)]; <span class="comment">% Number of parents</span>
+<span class="comment">% Define PS parameters</span>
+nitemax = 50; <span class="comment">% Maximum number of iterations</span>
+np = 50; <span class="comment">% Population size</span>
+c1 = 9; <span class="comment">% Local learning factor</span>
+c2 = 20; <span class="comment">% Global learning factor</span>
+P1 = 1E-2; <span class="comment">% Maximum step size (velocity) allowed in one iteration</span>
 goal = 1E-5; <span class="comment">% Target fitness value</span>
 
 <span class="comment">% Auxiliary function</span>
 ranrange = @(a,b,n) a + (b-a)*rand(n,1); <span class="comment">% n random values between a i b</span>
 
-<span class="comment">% Define GA functions</span>
-unifun = @(x) x; <span class="comment">% Discard identical individuals (unimplemented)</span>
+<span class="comment">% Define PS functions</span>
 fitfun = @(x) ras(x(1),x(2)); <span class="comment">% Fitness function - TO BE MINIMIZED</span>
-mutfun = @(x,f) x + ranrange(-0.1,0.1,2); <span class="comment">% Mutation: small random mov</span>
-repfun = @(x,y,fx,fy) (x+y)/2; <span class="comment">% Reproduction: average</span>
 ranfun = @() ranrange(-5,5,2); <span class="comment">% Random individual</span>
 prifun = @(x) fprintf(<span class="string">'%f %f '</span>,x(1),x(2)); <span class="comment">% Print an individual</span>
 
 <span class="comment">% Randomize random seed</span>
-rng(<span class="string">'shuffle'</span>); <span class="comment">% We don't want repeatability in the GA</span>
+rng(<span class="string">'shuffle'</span>); <span class="comment">% We don't want repeatability in the PS</span>
 
-<span class="comment">% Execute Genetic Algorithm (GA)</span>
-[ bestIndAGA, bestFitAGA, nite, lastPopAGA, lastFitAGA, history ] = <span class="keyword">...</span>
-    aga ( opts, np, ng, N, goal, <span class="keyword">...</span>
-    unifun, fitfun, mutfun, repfun, ranfun, prifun );
+<span class="comment">% Generate initial population</span>
+<span class="keyword">for</span> i=1:np
+    pop{i} = ranfun(); <span class="comment">%#ok</span>
+    v{i} = 0.1 * ranfun(); <span class="comment">%#ok</span>
+<span class="keyword">end</span>;
+
+<span class="comment">% Execute Particle Swarm</span>
+[ bestIndAPS, bestFitAPS, nite, lastPopAPS, lastFitAPS, history ] = <span class="keyword">...</span>
+    aps ( opts, pop, v, c1, c2, P1, nitemax, goal, <span class="keyword">...</span>
+    fitfun, prifun );
 
 <span class="comment">% Now, we can easily improve the accuracy of the local extremum found</span>
 options = optimset(<span class="string">'TolFun'</span>,1E-8,<span class="string">'Display'</span>,<span class="string">'none'</span>);
-[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndAGA,options);
+[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndAPS,options);
 
-<span class="comment">% Display results of aga and fminsearch algorithms</span>
+<span class="comment">% Display results of aps and fminsearch algorithms</span>
 fprintf(<span class="string">'\nAlgorithm \tBest individual (x,y) \tValue\n'</span>);
-fprintf(<span class="string">'AGA \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndAGA,bestFitAGA);
+fprintf(<span class="string">'APS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndAPS,bestFitAPS);
 fprintf(<span class="string">'FMS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndFMS,bestFitFMS);
-</pre><pre class="codeoutput">GA label=10 g=  1 ng=50 best=4.652740e+00 0.846559 1.040944 
-GA label=10 g=  2 ng=50 best=1.773273e+00 1.998307 1.062953 
-GA label=10 g=  3 ng=50 best=4.362725e-02 1.013897 1.005187 
-GA label=10 g=  4 ng=50 best=4.362725e-02 1.013897 1.005187 
-GA label=10 g=  5 ng=50 best=5.795167e-03 1.000111 1.005404 
-GA label=10 g=  6 ng=50 best=2.529022e-03 0.997752 1.002774 
-GA label=10 g=  7 ng=50 best=6.948506e-05 0.999626 0.999542 
-GA label=10 g=  8 ng=50 best=1.415063e-07 0.999974 0.999992 
-GA label=10 best=1.415063e-07 0.999974 0.999992 goal=1.000000e-05 achieved !!
+</pre><pre class="codeoutput">PS label=10 ite=1 best= 1.027067 -0.963041  vbest= 0.482440 0.183801  fbest=4.266949e+00 
+PS label=10 ite=2 best= 2.154310 0.052135  vbest= -0.041210 -0.128630  fbest=7.105995e+00 
+PS label=10 ite=3 best= 2.113100 -0.076494  vbest= -0.107083 -0.082323  fbest=5.951268e+00 
+PS label=10 ite=4 best= 2.006017 -0.158817  vbest= -0.104213 -0.085928  fbest=6.941199e+00 
+PS label=10 ite=5 best= 1.130847 -0.923502  vbest= -0.126220 -0.048087  fbest=8.043457e+00 
+PS label=10 ite=6 best= 1.004627 -0.971590  vbest= 0.126220 0.048087  fbest=4.050314e+00 
+PS label=10 ite=7 best= 1.130847 -0.923502  vbest= -0.126220 -0.048087  fbest=8.043457e+00 
+PS label=10 ite=8 best= 1.004627 -0.971590  vbest= -0.126220 -0.048087  fbest=4.050314e+00 
+PS label=10 ite=9 best= 2.926893 0.930370  vbest= -0.096015 -0.095000  fbest=5.696174e+00 
+PS label=10 ite=10 best= 1.004627 -0.971590  vbest= 0.126220 0.048087  fbest=4.050314e+00 
+PS label=10 ite=11 best= 0.922637 -0.929088  vbest= 0.117957 -0.065803  fbest=5.861954e+00 
+PS label=10 ite=12 best= 1.004627 -0.971590  vbest= -0.126220 -0.048087  fbest=4.050314e+00 
+PS label=10 ite=13 best= 0.926213 -0.923051  vbest= 0.113765 -0.072810  fbest=5.905339e+00 
+PS label=10 ite=14 best= 1.004627 -0.971590  vbest= 0.126220 0.048087  fbest=4.050314e+00 
+PS label=10 ite=15 best= 2.863362 1.043222  vbest= -0.091586 -0.099276  fbest=7.304903e+00 
+PS label=10 ite=16 best= 1.007353 -0.973917  vbest= 0.005551 -0.008241  fbest=4.041064e+00 
+PS label=10 ite=17 best= 1.012904 -0.982158  vbest= -0.031374 0.046581  fbest=4.024738e+00 
+PS label=10 ite=18 best= 2.063087 0.075041  vbest= -0.094932 -0.096081  fbest=3.852204e+00 
+PS label=10 ite=19 best= 1.968155 -0.021040  vbest= 0.094932 0.096081  fbest=2.266615e+00 
+PS label=10 ite=20 best= 0.027534 1.056776  vbest= 0.118081 -0.065580  fbest=1.727755e+00 
+PS label=10 ite=21 best= 1.968155 -0.021040  vbest= -0.118677 0.064496  fbest=2.266615e+00 
+PS label=10 ite=22 best= 0.027534 1.056776  vbest= -0.118081 0.065580  fbest=1.727755e+00 
+PS label=10 ite=23 best= 0.005371 0.849800  vbest= -0.079440 0.109239  fbest=5.149867e+00 
+PS label=10 ite=24 best= 0.027534 1.056776  vbest= 0.118081 -0.065580  fbest=1.727755e+00 
+PS label=10 ite=25 best= 0.042244 1.027705  vbest= -0.134539 0.011963  fbest=1.419394e+00 
+PS label=10 ite=26 best= 0.027534 1.056776  vbest= 0.021563 -0.133337  fbest=1.727755e+00 
+PS label=10 ite=27 best= 0.042244 1.027705  vbest= 0.134539 -0.011963  fbest=1.419394e+00 
+PS label=10 ite=28 best= 0.033528 1.057608  vbest= 0.047834 -0.103848  fbest=1.806418e+00 
+PS label=10 ite=29 best= 0.042244 1.027705  vbest= -0.134539 0.011963  fbest=1.419394e+00 
+PS label=10 ite=30 best= 1.033159 0.971936  vbest= 0.135053 -0.002108  fbest=3.731977e-01 
+PS label=10 ite=31 best= 0.042244 1.027705  vbest= 0.134855 -0.007622  fbest=1.419394e+00 
+PS label=10 ite=32 best= 1.033159 0.971936  vbest= -0.135053 0.002108  fbest=3.731977e-01 
+PS label=10 ite=33 best= 0.898106 0.974044  vbest= 0.135053 -0.002108  fbest=2.124110e+00 
+PS label=10 ite=34 best= 1.033159 0.971936  vbest= 0.135053 -0.002108  fbest=3.731977e-01 
+PS label=10 ite=35 best= -0.081481 0.014734  vbest= 0.102354 0.088133  fbest=3.465316e+00 
+PS label=10 ite=36 best= 1.033159 0.971936  vbest= -0.135053 0.002108  fbest=3.731977e-01 
+PS label=10 ite=37 best= 0.898106 0.974044  vbest= 0.135053 -0.002108  fbest=2.124110e+00 
+PS label=10 ite=38 best= 1.033159 0.971936  vbest= 0.135053 -0.002108  fbest=3.731977e-01 
+PS label=10 ite=39 best= 0.942833 0.987831  vbest= -0.133024 0.023419  fbest=6.708071e-01 
+PS label=10 ite=40 best= 1.033159 0.971936  vbest= -0.135053 0.002108  fbest=3.731977e-01 
+PS label=10 ite=41 best= 0.942834 0.987832  vbest= 0.133025 -0.023412  fbest=6.707976e-01 
+PS label=10 ite=42 best= 1.033159 0.971936  vbest= 0.135053 -0.002108  fbest=3.731977e-01 
+PS label=10 ite=43 best= 0.942834 0.987833  vbest= 0.133025 -0.023412  fbest=6.707938e-01 
+PS label=10 ite=44 best= 1.024779 0.994740  vbest= 0.047761 -0.126344  fbest=1.270520e-01 
+PS label=10 ite=45 best= 0.942834 0.987833  vbest= 0.134226 0.015075  fbest=6.707918e-01 
+PS label=10 ite=46 best= 1.024779 0.994740  vbest= -0.047761 0.126344  fbest=1.270520e-01 
+PS label=10 ite=47 best= 0.943508 0.982712  vbest= 0.133478 0.020673  fbest=6.857847e-01 
+PS label=10 ite=48 best= 1.024779 0.994740  vbest= 0.047761 -0.126344  fbest=1.270520e-01 
+PS label=10 ite=49 best= 0.985133 0.960969  vbest= 0.128644 0.041166  fbest=3.445404e-01 
+PS label=10 ite=50 best= 1.024779 0.994740  vbest= -0.047761 0.126344  fbest=1.270520e-01 
 
 Algorithm 	Best individual (x,y) 	Value
-AGA 		0.999974,0.999992 		1.415063E-07
-FMS 		1.000005,1.000000 		4.554202E-09
+APS 		1.024779,0.994740 		1.270520E-01
+FMS 		0.999996,1.000000 		2.438394E-09
 </pre><h2>Fitness plot<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history) <span class="comment">% Full history; get fitness values</span>
     fithist = zeros(length(history),1);
@@ -154,12 +197,12 @@ FMS 		1.000005,1.000000 		4.554202E-09
 
     <span class="comment">% Beautify plot</span>
     grid <span class="string">minor</span>;
-    title(<span class="string">'Genetic Algorithm optimization | Rastrigin function'</span>);
-    xlabel(<span class="string">'Generation [#]'</span>);
+    title(<span class="string">'Particle Swarm optimization | Rastrigin function'</span>);
+    xlabel(<span class="string">'Iteration [#]'</span>);
     ylabel(<span class="string">'Best fitness function value [log]'</span>);
 
 <span class="keyword">end</span>;
-</pre><img vspace="5" hspace="5" src="example_aga_rastrigin_01.png" alt=""> <h2>Generations plot<a name="4"></a></h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
+</pre><img vspace="5" hspace="5" src="example_aps_rastrigin_01.png" alt=""> <h2>Generations plot<a name="4"></a></h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history)
 
     <span class="comment">% Create figure</span>
@@ -171,73 +214,51 @@ FMS 		1.000005,1.000000 		4.554202E-09
     colorbar(<span class="string">'Location'</span>,<span class="string">'EastOutside'</span>);
     view(0,90); hold <span class="string">on</span>;
 
-    <span class="comment">% Population size</span>
-    ne = N(1); <span class="comment">% Number of elites</span>
-    nm = N(2); <span class="comment">% Number of mutants</span>
-    nd = np - N(1) - N(2) - N(3); <span class="comment">% Number of descendants</span>
-
     <span class="comment">% Plot generations</span>
     ph = cell(np,1); <span class="comment">% Handles</span>
-    <span class="keyword">for</span> g=1:length(history)
+    <span class="keyword">for</span> iter=1:length(history)
 
         <span class="comment">% Title</span>
-        title({<span class="string">'Genetic Algorithm optimization | Rastrigin function'</span>;<span class="keyword">...</span>
-            sprintf(<span class="string">'Generation %03.0f'</span>,g)});
+        title({<span class="string">'Particle Swarm optimization | Rastrigin function'</span>;<span class="keyword">...</span>
+            sprintf(<span class="string">'Iteration %03.0f'</span>,iter)});
 
         <span class="comment">% Plot individuals</span>
         <span class="keyword">for</span> i=1:np
 
-            <span class="comment">% Select plotting marker</span>
-            <span class="keyword">if</span> i&lt;=ne, marker = <span class="string">'rv'</span>; <span class="comment">% Elites</span>
-            <span class="keyword">elseif</span> i&lt;=ne+nm, marker = <span class="string">'mo'</span>; <span class="comment">% Mutants</span>
-            <span class="keyword">elseif</span> i&lt;=ne+nm+nd, marker = <span class="string">'bx'</span>; <span class="comment">% Descendants</span>
-            <span class="keyword">else</span> marker = <span class="string">'ks'</span>; <span class="comment">% Newcomers</span>
-            <span class="keyword">end</span>;
-
             <span class="comment">% Plot individual</span>
-            x = history{g,1}{i}(1);
-            y = history{g,1}{i}(2);
+            x = history{iter,1}{i}(1);
+            y = history{iter,1}{i}(2);
             z = 100;
-            ph{i} = plot3(x,y,z,marker,<span class="string">'MarkerSize'</span>,4);
-
-            <span class="comment">% Save legend ticks</span>
-            <span class="keyword">if</span> i==ne, lh(1) = ph{i}; <span class="comment">% Elite</span>
-            <span class="keyword">elseif</span> i==ne+nm, lh(2) = ph{i}; <span class="comment">% Mutant</span>
-            <span class="keyword">elseif</span> i==ne+nm+nd, lh(3) = ph{i}; <span class="comment">% Descendant</span>
-            <span class="keyword">elseif</span> i==ne+nm+nd+1, lh(4) = ph{i}; <span class="comment">% Newcomer</span>
-            <span class="keyword">end</span>;
+            ph{i} = plot3(x,y,z,<span class="string">'ro'</span>,<span class="string">'MarkerSize'</span>,6);
 
         <span class="keyword">end</span>;
 
-        <span class="comment">% Legend</span>
-        legend(lh,<span class="string">'Elites'</span>,<span class="string">'Mutants'</span>,<span class="string">'Descendants'</span>,<span class="string">'Newcomers'</span>,<span class="keyword">...</span>
-            <span class="string">'Location'</span>,<span class="string">'NorthEastOutside'</span>);
-
         <span class="comment">% Do events</span>
+        axis([-5 5 -5 5]);
         drawnow;
 
         <span class="comment">% Wait</span>
-        pause(1);
+        pause(0.1);
 
         <span class="comment">% Delete individuals</span>
-        <span class="keyword">if</span> g~=length(history) <span class="comment">% Keep last frame</span>
+        <span class="keyword">if</span> iter~=length(history) <span class="comment">% Keep last frame</span>
             <span class="keyword">for</span> i=1:np, delete(ph{i}); <span class="keyword">end</span>;
         <span class="keyword">end</span>;
 
     <span class="keyword">end</span>;
 
 <span class="keyword">end</span>;
-</pre><img vspace="5" hspace="5" src="example_aga_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
+</pre><img vspace="5" hspace="5" src="example_aps_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
-% Example AGA
-% Find minima of a function with Genetic Algorithm (GA)
+% Example APS
+% Find minima of a function with Particle Swarm (PS) algorithm
 % Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
 
 % Clean-up
 close all;
 clear;
 
-%% AGA
+%% APS
 
 % Our test is a R^2->R function based on Rastrigin function.
 % It is challenging because it has infinite local extrema, located at
@@ -245,47 +266,49 @@ clear;
 % The global minimum is at (1,1), and its value is 0
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
-% Define GA function options (optional)
+% Define PS function options (optional)
 opts.ninfo = 2; % Verbosity level (0=none, 1=minimal, 2=extended)
 opts.label = 10; % Label (identification purposes)
-opts.dopar = 1; % Parallel execution of fitness function
+opts.dopar = 0; % Parallel execution of fitness function
 opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 
-% Define GA parameters
-ng = 50; % Number of generations
-np = 200; % Population size
-N = [3,... % Number of elites
-    floor(np*0.1),... % Number of mutants
-    floor(np*0.05),...% Number of newcomers
-    floor(np*0.2)]; % Number of parents
+% Define PS parameters
+nitemax = 50; % Maximum number of iterations
+np = 50; % Population size
+c1 = 9; % Local learning factor
+c2 = 20; % Global learning factor
+P1 = 1E-2; % Maximum step size (velocity) allowed in one iteration
 goal = 1E-5; % Target fitness value
 
 % Auxiliary function
 ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 
-% Define GA functions
-unifun = @(x) x; % Discard identical individuals (unimplemented)
+% Define PS functions
 fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
-mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random mov
-repfun = @(x,y,fx,fy) (x+y)/2; % Reproduction: average
 ranfun = @() ranrange(-5,5,2); % Random individual
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 
 % Randomize random seed
-rng('shuffle'); % We don't want repeatability in the GA
+rng('shuffle'); % We don't want repeatability in the PS
 
-% Execute Genetic Algorithm (GA)
-[ bestIndAGA, bestFitAGA, nite, lastPopAGA, lastFitAGA, history ] = ...
-    aga ( opts, np, ng, N, goal, ...
-    unifun, fitfun, mutfun, repfun, ranfun, prifun );
+% Generate initial population
+for i=1:np
+    pop{i} = ranfun(); %#ok
+    v{i} = 0.1 * ranfun(); %#ok
+end;
+
+% Execute Particle Swarm
+[ bestIndAPS, bestFitAPS, nite, lastPopAPS, lastFitAPS, history ] = ...
+    aps ( opts, pop, v, c1, c2, P1, nitemax, goal, ... 
+    fitfun, prifun );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1E-8,'Display','none');
-[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndAGA,options);
+[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndAPS,options);
 
-% Display results of aga and fminsearch algorithms
+% Display results of aps and fminsearch algorithms
 fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
-fprintf('AGA \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndAGA,bestFitAGA);
+fprintf('APS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndAPS,bestFitAPS);
 fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 %% Fitness plot
@@ -310,8 +333,8 @@ if ~isempty(fithist)
 
     % Beautify plot
     grid minor;
-    title('Genetic Algorithm optimization | Rastrigin function');
-    xlabel('Generation [#]');
+    title('Particle Swarm optimization | Rastrigin function');
+    xlabel('Iteration [#]');
     ylabel('Best fitness function value [log]');
 
 end;
@@ -330,56 +353,34 @@ if opts.nhist>1 && iscell(history)
     colorbar('Location','EastOutside');
     view(0,90); hold on;
 
-    % Population size
-    ne = N(1); % Number of elites
-    nm = N(2); % Number of mutants
-    nd = np - N(1) - N(2) - N(3); % Number of descendants
-
     % Plot generations
     ph = cell(np,1); % Handles
-    for g=1:length(history)
+    for iter=1:length(history)
 
         % Title
-        title({'Genetic Algorithm optimization | Rastrigin function';...
-            sprintf('Generation %03.0f',g)});
+        title({'Particle Swarm optimization | Rastrigin function';...
+            sprintf('Iteration %03.0f',iter)});
         
         % Plot individuals
         for i=1:np
 
-            % Select plotting marker
-            if i<=ne, marker = 'rv'; % Elites
-            elseif i<=ne+nm, marker = 'mo'; % Mutants
-            elseif i<=ne+nm+nd, marker = 'bx'; % Descendants
-            else marker = 'ks'; % Newcomers
-            end;
-
             % Plot individual
-            x = history{g,1}{i}(1);
-            y = history{g,1}{i}(2);
+            x = history{iter,1}{i}(1);
+            y = history{iter,1}{i}(2);
             z = 100;
-            ph{i} = plot3(x,y,z,marker,'MarkerSize',4);
-
-            % Save legend ticks
-            if i==ne, lh(1) = ph{i}; % Elite
-            elseif i==ne+nm, lh(2) = ph{i}; % Mutant
-            elseif i==ne+nm+nd, lh(3) = ph{i}; % Descendant
-            elseif i==ne+nm+nd+1, lh(4) = ph{i}; % Newcomer
-            end;
+            ph{i} = plot3(x,y,z,'ro','MarkerSize',6);
 
         end;
 
-        % Legend
-        legend(lh,'Elites','Mutants','Descendants','Newcomers',...
-            'Location','NorthEastOutside');
-
         % Do events
+        axis([-5 5 -5 5]);
         drawnow;
         
         % Wait
-        pause(1);
+        pause(0.1);
 
         % Delete individuals
-        if g~=length(history) % Keep last frame
+        if iter~=length(history) % Keep last frame
             for i=1:np, delete(ph{i}); end;
         end;
 

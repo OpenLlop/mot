@@ -1,4 +1,4 @@
-%% Example AGA
+% Example AGA
 % Find minima of a function with Genetic Algorithm
 % Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
 
@@ -6,16 +6,18 @@
 close all;
 clear;
 
-% Our test is a R^2->R function based on Rastrigin function. It is 
-% challenging because it has infinite local extrema, located at integer
-% numbers (ie, 8,-9) 
+%% AGA
+
+% Our test is a $R^2 \rightarrow R$ function based on Rastrigin function.
+% It is challenging because it has infinite local extrema, located at
+% integer numbers (ie, 8,-9)
 % The global minimum is at (1,1), and its value is 0
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
 % Define GA function options (optional)
 opts.ninfo = 2; % Verbosity level (0=none, 1=minimal, 2=extended)
 opts.label = 10; % Label (identification purposes)
-opts.paral = 1; % Parallel execution of fitness function
+opts.dopar = 1; % Parallel execution of fitness function
 opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 opts.plotf = 1; % Plot fitness (0=none, 1=plot, 2=plot+save)
 opts.plotp = 1; % Plot population (0=none, 1=plot, 2=plot+save)
@@ -36,7 +38,7 @@ ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 funique = @(x) x; % Discard identical individuals: currently not in use
 fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
 mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random mov
-repfun = @(x,fx,y,fy) (x+y)/2; % Reproduction: average
+repfun = @(x,y,fx,fy) (x+y)/2; % Reproduction: average
 ranfun = @() ranrange(-5,5,2); % Random individual
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 
@@ -44,12 +46,11 @@ prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 rng('shuffle'); % We don't want repeatability in the GA
 
 % Execute Genetic Algorithm
-[lastPopGA,bestFitGA, ...
-    nite,history] = aga(opts,np,ng,N,goal,...
-                        funique,fitfun,mutfun,repfun,ranfun,prifun);
+[lastPopGA,bestFitGA,nite,history] = aga(opts,np,ng,N,goal,...
+    funique,fitfun,mutfun,repfun,ranfun,prifun);
 
 % Now, we can easily improve the accuracy of the local extremum found
-options = optimset('TolFun',1e-8,'Display','none');
+options = optimset('TolFun',1E-8,'Display','none');
 [bestIndFMS,bestFitFMS] = fminsearch(fitfun,lastPopGA{1},options);
 
 % Display results of aga and fminsearch algorithms
@@ -57,25 +58,25 @@ fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
 fprintf('AGA \t\t%1.6f,%1.6f \t\t%1.6E\n',lastPopGA{1},bestFitGA);
 fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
-%% Plot fitness
+%% Fitness plot
 
 % Get fitness history
 if opts.nhist>1 && iscell(history) % Full history; get fitness values
-    history_fitness = zeros(length(history),1);
+    histFitness = zeros(length(history),1);
     for i=1:length(history)
-        history_fitness(i) = history{i,2}(1);
+        histFitness(i) = history{i,2}(1);
     end;
-else history_fitness = history; % Simple history
+else histFitness = history; % Simple history
 end;
 
 % Plot data
-if ~isempty(history_fitness)
+if ~isempty(histFitness)
 
     % Create figure
     fh1 = figure('Position',[400,200,900,600]);
 
     % Plot history
-    semilogy(history_fitness,'o-');
+    semilogy(histFitness,'o-');
 
     % Beautify plot
     grid minor;
@@ -85,7 +86,7 @@ if ~isempty(history_fitness)
 
 end;
 
-%% Plot generations
+%% Generations plot
 
 % Only show generations when outputting full history
 if opts.nhist>1 && iscell(history)

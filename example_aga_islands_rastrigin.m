@@ -1,10 +1,12 @@
-%% Example AGA Islands
+% Example AGA Islands
 % Find minima of a function with Genetic Algorithm + Islands
 % Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
 
 % Clean-up
 close all;
 clear;
+
+%% AGA Islands
 
 % Our test is a R^2->R function based on Rastrigin function. It is 
 % challenging because it has infinite local extrema, located at integer
@@ -15,7 +17,7 @@ ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 % Define GA function options
 opts.ninfo = 1; % Verbosity level (0=none, 1=minimal, 2=extended)
 opts.label = 10; % Label (identification purposes)
-opts.paral = 1; % Parallel execution of fitness function
+opts.dopar = 1; % Parallel execution of fitness function
 opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 opts.plotf = 0; % Plot fitness (0=none, 1=plot, 2=plot+save)
 opts.plotp = 0; % Plot population (0=none, 1=plot, 2=plot+save)
@@ -39,7 +41,7 @@ ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 funique = @(x) x; % Discard identical individuals: currently not in use
 fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
 mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random mov
-repfun = @(x,fx,y,fy) (x+y)/2; % Reproduction: average
+repfun = @(x,y,fx,fy) (x+y)/2; % Reproduction: average
 ranfun = @() ranrange(-5,5,2); % Random individual
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 
@@ -49,7 +51,7 @@ rng('shuffle'); % We don't want repeatability in the GA
 % We can just give the number of islands and individuals (pops = [ni np]),
 % then aga_islands generates the populations calling our ranfun. Or we can
 % generate our own initial populations:
-pops=cell(1,ni);
+pops = cell(1,ni);
 for illa=1:ni
     for i=1:np
         pops{illa}{i} = ranfun(); % Create random individual
@@ -57,9 +59,9 @@ for illa=1:ni
 end;
 
 % Execute Genetic Algorithm
-[lastpops, bestfits, bestind, bestfit, ...
-    history] = aga_islands(opts,pops,ngg,nemi,ng,N,goal,...
-                           funique,fitfun,mutfun,repfun,ranfun,prifun);
+[lastpops,bestfits,bestind,bestfit,history] = ...
+    aga_islands(opts,pops,ngg,nemi,ng,N,goal,...
+    funique,fitfun,mutfun,repfun,ranfun,prifun);
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1e-8,'Display','none');
@@ -70,7 +72,7 @@ fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
 fprintf('AGAI \t\t%1.6f,%1.6f \t\t%1.6E\n',bestind,bestfit);
 fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
-%% Plot fitness
+%% Fitness plot
 
 % Get fitness history
 if opts.nhist>1 && iscell(history) % Full history; get fitness values
@@ -98,7 +100,7 @@ if ~isempty(history_fitness)
 
 end;
 
-%% Plot generations
+%% Generations plot
 
 % Only show generations when outputting full history
 if opts.nhist>1 && iscell(history)

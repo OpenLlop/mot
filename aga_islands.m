@@ -3,74 +3,85 @@ function [ lastpops, bestfits, bestind, bestfit, history ] = ...
     pops, ngg, nemi, ng, N, goal, ...
     funique, fitfun, mutfun, repfun, ranfun, prifun )
 % Iterates to find minimum of a function using Genetic Algorithm
-% (c) 2013 - Manel Soria - ETSEIAT - v1.01
-% (c) 2015 - Manel Soria, David de la Torre - ETSEIAT - v1.02
 %
-% opts:     function control parameters [struct]
-%   ninfo:  verbosity level (0=none, 1=minimal, 2=extended)
-%   label:  integer number that precedes the prints in case output is to
-%           be filtered
-%   paral:  parallel execution of fitness function [1,0]
-%   nhist:  save history (0=none, 1=fitness, 2=all{pop,fit})
-%               0: history = []
-%               1: history(ngg,ni) = bestfit(i)
-%               2: history{ngg,ni} = [hist,nite] (refer to aga)
-%   plotf:  plot fitness (0=none, 1=plot, 2=plot+save)
-%               0: no plot
-%               1: plot on each global generation
-%               2: plot on each global generation + save plot to file
-%   plotp:  plot population (0=none, 1=plot, 2=plot+save)
-%               0: no plot
-%               1: plot on each global generation
-%               2: plot on each global generation + save plot to file
-% pop:      list with initial population elements
-% ngg:      number of global generations
-% nemi:     number of emigrations between islands per global generation
-% ng:       number of generations for each island per global generation
-% N:        population control parameters
-%   N(1)    ne: number of elite individuals that remain unchanged
-%   N(2)    nm: number of mutants
-%   N(3)    nn: number of newcomers
-%               the rest are descendants
-%   N(4)    na: number of parents. The descendants are choosen 
-%                   among the na best individuals 
-%           The rest of individuals (ie: nn=length(pop)-ne+nm+nd) are
-%                   newcommers, randomly choosen
-% goal:     If function value is below goal, iterations are stopped
+%Programmers:   Manel Soria         (UPC/ETSEIAT)
+%               David de la Torre   (UPC/ETSEIAT)
+%Date:          14/04/2015
+%Revision:      2
+%
+%Usage:         [lastpop, bestfit, nite, history] = aga ( opts, ...
+%                   pop, ng, N, goal, ...
+%                   unifun, fitfun, mutfun, repfun, ranfun, prifun )
+%
+%Inputs:
+%   opts:       function control parameters [struct]
+%       ninfo:  verbosity level (0=none, 1=minimal, 2=extended)
+%       label:  integer number that precedes the prints in case output is
+%               to be filtered
+%       dopar:  parallel execution of fitness function [1,0]
+%       nhist:  save history (0=none, 1=fitness, 2=all{pop,fit})
+%                   0: history = []
+%                   1: history(ngg,ni) = bestfit(i)
+%                   2: history{ngg,ni} = [hist,nite] (refer to aga)
+%       plotf:  plot fitness (0=none, 1=plot, 2=plot+save)
+%                   0: no plot
+%                   1: plot on each global generation
+%                   2: plot on each global generation + save plot to file
+%       plotp:  plot population (0=none, 1=plot, 2=plot+save)
+%                   0: no plot
+%                   1: plot on each global generation
+%                   2: plot on each global generation + save plot to file
+%   pop:        list with initial population elements
+%   ngg:        number of global generations
+%   nemi:       number of emigrations between islands per global generation
+%   ng:         number of generations for each island per global generation
+%   N:          population control parameters
+%       N(1)    ne: number of elite individuals that remain unchanged
+%       N(2)    nm: number of mutants
+%       N(3)    nn: number of newcomers
+%               The rest are descendants
+%       N(4)    na: number of parents. The descendants are choosen among 
+%               the na best individuals
+%               The rest of individuals (ie: nn=length(pop)-ne+nm+nd) are
+%               newcommers, randomly choosen
+%   goal:       If function value is below goal, iterations are stopped
 % 
-% If there are less than nm-1 non-identical indivials, population is 
-% considered degenerate and iterations stop
+%   If there are less than nm-1 non-identical indivials, population is 
+%   considered degenerate and iterations stop
 %
-% Call back functions to be provided by user:
-% funique:  Deletes repeated individuals in a population
-%           Receives a population and returns a population
-%           (a population is a list of individuals)
-% fitfun:   Fitness function, given one individual returns its fitness
-%           (RECALL that in this GA algoritm fitness is MINIMIZED)
-% mutfun:   Mutation funcion, given one individual and its fitness,
-%           mutfun should return a mutant individual. Fitness is given
-%           in case mutation intensity is to be decreased when close to
-%           the goal
-% repfun:   Given two individuals, returns a descendant 
-% ranfun:   Returns a random individual
-% prifun:   Prints individual
+%   Call back functions to be provided by user:
+%   funique:    Deletes repeated individuals in a population
+%               Receives a population and returns a population
+%               (a population is a list of individuals)
+%   fitfun:     Fitness function, given one individual returns its fitness
+%               (RECALL that in this GA algoritm fitness is MINIMIZED)
+%   mutfun:     Mutation funcion, given one individual and its fitness,
+%               mutfun should return a mutant individual. Fitness is given
+%               in case mutation intensity is to be decreased when close
+%               to the goal
+%   repfun:     Given two individuals and their fitnesses, returns a
+%               descendant
+%   ranfun:     Returns a random individual
+%   prifun:     Prints individual
 %
-% aga_islands returns:
-% lastpops: list with last populations sorted by fitness (all islands)
-% lastfits: best last fitness value (all islands)
-% bestind:  best individual (among all the islands)
-% bestfit:  fitness value of best individual
-% history:  array (ngg,ni) with the best value found after each iteration
+%Outputs:
+%   lastpops:   list with last populations sorted by fitness (all islands)
+%   lastfits:   best last fitness value (all islands)
+%   bestind:    best individual (among all the islands)
+%   bestfit:    fitness value of best individual
+%   history:    array (ngg,ni) with the best value found after each
+%               iteration
 
-% Set default options
+% Set options
 if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 0; end;
 if isfield(opts,'label'), label = opts.label; else label = 0; end;
+if isfield(opts,'dopar'), dopar = opts.dopar; else dopar = 0; end;
 if isfield(opts,'nhist'), nhist = opts.nhist; else nhist = 0; end;
 if isfield(opts,'plotf'), plotf = opts.plotf; else plotf = 0; end;
 if isfield(opts,'plotp'), plotp = opts.plotp; else plotp = 0; end;
 
-% Declare history var
-history = [];
+% Declare history variable, if required
+if nhist>0, history = []; end;
 
 % Build population
 if (~iscell(pops)) % Only population size is given                                   
@@ -111,13 +122,14 @@ for gg=1:ngg;
     % Evolve each island separately
     for island=1:ni
         
-        % AGA options
-        optsi.ninfo = ninfo-1;
-        optsi.label = label + gg*1000 + island;
-        optsi.nhist = nhist;
+        % AGA island options
+        iopts.ninfo = ninfo-1;
+        iopts.label = label + gg*1000 + island;
+        iopts.dopar = dopar;
+        iopts.nhist = nhist;
         
         % Execute AGA (Genetic Algorithm)
-        [lastpop,bestfit,nite,hist] = aga( optsi, ...
+        [lastpop, bestfit, nite, hist] = aga(iopts, ...
             pops{island}, ng, N, goal,...
             funique, fitfun, mutfun, repfun, ranfun, prifun);
         
@@ -145,14 +157,14 @@ for gg=1:ngg;
     end;
     
     % Find best individual of all islands and island where it lives
-    [fbest,ibest] = min(bestfits);
+    [fbest, ibest] = min(bestfits);
     if ninfo>0 % Show info
-        fprintf('aga_islands label= %d gg= %d fbest= %8.3e island= %d ',...
+        fprintf('aga_islands label= %d gg= %d fbest= %8.3e island= %d',...
             label,gg,fbest,ibest);
-        if ~isempty(prifun) 
-            fprintf('best: '); prifun(lastpop{i});
+        if ~isempty(prifun)
+            fprintf(' best: '); prifun(lastpop{i});
         end;
-        fprintf('\n');         
+        fprintf('\n');
     end;
 
     % Save history
@@ -163,31 +175,32 @@ for gg=1:ngg;
 
     % Plot fitness if required
     if plotf>0
-       if ~exist('fhf','var'), [fhf] = InitializePlotFitFigure(); end;
-       PlotFitnessHistory(fhf); % Plot fitness history
+       if ~exist('fhf','var'), [fhfit] = initFitFigure(); end;
+       plotFitHistory(fhfit); % Plot fitness history
     end;
 
     % Plot generation if required
     if plotp>0
-       if ~exist('fhp','var'), [fhp,ph] = InitializePlotGenFigure(); end;
-       PlotCurrentPopulation(fhp); % Plot generation
+       if ~exist('fhp','var'), [fhpop, ph] = initGenFigure(); end;
+       plotPopCurrent(fhpop); % Plot generation
     end;
 
     % Check if reached target fitness or max generations 
-    if fbest<=goal || gg>=ngg
+    if fbest<=goal || gg>=ngg % Target achieved; end simulation
         
         % Show info if required
         if ninfo>1
             fprintf('aga_islands stoping because ');
-            if (gg==ngg) 
-                fprintf('maximum number of global iterations %d has been reached \n', ng);
+            if gg==ngg
+                fprintf(['maximum number of global iterations %d ',...
+                    'has been reached \n'], ng);
             else
                 fprintf('goal %e has been reached \n', goal);
             end;
         end;
         
         % Save last values
-        lastpops = pops{ibest};
+        lastpops = pops;
         bestind = pops{ibest}{1};
         bestfit = fbest;
         
@@ -228,7 +241,7 @@ end;
 %% Auxiliar functions
 
     % Create fitness plot figure
-    function [fh] = InitializePlotFitFigure()
+    function [fh] = initFitFigure()
 
         % Figure Sizing
         SS = get(0,'ScreenSize'); % Get User's Screen Size
@@ -251,7 +264,7 @@ end;
     end
 
     % Plot fitness history
-    function PlotFitnessHistory(fh)
+    function plotFitHistory(fh)
         
         % Set current figure
         figure(fh);
@@ -272,7 +285,7 @@ end;
     end
 
     % Create population plot figure
-    function [fh,ph] = InitializePlotGenFigure()
+    function [fh,ph] = initGenFigure()
 
         % Figure Sizing
         SS = get(0,'ScreenSize'); % Get User's Screen Size
@@ -295,7 +308,7 @@ end;
     end
 
     % Plot current generation
-    function PlotCurrentPopulation(fh)
+    function plotPopCurrent(fh)
 
         % Set current figure
         figure(fh);

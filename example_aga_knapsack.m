@@ -1,4 +1,4 @@
-%% Example AGA
+%% Example AGA Knapsack
 % Find minima of a function with Genetic Algorithm
 % Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
 
@@ -17,7 +17,7 @@ function example_aga_knapsack
 % Define GA function options
 opts.ninfo = 2; % Verbosity level (0=none, 1=minimal, 2=extended)
 opts.label = 10; % Label (identification purposes)
-opts.paral = 1; % Parallel execution of fitness function
+opts.dopar = 1; % Parallel execution of fitness function
 opts.nhist = 1; % Saved history level (0=none, 1=fitness, 2=full)
 
 % Define Knapsack parameters
@@ -43,15 +43,14 @@ goal = -Inf; % Target fitness value
 rng('shuffle'); % We don't want repetability in the GA 
 
 % Now we construct an initial population list
-pop=cell(1,np);
+pop = cell(1,np);
 for i=1:np
     pop{i}=ranfun(); 
 end;
 
 % Execute Genetic Algorithm
-[lastpop,bestfit, ...
-    nite,history] = aga(opts,np,ng,N,goal,...
-                        @funique,@fitness,@mutfun,@repfun,@ranfun,@prifun);
+[lastpop,bestfit,nite,history] = aga(opts,np,ng,N,goal,...
+    @funique,@fitness,@mutfun,@repfun,@ranfun,@prifun);
 
                     
 %% Plot history
@@ -107,7 +106,7 @@ ylabel('Best fitness function value');
     end
                 
     % Reproduction of two individuals
-    function c=repfun(a,fa,b,fb)
+    function c=repfun(a,b,fa,fb)
         e=size(a,1);
         p=randi(size(a,1));
         c=[ a(1:p-1); b(p:e) ];

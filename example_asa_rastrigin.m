@@ -1,10 +1,12 @@
-%% Example ASA
+% Example ASA
 % Find minima of a function with Simulated Annealing
 % Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
 
 % Clean-up
 close all;
 clear;
+
+%% ASA
 
 % Our test is a R^2->R function based on Rastrigin function. It is 
 % challenging because it has infinite local extrema, located at integer

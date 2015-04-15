@@ -5,6 +5,7 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
 %
 %Programmers:   Manel Soria         (UPC/ETSEIAT)
 %               David de la Torre	(UPC/ETSEIAT)
+%               Arnau Miro (UPC/ETSEIAT)
 %Date:          14/04/2015
 %Revision:      2
 %

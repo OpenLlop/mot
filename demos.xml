@@ -3,7 +3,20 @@
    <name>MOT</name>
    <type>toolbox</type>
    <icon>HelpIcon.DEMOS</icon>
-   <description>Three functions: genetic algorithm (aga), genetic algorithm with islands (aga_islands) and simulated annealing (asa). They are intended to be used for optimization of functions of real arguments, integer arguments, a mixture of both or actually any kind of argument, since call-back functions are used. This means that any data type can be used to represent the problem. Four example codes are provided. When real valued functions are used, one example shows how to improve the result of genetic algorithm with a conventional optimization code.</description>
+   <description>Matlab Optimisation Toolbox (MOT) is a library of optimisation functions for Matlab.
+
+The toolbox includes the following algorithms:
+
+* Genetic Algorithm (**GA**)
+* Genetic Algorithm with Islands (**GA** + **Islands**)
+* Particle Swarm (**PS**)
+* Simulated Annealing (**SA**)
+
+They are intended to be used for optimization of functions of real arguments, integer arguments, a mixture of both or actually any kind of argument, since call-back functions are used. This means that any data type can be used to represent the problem.
+
+The functions are coded focusing on an educational usage; algorithm clarity and ease-of-understanding is given high priority at the expense of any potential code/performance optimisations.
+
+Example scripts are also provided. Some examples show how to improve the result of genetic algorithm with a conventional optimization code.</description>
    <demosection>
       <label>AGA</label>
       <demoitem>
@@ -13,10 +26,22 @@
          <file>html/example_aga_islands_rastrigin.html</file>
       </demoitem>
       <demoitem>
+         <label>example_aga_knapsack</label>
+         <type>other</type>
+         <source>example_aga_knapsack</source>
+         <file>html/example_aga_knapsack.html</file>
+      </demoitem>
+      <demoitem>
          <label>example_aga_rastrigin</label>
          <type>other</type>
          <source>example_aga_rastrigin</source>
          <file>html/example_aga_rastrigin.html</file>
+      </demoitem>
+      <demoitem>
+         <label>example_aps_rastrigin</label>
+         <type>other</type>
+         <source>example_aps_rastrigin</source>
+         <file>html/example_aps_rastrigin.html</file>
       </demoitem>
       <demoitem>
          <label>example_asa_rastrigin</label>

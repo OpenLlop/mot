@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>example_aga_islands_rastrigin</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-04-14"><meta name="DC.source" content="example_aga_islands_rastrigin.m"><style type="text/css">
+      --><title>Example AGA Islands</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-04-16"><meta name="DC.source" content="example_aga_islands_rastrigin.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,17 +66,10 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">AGA Islands</a></li><li><a href="#3">Fitness plot</a></li><li><a href="#4">Generations plot</a></li></ul></div><pre class="codeinput"><span class="comment">% Example AGA Islands</span>
-<span class="comment">% Find minima of a function with Genetic Algorithm (GA) + Islands</span>
-<span class="comment">% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT</span>
-
-<span class="comment">% Clean-up</span>
-close <span class="string">all</span>;
-clear;
-</pre><h2>AGA Islands<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function.</span>
+  </style></head><body><div class="content"><h1>Example AGA Islands</h1><!--introduction--><p>Find minima of a function with Genetic Algorithm (GA) + Islands</p><p>Programmers:   Manel Soria         (UPC/ETSEIAT)                David de la Torre   (UPC/ETSEIAT)                Arnau Miro          (UPC/ETSEIAT) Date:          16/04/2015 Revision:      2</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">AGA Islands</a></li><li><a href="#2">Fitness plot</a></li><li><a href="#3">Generations plot</a></li></ul></div><h2>AGA Islands<a name="1"></a></h2><pre class="codeinput"><span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function.</span>
 <span class="comment">% It is challenging because it has infinite local extrema, located at</span>
-<span class="comment">% integer numbers (ie, 8,-9)</span>
-<span class="comment">% The global minimum is at (1,1), and its value is 0</span>
+<span class="comment">% integer numbers (ie, 8,-9).</span>
+<span class="comment">% The global minimum is at (1,1), and its value is 0.</span>
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
 <span class="comment">% Define GA function options</span>
@@ -135,17 +128,18 @@ fprintf(<span class="string">'\nAlgorithm \tBest individual (x,y) \tValue\n'</sp
 fprintf(<span class="string">'AGAI \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestind,bestfit);
 fprintf(<span class="string">'FMS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndFMS,bestFitFMS);
 </pre><pre class="codeoutput">aga_islands begin ni=3 np=40 ngg=6 ng=6
-aga_islands label= 10 gg= 1 fbest= 1.570e-02 island= 2 best: 1.008802 1.001304 
-aga_islands label= 10 gg= 2 fbest= 1.087e-03 island= 3 best: 0.997895 1.001022 
-aga_islands label= 10 gg= 3 fbest= 1.087e-03 island= 2 best: 0.997895 1.001022 
-aga_islands label= 10 gg= 4 fbest= 1.087e-03 island= 1 best: 0.997895 1.001022 
-aga_islands label= 10 gg= 5 fbest= 1.087e-03 island= 1 best: 0.997895 1.001022 
-aga_islands label= 10 gg= 6 fbest= 1.087e-03 island= 1 best: 0.997895 1.001022 
+Starting parallel pool (parpool) using the 'local' profile ... connected to 4 workers.
+aga_islands label= 10 gg= 1 fbest= 1.273e+00 island= 2 best: 0.977065 1.965257 
+aga_islands label= 10 gg= 2 fbest= 1.135e-01 island= 1 best: 0.976567 1.004874 
+aga_islands label= 10 gg= 3 fbest= 1.655e-02 island= 1 best: 0.999883 0.990867 
+aga_islands label= 10 gg= 4 fbest= 1.655e-02 island= 1 best: 0.999883 0.990867 
+aga_islands label= 10 gg= 5 fbest= 1.655e-02 island= 1 best: 0.999883 0.990867 
+aga_islands label= 10 gg= 6 fbest= 1.655e-02 island= 1 best: 0.999883 0.990867 
 
 Algorithm 	Best individual (x,y) 	Value
-AGAI 		0.997895,1.001022 		1.086541E-03
-FMS 		0.999999,0.999998 		5.822471E-10
-</pre><h2>Fitness plot<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
+AGAI 		0.999883,0.990867 		1.654673E-02
+FMS 		1.000005,0.999997 		5.668984E-09
+</pre><h2>Fitness plot<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history) <span class="comment">% Full history; get fitness values</span>
     fithist = zeros(size(history,1),1);
     <span class="keyword">for</span> g=1:size(history,1)
@@ -170,7 +164,7 @@ FMS 		0.999999,0.999998 		5.822471E-10
     ylabel(<span class="string">'Best fitness function value [log]'</span>);
 
 <span class="keyword">end</span>;
-</pre><img vspace="5" hspace="5" src="example_aga_islands_rastrigin_01.png" alt=""> <h2>Generations plot<a name="4"></a></h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
+</pre><img vspace="5" hspace="5" src="example_aga_islands_rastrigin_01.png" alt=""> <h2>Generations plot<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history)
 
     <span class="comment">% Create figure</span>
@@ -254,20 +248,21 @@ FMS 		0.999999,0.999998 		5.822471E-10
 <span class="keyword">end</span>;
 </pre><img vspace="5" hspace="5" src="example_aga_islands_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
-% Example AGA Islands
+%% Example AGA Islands
 % Find minima of a function with Genetic Algorithm (GA) + Islands
-% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
-
-% Clean-up
-close all;
-clear;
+%
+% Programmers:   Manel Soria         (UPC/ETSEIAT)
+%                David de la Torre   (UPC/ETSEIAT)
+%                Arnau Miro          (UPC/ETSEIAT)
+% Date:          16/04/2015
+% Revision:      2
 
 %% AGA Islands
 
 % Our test is a R^2->R function based on Rastrigin function.
 % It is challenging because it has infinite local extrema, located at
-% integer numbers (ie, 8,-9)
-% The global minimum is at (1,1), and its value is 0
+% integer numbers (ie, 8,-9).
+% The global minimum is at (1,1), and its value is 0.
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
 % Define GA function options

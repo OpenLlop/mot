@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>example_asa_rastrigin</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-04-14"><meta name="DC.source" content="example_asa_rastrigin.m"><style type="text/css">
+      --><title>Example ASA</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-04-16"><meta name="DC.source" content="example_asa_rastrigin.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,14 +66,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">ASA</a></li><li><a href="#3">Plot fitness</a></li><li><a href="#4">Plot iterations</a></li></ul></div><pre class="codeinput"><span class="comment">% Example ASA</span>
-<span class="comment">% Find minima of a function with Simulated Annealing (SA) algorithm</span>
-<span class="comment">% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT</span>
-
-<span class="comment">% Clean-up</span>
-close <span class="string">all</span>;
-clear;
-</pre><h2>ASA<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function.</span>
+  </style></head><body><div class="content"><h1>Example ASA</h1><!--introduction--><p>Find minima of a function with Simulated Annealing (SA) algorithm</p><p>Programmers:   Manel Soria         (UPC/ETSEIAT)                David de la Torre   (UPC/ETSEIAT)                Arnau Miro          (UPC/ETSEIAT) Date:          16/04/2015 Revision:      2</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">ASA</a></li><li><a href="#2">Plot fitness</a></li><li><a href="#3">Plot iterations</a></li></ul></div><h2>ASA<a name="1"></a></h2><pre class="codeinput"><span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function.</span>
 <span class="comment">% It is challenging because it has infinite local extrema, located at</span>
 <span class="comment">% integer numbers (ie, 8,-9)</span>
 <span class="comment">% The global minimum is at (1,1), and its value is 0</span>
@@ -86,8 +79,8 @@ opts.label = 10; <span class="comment">% Label (identification purposes)</span>
 opts.nhist = 2; <span class="comment">% Save history (0=none, 1=fitness, 2=all data)</span>
 
 <span class="comment">% Define SA parameters</span>
-nitemax = 50; <span class="comment">% Maximum number of iterations</span>
-mu = 0.2; <span class="comment">% Thermal transition probability parameter</span>
+nitemax = 200; <span class="comment">% Maximum number of iterations</span>
+mu = 5; <span class="comment">% Thermal transition probability parameter</span>
 goal = 1E-5; <span class="comment">% Target fitness value</span>
 
 <span class="comment">% Auxiliary function</span>
@@ -95,7 +88,7 @@ ranrange = @(a,b,n) a + (b-a)*rand(n,1); <span class="comment">% n random values
 
 <span class="comment">% Define SA functions</span>
 fitfun = @(x) ras(x(1),x(2)); <span class="comment">% Fitness function - TO BE MINIMIZED</span>
-mutfun = @(x,f) x + ranrange(-0.1,0.1,2); <span class="comment">% Mutation: small random mov</span>
+mutfun = @(x,f) x + ranrange(-0.3,0.3,2); <span class="comment">% Mutation: small random mov</span>
 prifun = @(x) fprintf(<span class="string">'%f %f '</span>,x(1),x(2)); <span class="comment">% Print an individual</span>
 
 <span class="comment">% Initial guess</span>
@@ -103,7 +96,7 @@ A0 = [2*rand(); 2*rand()];
 
 <span class="comment">% Execute Simulated Annealing</span>
 [ bestIndASA, bestFitASA, nite, lastPopASA, lastFitASA, history ] = <span class="keyword">...</span>
-    asa ( opts, A0, nitemax, mu, goal, <span class="keyword">...</span>
+    asa( opts, A0, nitemax, mu, goal, <span class="keyword">...</span>
     fitfun, mutfun, prifun );
 
 <span class="comment">% Now, we can easily improve the accuracy of the local extremum found</span>
@@ -114,17 +107,32 @@ options = optimset(<span class="string">'TolFun'</span>,1e-8,<span class="string
 fprintf(<span class="string">'\nAlgorithm \tBest individual (x,y) \tValue\n'</span>);
 fprintf(<span class="string">'ASA \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndASA,bestFitASA);
 fprintf(<span class="string">'FMS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndFMS,bestFitFMS);
-</pre><pre class="codeoutput">SA label=10 nite=1  best= 0.759174 1.433037  fitA=28.797312 fitbest=28.797312 
-SA label=10 nite=10  best= 0.998782 1.499391  fitA=20.249612 fitbest=18.831405 
-SA label=10 nite=20  best= 1.147204 1.240031  fitA=13.434262 fitbest=13.434262 
-SA label=10 nite=30  best= 1.055326 0.999894  fitA=0.601220 fitbest=0.601220 
-SA label=10 nite=40  best= 1.000822 0.989084  fitA=0.023767 fitbest=0.023767 
-SA label=10 nite=50  best= 1.000822 0.989084  fitA=0.023767 fitbest=0.023767 
+</pre><pre class="codeoutput">SA label=10 nite=1  best= 1.977942 0.668953  fitA=16.036919 fitbest=16.036919 
+SA label=10 nite=10  best= 1.997295 1.047945  fitA=1.448665 fitbest=1.448665 
+SA label=10 nite=20  best= 1.785977 0.941266  fitA=9.053145 fitbest=1.448665 
+SA label=10 nite=30  best= 2.137619 1.450080  fitA=24.520093 fitbest=1.448665 
+SA label=10 nite=40  best= 2.009427 1.197713  fitA=7.849081 fitbest=1.448665 
+SA label=10 nite=50  best= 0.995245 0.993723  fitA=0.012300 fitbest=0.012300 
+SA label=10 nite=60  best= 0.995245 0.993723  fitA=0.012300 fitbest=0.012300 
+SA label=10 nite=70  best= 0.995245 0.993723  fitA=0.012300 fitbest=0.012300 
+SA label=10 nite=80  best= 0.995245 0.993723  fitA=0.012300 fitbest=0.012300 
+SA label=10 nite=90  best= 0.995245 0.993723  fitA=0.012300 fitbest=0.012300 
+SA label=10 nite=100  best= 0.995245 0.993723  fitA=0.012300 fitbest=0.012300 
+SA label=10 nite=110  best= 0.995245 0.993723  fitA=0.012300 fitbest=0.012300 
+SA label=10 nite=120  best= 0.995245 0.993723  fitA=0.012300 fitbest=0.012300 
+SA label=10 nite=130  best= 1.031813 0.999162  fitA=0.200257 fitbest=0.012300 
+SA label=10 nite=140  best= 1.031813 0.999162  fitA=0.200257 fitbest=0.012300 
+SA label=10 nite=150  best= 1.031813 0.999162  fitA=0.200257 fitbest=0.012300 
+SA label=10 nite=160  best= 1.031813 0.999162  fitA=0.200257 fitbest=0.012300 
+SA label=10 nite=170  best= 0.990830 0.986794  fitA=0.051257 fitbest=0.012300 
+SA label=10 nite=180  best= 0.990830 0.986794  fitA=0.051257 fitbest=0.012300 
+SA label=10 nite=190  best= 1.023469 1.007606  fitA=0.120553 fitbest=0.012300 
+SA label=10 nite=200  best= 1.120631 1.166375  fitA=7.763895 fitbest=0.012300 
 
 Algorithm 	Best individual (x,y) 	Value
-ASA 		1.000822,0.989084 		2.376710E-02
-FMS 		0.999999,0.999997 		2.479560E-09
-</pre><h2>Plot fitness<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
+ASA 		0.995245,0.993723 		1.230031E-02
+FMS 		1.000003,0.999997 		4.028724E-09
+</pre><h2>Plot fitness<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 <span class="comment">% Full history; get fitness values</span>
     fithist = zeros(length(history),1);
     <span class="keyword">for</span> i=1:length(history)
@@ -146,7 +154,7 @@ title(<span class="string">'Rastrigin function | Simulated Annealing optimizatio
 xlabel(<span class="string">'Iteration [#]'</span>);
 ylabel(<span class="string">'Best fitness function value [log]'</span>);
 hold <span class="string">off</span>;
-</pre><img vspace="5" hspace="5" src="example_asa_rastrigin_01.png" alt=""> <h2>Plot iterations<a name="4"></a></h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
+</pre><img vspace="5" hspace="5" src="example_asa_rastrigin_01.png" alt=""> <h2>Plot iterations<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history)
 
     <span class="comment">% Create figure</span>
@@ -198,13 +206,14 @@ hold <span class="string">off</span>;
 <span class="keyword">end</span>;
 </pre><img vspace="5" hspace="5" src="example_asa_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
-% Example ASA
+%% Example ASA
 % Find minima of a function with Simulated Annealing (SA) algorithm
-% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
-
-% Clean-up
-close all;
-clear;
+%
+% Programmers:   Manel Soria         (UPC/ETSEIAT)
+%                David de la Torre   (UPC/ETSEIAT)
+%                Arnau Miro          (UPC/ETSEIAT)
+% Date:          16/04/2015
+% Revision:      2
 
 %% ASA
 
@@ -221,8 +230,8 @@ opts.label = 10; % Label (identification purposes)
 opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all data)
 
 % Define SA parameters
-nitemax = 50; % Maximum number of iterations
-mu = 0.2; % Thermal transition probability parameter
+nitemax = 200; % Maximum number of iterations
+mu = 5; % Thermal transition probability parameter
 goal = 1E-5; % Target fitness value
 
 % Auxiliary function
@@ -230,7 +239,7 @@ ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 
 % Define SA functions
 fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
-mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random mov
+mutfun = @(x,f) x + ranrange(-0.3,0.3,2); % Mutation: small random mov
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 
 % Initial guess
@@ -238,7 +247,7 @@ A0 = [2*rand(); 2*rand()];
 
 % Execute Simulated Annealing
 [ bestIndASA, bestFitASA, nite, lastPopASA, lastFitASA, history ] = ...
-    asa ( opts, A0, nitemax, mu, goal, ...
+    asa( opts, A0, nitemax, mu, goal, ...
     fitfun, mutfun, prifun );
 
 % Now, we can easily improve the accuracy of the local extremum found

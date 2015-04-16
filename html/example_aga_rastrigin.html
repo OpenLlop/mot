@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>example_aga_rastrigin</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-04-14"><meta name="DC.source" content="example_aga_rastrigin.m"><style type="text/css">
+      --><title>Example AGA</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-04-16"><meta name="DC.source" content="example_aga_rastrigin.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,14 +66,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">AGA</a></li><li><a href="#3">Fitness plot</a></li><li><a href="#4">Generations plot</a></li></ul></div><pre class="codeinput"><span class="comment">% Example AGA</span>
-<span class="comment">% Find minima of a function with Genetic Algorithm (GA)</span>
-<span class="comment">% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT</span>
-
-<span class="comment">% Clean-up</span>
-close <span class="string">all</span>;
-clear;
-</pre><h2>AGA<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function.</span>
+  </style></head><body><div class="content"><h1>Example AGA</h1><!--introduction--><p>Find minima of a function with Genetic Algorithm (GA)</p><p>Programmers:   Manel Soria         (UPC/ETSEIAT)                David de la Torre   (UPC/ETSEIAT)                Arnau Miro          (UPC/ETSEIAT) Date:          16/04/2015 Revision:      2</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">AGA</a></li><li><a href="#2">Fitness plot</a></li><li><a href="#3">Generations plot</a></li></ul></div><h2>AGA<a name="1"></a></h2><pre class="codeinput"><span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function.</span>
 <span class="comment">% It is challenging because it has infinite local extrema, located at</span>
 <span class="comment">% integer numbers (ie, 8,-9)</span>
 <span class="comment">% The global minimum is at (1,1), and its value is 0</span>
@@ -121,20 +114,20 @@ options = optimset(<span class="string">'TolFun'</span>,1E-8,<span class="string
 fprintf(<span class="string">'\nAlgorithm \tBest individual (x,y) \tValue\n'</span>);
 fprintf(<span class="string">'AGA \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndAGA,bestFitAGA);
 fprintf(<span class="string">'FMS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndFMS,bestFitFMS);
-</pre><pre class="codeoutput">GA label=10 g=  1 ng=50 best=4.652740e+00 0.846559 1.040944 
-GA label=10 g=  2 ng=50 best=1.773273e+00 1.998307 1.062953 
-GA label=10 g=  3 ng=50 best=4.362725e-02 1.013897 1.005187 
-GA label=10 g=  4 ng=50 best=4.362725e-02 1.013897 1.005187 
-GA label=10 g=  5 ng=50 best=5.795167e-03 1.000111 1.005404 
-GA label=10 g=  6 ng=50 best=2.529022e-03 0.997752 1.002774 
-GA label=10 g=  7 ng=50 best=6.948506e-05 0.999626 0.999542 
-GA label=10 g=  8 ng=50 best=1.415063e-07 0.999974 0.999992 
-GA label=10 best=1.415063e-07 0.999974 0.999992 goal=1.000000e-05 achieved !!
+</pre><pre class="codeoutput">GA label=10 g=  1 ng=50 best=1.495353e+00 -0.042285 1.017125 
+GA label=10 g=  2 ng=50 best=4.250166e-01 1.036824 0.971815 
+GA label=10 g=  3 ng=50 best=4.250166e-01 1.036824 0.971815 
+GA label=10 g=  4 ng=50 best=4.246074e-02 0.987801 1.008081 
+GA label=10 g=  5 ng=50 best=6.535754e-03 0.994515 1.001693 
+GA label=10 g=  6 ng=50 best=1.174257e-03 0.998216 0.998346 
+GA label=10 g=  7 ng=50 best=3.854059e-05 1.000251 1.000363 
+GA label=10 g=  8 ng=50 best=8.973160e-06 0.999925 1.000199 
+GA label=10 best=8.973160e-06 0.999925 1.000199 goal=1.000000e-05 achieved !!
 
 Algorithm 	Best individual (x,y) 	Value
-AGA 		0.999974,0.999992 		1.415063E-07
-FMS 		1.000005,1.000000 		4.554202E-09
-</pre><h2>Fitness plot<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
+AGA 		0.999925,1.000199 		8.973160E-06
+FMS 		1.000008,1.000006 		2.012312E-08
+</pre><h2>Fitness plot<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history) <span class="comment">% Full history; get fitness values</span>
     fithist = zeros(length(history),1);
     <span class="keyword">for</span> i=1:length(history)
@@ -159,7 +152,7 @@ FMS 		1.000005,1.000000 		4.554202E-09
     ylabel(<span class="string">'Best fitness function value [log]'</span>);
 
 <span class="keyword">end</span>;
-</pre><img vspace="5" hspace="5" src="example_aga_rastrigin_01.png" alt=""> <h2>Generations plot<a name="4"></a></h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
+</pre><img vspace="5" hspace="5" src="example_aga_rastrigin_01.png" alt=""> <h2>Generations plot<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history)
 
     <span class="comment">% Create figure</span>
@@ -229,13 +222,14 @@ FMS 		1.000005,1.000000 		4.554202E-09
 <span class="keyword">end</span>;
 </pre><img vspace="5" hspace="5" src="example_aga_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
-% Example AGA
+%% Example AGA
 % Find minima of a function with Genetic Algorithm (GA)
-% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
-
-% Clean-up
-close all;
-clear;
+%
+% Programmers:   Manel Soria         (UPC/ETSEIAT)
+%                David de la Torre   (UPC/ETSEIAT)
+%                Arnau Miro          (UPC/ETSEIAT)
+% Date:          16/04/2015
+% Revision:      2
 
 %% AGA
 

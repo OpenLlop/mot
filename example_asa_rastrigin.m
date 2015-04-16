@@ -1,10 +1,11 @@
-% Example ASA
+%% Example ASA
 % Find minima of a function with Simulated Annealing (SA) algorithm
-% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
-
-% Clean-up
-close all;
-clear;
+%
+% Programmers:   Manel Soria         (UPC/ETSEIAT)
+%                David de la Torre   (UPC/ETSEIAT)
+%                Arnau Miro          (UPC/ETSEIAT)
+% Date:          16/04/2015
+% Revision:      2
 
 %% ASA
 
@@ -21,8 +22,8 @@ opts.label = 10; % Label (identification purposes)
 opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all data)
 
 % Define SA parameters
-nitemax = 50; % Maximum number of iterations
-mu = 0.2; % Thermal transition probability parameter
+nitemax = 200; % Maximum number of iterations
+mu = 5; % Thermal transition probability parameter
 goal = 1E-5; % Target fitness value
 
 % Auxiliary function
@@ -30,7 +31,7 @@ ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 
 % Define SA functions
 fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
-mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random mov
+mutfun = @(x,f) x + ranrange(-0.3,0.3,2); % Mutation: small random mov
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 
 % Initial guess
@@ -38,7 +39,7 @@ A0 = [2*rand(); 2*rand()];
 
 % Execute Simulated Annealing
 [ bestIndASA, bestFitASA, nite, lastPopASA, lastFitASA, history ] = ...
-    asa ( opts, A0, nitemax, mu, goal, ...
+    asa( opts, A0, nitemax, mu, goal, ...
     fitfun, mutfun, prifun );
 
 % Now, we can easily improve the accuracy of the local extremum found

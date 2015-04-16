@@ -1,10 +1,11 @@
-% Example APS
+%% Example APS
 % Find minima of a function with Particle Swarm (PS) algorithm
-% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
-
-% Clean-up
-close all;
-clear;
+%
+% Programmers:   Manel Soria         (UPC/ETSEIAT)
+%                David de la Torre   (UPC/ETSEIAT)
+%                Arnau Miro          (UPC/ETSEIAT)
+% Date:          16/04/2015
+% Revision:      1
 
 %% APS
 
@@ -23,7 +24,7 @@ opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 % Define PS parameters
 nitemax = 50; % Maximum number of iterations
 np = 50; % Population size
-c1 = 9; % Local learning factor
+c1 = 10; % Local learning factor
 c2 = 20; % Global learning factor
 P1 = 1E-2; % Maximum step size (velocity) allowed in one iteration
 goal = 1E-5; % Target fitness value

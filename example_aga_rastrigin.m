@@ -1,10 +1,11 @@
-% Example AGA
+%% Example AGA
 % Find minima of a function with Genetic Algorithm (GA)
-% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
-
-% Clean-up
-close all;
-clear;
+%
+% Programmers:   Manel Soria         (UPC/ETSEIAT)
+%                David de la Torre   (UPC/ETSEIAT)
+%                Arnau Miro          (UPC/ETSEIAT)
+% Date:          16/04/2015
+% Revision:      2
 
 %% AGA
 

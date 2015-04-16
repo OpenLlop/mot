@@ -1,17 +1,18 @@
-% Example AGA Islands
+%% Example AGA Islands
 % Find minima of a function with Genetic Algorithm (GA) + Islands
-% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
-
-% Clean-up
-close all;
-clear;
+%
+% Programmers:   Manel Soria         (UPC/ETSEIAT)
+%                David de la Torre   (UPC/ETSEIAT)
+%                Arnau Miro          (UPC/ETSEIAT)
+% Date:          16/04/2015
+% Revision:      2
 
 %% AGA Islands
 
 % Our test is a R^2->R function based on Rastrigin function.
 % It is challenging because it has infinite local extrema, located at
-% integer numbers (ie, 8,-9)
-% The global minimum is at (1,1), and its value is 0
+% integer numbers (ie, 8,-9).
+% The global minimum is at (1,1), and its value is 0.
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
 % Define GA function options

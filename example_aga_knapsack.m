@@ -1,18 +1,22 @@
-%% Example AGA Knapsack
+%% Example AGA
 % Find minima of a function with Genetic Algorithm (GA)
-% Manel Soria, David de la Torre and Arnau Miro - ETSEIAT
+%
+% Programmers:   Manel Soria         (UPC/ETSEIAT)
+%                David de la Torre   (UPC/ETSEIAT)
+%                Arnau Miro          (UPC/ETSEIAT)
+% Date:          16/04/2015
+% Revision:      2
 
 function example_aga_knapsack
 % Knapsack problem solved with GA
 % In this example the search space is a set of [0,1] integer values.
 %
-% Each item can be inside the sack (1) or outside (0).
-% If it is inside, contributes to value but also adds weight.
-% We look for maximum value, for total weight <= capacity.
+% Each item can be inside the sack (1) or outside (0). If it is inside,
+% contributes to value but also adds weight. We look for maximum value, for
+% total weight <= capacity.
 %
-% An individual will be a vector of 0,1 values, represented using
-% floating point numbers for simplicity, but aga would allow different
-% data types.
+% An individual will be a vector of 0,1 values, represented using floating
+% point numbers for simplicity, but aga would allow different data types.
 
 % Define GA function options
 opts.ninfo = 2; % Verbosity level (0=none, 1=minimal, 2=extended)

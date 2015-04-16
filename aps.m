@@ -1,16 +1,16 @@
 function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
-    aps ( opts, pop, v, c1, c2, P1, nitemax, goal, ... 
+    aps( opts, pop, v, c1, c2, P1, nitemax, goal, ... 
     fitfun, prifun)
-%APS Iterates to find minimum of a function using Particle Swarm (PS)
+%APS finds minimum of a function using Particle Swarm (PS)
 %
 %Programmers:   Manel Soria         (UPC/ETSEIAT)
-%               David de la Torre	(UPC/ETSEIAT)
-%               Arnau Miro (UPC/ETSEIAT)
+%               David de la Torre   (UPC/ETSEIAT)
+%               Arnau Miro          (UPC/ETSEIAT)
 %Date:          14/04/2015
 %Revision:      1
 %
 %Usage:         [bestind, bestfit, nite, lastpop, lastfit, history] = ...
-%                   aps ( opts, pop, v, c1, c2, P1, nite, goal, ...
+%                   APS( opts, pop, v, c1, c2, P1, nite, goal, ...
 %                   fitfun, prifun )
 %
 %Inputs:

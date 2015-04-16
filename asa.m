@@ -1,16 +1,16 @@
 function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
-    asa ( opts, A0, nitemax, mu, goal, ...
+    asa( opts, A0, nitemax, mu, goal, ...
     fitfun, mutfun, prifun )
-% Iterates to find mimumum of a function using Simulated Annealing (SA)
+%ASA finds mimumum of a function using Simulated Annealing (SA)
 %
 %Programmers:   Manel Soria         (UPC/ETSEIAT)
-%               David de la Torre	(UPC/ETSEIAT)
-%               Arnau Miro (UPC/ETSEIAT)
+%               David de la Torre   (UPC/ETSEIAT)
+%               Arnau Miro          (UPC/ETSEIAT)
 %Date:          14/04/2015
 %Revision:      2
 %
 %Usage:         [bestind, bestfit, nite, lastpop, lastfit, history] = ...
-%                   asa ( opts, A0, nitemax, mu, goal, ...
+%                   ASA( opts, A0, nitemax, mu, goal, ...
 %                   fitfun, mutfun, prifun )
 %
 %Inputs:

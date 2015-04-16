@@ -1,16 +1,17 @@
 function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
     aga_islands( opts, pops, ngg, nemi, ng, N, goal, ...
     unifun, fitfun, mutfun, repfun, ranfun, prifun )
-% Iterates to find minimum of a function using Genetic Algorithm (GA)
+%AGA_ISLANDS finds minimum of a function using Genetic Algorithm (GA) with
+%Islands
 %
 %Programmers:   Manel Soria         (UPC/ETSEIAT)
 %               David de la Torre   (UPC/ETSEIAT)
-%               Arnau Miro (UPC/ETSEIAT)
+%               Arnau Miro          (UPC/ETSEIAT)
 %Date:          14/04/2015
 %Revision:      2
 %
-%Usage:         [bestind, bestfit, nite, lastpop, lastfit, history] = ...
-%                   aga ( opts, pop, ng, N, goal, ...
+%Usage:         [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
+%                   AGA_ISLANDS( opts, pops, ngg, nemi, ng, N, goal, ...
 %                   unifun, fitfun, mutfun, repfun, ranfun, prifun )
 %
 %Inputs:

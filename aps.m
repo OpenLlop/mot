@@ -1,6 +1,6 @@
 function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
     aps( opts, pop, v, c1, c2, P1, nitemax, goal, ... 
-    fitfun, prifun)
+    fitfun, prifun )
 %APS finds minimum of a function using Particle Swarm (PS)
 %
 %Programmers:   Manel Soria         (UPC/ETSEIAT)

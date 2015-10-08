@@ -40,8 +40,8 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
 %	considered degenerate and iterations stop
 %
 %	Call back functions to be provided by the user:
-%   unifun:     Deletes repeated individuals in a population
-%               Receives a population and returns a population
+%   unifun:     Deletes individuals considered to be too similar or equal in a population
+%               Receives a population, sorted by fitness, and returns a population
 %               (a population is a list of individuals)
 %	fitfun:     Fitness function, given one individual returns its fitness
 %               (RECALL that in this GA algoritm fitness is MINIMIZED)
@@ -89,44 +89,25 @@ np = length(pop); % Population size
 nd = np - N(1) - N(2) - N(3); % Number of descendants
 
 % Safety checks
-if nn<0, error('aga: nn (number of newcomers) must be positive'); end;
+if ne<0, error('aga: ne (number of elites) must be positive or zero'); end; 
+if nm<0, error('aga: nm (number of mutants) must be positive or zero'); end;
+if nn<0, error('aga: nn (number of newcomers) must be positive or zero'); end;
+if na<0, error('aga: na (number of breeders) must be positive or zero'); end;
+if nd<0, error('aga: nd (number of descendants) must be positive or zero'); end; 
+
+if ninfo>0
+    fprintf('GA label=%d np=%d population size\n',label,np);
+    fprintf('GA label=%d ne=%d elite\n',label,ne);
+    fprintf('GA label=%d nm=%d mutants\n',label,nm);
+    fprintf('GA label=%d nn=%d newcommers\n',label,nn);
+fprintf('GA label=%d nd=%d descendants, from na=%d ancestors \n',label,nd,na);
+end
 
 % Iterate through generations
 for g=1:ng
-    
-    % Preallocate variables
-    fi = zeros(np,1); % Preallocate/clear fitness array
-
-    % Clean population: remove repeated individuals
-    pop = unifun(pop); % Return unique individuals
-    ncleanpop = length(pop); % Length of clean population
-
-    % Avoid population degeneration (i.e., poor genetic pool)
-    if ncleanpop<na % Clean population size is less than breeders size
-        
-        % Show info
-        if ninfo>0
-            fprintf('GA label=%d degenerate population\n',label);
-        end;
-        
-        % Save last iteration data
-        bestind = pop{1}; % Save best individual
-        bestfit = fi(1); % Save fitness level of last best individual
-        nite = g; % Save current generation index
-        lastpop = pop; % Save last population
-        lastfit = fi; % Save last fitness values
-        
-        % Stop iterating
-        break;
-        
-    end;
-
-    % Repopulation: fill clean population pool with new individuals
-    for i=ncleanpop+1:np % Fill up to initial population size
-        pop{i} = ranfun(); % Create new random individual
-    end;
 
     % Evaluate fitness function
+    fi = zeros(np,1); % Preallocate/clear fitness array    
     if dopar % Parallel execution
         parfor i=1:np, fi(i) = feval(fitfun,pop{i}); end;
     else % Serial execution
@@ -136,6 +117,38 @@ for g=1:ng
     % Sort population individuals by their fitness level
     [fi,i] = sort(fi); % Sort fitness by increasing value (lower is best)
     pop = pop(i); % Sort population by fitness
+
+    % Clean population: call the function that removes individuals too
+    % similar
+    [pop,diversity] = unifun(pop,fi); % Delete unique individuals, get a measure of population diversity
+    ncleanpop = length(pop); % Length of clean population
+
+    nnu=np-length(pop); % number of non unique individuals 
+    
+    % Avoid population degeneration (i.e., poor genetic pool)
+    if ncleanpop<na % Stop if unique size is less than breeders size        
+        % Show info
+        if ninfo>0
+            fprintf('GA label=%d degenerate population nnu=%d\n',label,nnu);
+        end;
+        
+        % Save last iteration data MANEL AIXO S'HAURIA DE POSAR EN UNA
+        % FUNCIO, ES FA SERVIR DOS COPS
+        bestind = pop{1}; % Save best individual
+        bestfit = fi(1); % Save fitness level of last best individual
+        nite = g; % Save current generation index
+        lastpop = pop; % Save last population
+        lastfit = fi; % Save last fitness values
+        
+        % Stop iterating
+        break;        
+    end;
+
+    % Repopulation: fill clean population pool with new individuals
+    for i=ncleanpop+1:np % Fill up to initial population size
+        pop{i} = ranfun(); % Create new random individual
+    end;
+
 
     % Save history
     if nhist>1 % Save full history {population,fitness}
@@ -147,7 +160,7 @@ for g=1:ng
     
     % Show extended info
     if ninfo>1
-        fprintf('GA label=%d g=%3d ng=%d best=%e ',label,g,ng,fi(1));
+        fprintf('GA label=%d g=%3d ng=%d nnu=%d best=%e diver=%f bst:',label,g,ng,nnu,fi(1),diversity);
         if ~isempty(prifun)
             prifun(pop{1}); % Print best individual
         end;
@@ -166,7 +179,7 @@ for g=1:ng
         
         % Show info
         if ninfo>0
-            fprintf('GA label=%d best=%e ',label,bestfit);
+            fprintf('GA label=%d best=%e diver=%f bst:',label,bestfit,diversity);
             if ~isempty(prifun)
                 prifun(pop{1}); % Print best individual
             end;
@@ -193,8 +206,10 @@ for g=1:ng
     end;
 
     for i=1:nm % Mutants
-        if isempty(mutfun), nextpop{k} = pop{k}; % Do not mutate
-        else nextpop{k} = mutfun(pop{k},fi(k)); % Mutate
+        if isempty(mutfun)
+            nextpop{k} = pop{k}; % Do not mutate
+        else
+            nextpop{k} = mutfun(pop{k},fi(k)); % Mutate
         end;
         k = k + 1; % Next individual
     end;

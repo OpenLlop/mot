@@ -95,11 +95,12 @@ ylabel('Best fitness function value');
     end
 
     % Discard identical individuals
-    function popu = funique(pop)
+    function [popu,diversity] = funique(pop,fitness)
         % Convert population to a matrix, individuals by rows
         mat = transpose(reshape(cell2mat(pop),NN,np));
         matu = transpose(unique(mat,'rows')); % Get unique individuals
         popu = mat2cell(matu,NN,ones(1,size(matu,2)));
+        diversity=[]; % this is a meaasure of the diversity that we don't implement
     end
 
     % Mutate an individual

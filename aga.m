@@ -100,7 +100,7 @@ if ninfo>0
     fprintf('GA label=%d ne=%d elite\n',label,ne);
     fprintf('GA label=%d nm=%d mutants\n',label,nm);
     fprintf('GA label=%d nn=%d newcommers\n',label,nn);
-fprintf('GA label=%d nd=%d descendants, from na=%d ancestors \n',label,nd,na);
+    fprintf('GA label=%d nd=%d descendants, from na=%d ancestors \n',label,nd,na);
 end
 
 % Iterate through generations
@@ -119,8 +119,12 @@ for g=1:ng
     pop = pop(i); % Sort population by fitness
 
     % Clean population: call the function that removes individuals too
-    % similar
-    [pop,diversity] = unifun(pop,fi); % Delete unique individuals, get a measure of population diversity
+    % similar (if it has been implemented)
+    if ~isempty(unifun)
+        [pop,diversity] = unifun(pop,fi); % Delete unique individuals, get a measure of population diversity
+    else
+        diversity=[];
+    end
     ncleanpop = length(pop); % Length of clean population
 
     nnu=np-length(pop); % number of non unique individuals 
@@ -132,8 +136,6 @@ for g=1:ng
             fprintf('GA label=%d degenerate population nnu=%d\n',label,nnu);
         end;
         
-        % Save last iteration data MANEL AIXO S'HAURIA DE POSAR EN UNA
-        % FUNCIO, ES FA SERVIR DOS COPS
         bestind = pop{1}; % Save best individual
         bestfit = fi(1); % Save fitness level of last best individual
         nite = g; % Save current generation index
@@ -160,8 +162,12 @@ for g=1:ng
     
     % Show extended info
     if ninfo>1
-        fprintf('GA label=%d g=%3d ng=%d nnu=%d best=%e diver=%f bst:',label,g,ng,nnu,fi(1),diversity);
+        fprintf('GA label=%d g=%3d ng=%d nnu=%d best=%e ',label,g,ng,nnu,fi(1) ); 
+        if ~isempty(diversity)
+            fprintf('diver=%e',diversity); 
+        end
         if ~isempty(prifun)
+            fprintf(':');
             prifun(pop{1}); % Print best individual
         end;
         fprintf('\n');

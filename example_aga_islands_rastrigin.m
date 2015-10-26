@@ -37,7 +37,7 @@ goal = 1E-5; % Target fitness value
 ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 
 % Define GA functions
-funique = @(x) x; % Discard identical individuals: currently not in use
+funique = []; % Discard identical individuals: currently not in use
 fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
 mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random mov
 repfun = @(x,y,fx,fy) (x+y)/2; % Reproduction: average

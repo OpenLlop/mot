@@ -3,6 +3,7 @@
    <name>MOT</name>
    <type>toolbox</type>
    <icon>HelpIcon.DEMOS</icon>
+   <website/>
    <description>Matlab Optimisation Toolbox (MOT) is a library of optimisation functions for Matlab.
 
 The toolbox includes the following algorithms:
@@ -18,7 +19,7 @@ The functions are coded focusing on an educational usage; algorithm clarity and 
 
 Example scripts are also provided. Some examples show how to improve the result of genetic algorithm with a conventional optimization code.</description>
    <demosection>
-      <label>AGA</label>
+      <label>MOT</label>
       <demoitem>
          <label>example_aga_islands_rastrigin</label>
          <type>other</type>

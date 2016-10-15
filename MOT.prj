@@ -1,8 +1,8 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration build-checksum="3696329411" file="/Users/arnaumiro/Documents/AGA/MOT.prj" location="/Users/arnaumiro/Documents/AGA" name="MOT" target="target.toolbox" target-name="Package Toolbox">
+  <configuration build-checksum="2747198298" file="/Users/arnaumiro/Documents/MOT/MOT.prj" location="/Users/arnaumiro/Documents/MOT" name="MOT" target="target.toolbox" target-name="Package Toolbox">
     <param.appname>MOT</param.appname>
     <param.authnamewatermark>Manel Soria, David de la Torre, Arnau Miro</param.authnamewatermark>
-    <param.email>open.llop@gmail.com</param.email>
+    <param.email>arnau.miro@upc.edu</param.email>
     <param.company>UPC, ETSEIAT</param.company>
     <param.summary>Genetic algorithm codes with and without islands as well as simulated annealing. Intended to be used for educational purposes.</param.summary>
     <param.description>Matlab Optimisation Toolbox (MOT) is a library of optimisation functions for Matlab.
@@ -35,10 +35,10 @@ Example scripts are also provided. Some examples show how to improve the result 
       <item>5</item>
     </param.products.id>
     <param.products.version>
-      <item>8.4</item>
-      <item>5.0</item>
-      <item>4.3</item>
+      <item>8.6</item>
       <item>5.2</item>
+      <item>5.1</item>
+      <item>6.0</item>
     </param.products.version>
     <param.platforms />
     <param.guid>b429d2dc-b9a8-42f2-be8c-aa28ffc3b5af</param.guid>
@@ -68,7 +68,7 @@ README.md
 .*</param.exclude.filters>
     <param.examples>&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;examples&gt;
-   &lt;exampleCategory name="AGA"&gt;
+   &lt;exampleCategory name="MOT"&gt;
       &lt;example name="example_aga_islands_rastrigin" type="html"&gt;
          &lt;file type="source"&gt;/html/example_aga_islands_rastrigin.html&lt;/file&gt;
          &lt;file type="main"&gt;/example_aga_islands_rastrigin.m&lt;/file&gt;
@@ -119,7 +119,7 @@ README.md
       <param.docs />
     </unset>
     <fileset.rootdir>
-      <file>/Users/arnaumiro/Documents/AGA</file>
+      <file>/Users/arnaumiro/Documents/MOT</file>
     </fileset.rootdir>
     <fileset.rootfiles>
       <file>${PROJECT_ROOT}/aga.m</file>
@@ -130,26 +130,31 @@ README.md
       <file>${PROJECT_ROOT}/example_aga_islands_rastrigin.m</file>
       <file>${PROJECT_ROOT}/example_aga_knapsack.m</file>
       <file>${PROJECT_ROOT}/example_aga_rastrigin.m</file>
+      <file>${PROJECT_ROOT}/example_aga_rastrigin_with_nice_plots.m</file>
       <file>${PROJECT_ROOT}/example_aps_rastrigin.m</file>
       <file>${PROJECT_ROOT}/example_asa_rastrigin.m</file>
       <file>${PROJECT_ROOT}/html</file>
     </fileset.rootfiles>
-    <fileset.depfun.included>
-      <file>${MATLAB_ROOT}/toolbox/matlab/demos/fitfun.m</file>
-    </fileset.depfun.included>
+    <fileset.depfun.included />
     <fileset.depfun.excluded />
     <fileset.package />
     <build-deliverables>
-      <file location="/Users/arnaumiro/Documents/AGA" name="MOT.mltbx" optional="false">/Users/arnaumiro/Documents/AGA/MOT.mltbx</file>
+      <file location="/Users/arnaumiro/Documents/MOT" name="MOT.mltbx" optional="false">/Users/arnaumiro/Documents/MOT/MOT.mltbx</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>/Applications/MATLAB_R2014b.app</root>
+      <root>/Applications/MATLAB_R2015b.app</root>
       <toolboxes>
+        <toolbox name="matlabhdlcoder" />
         <toolbox name="fixedpoint" />
         <toolbox name="embeddedcoder" />
         <toolbox name="matlabcoder" />
       </toolboxes>
+      <toolbox>
+        <matlabhdlcoder>
+          <enabled>true</enabled>
+        </matlabhdlcoder>
+      </toolbox>
       <toolbox>
         <fixedpoint>
           <enabled>true</enabled>
@@ -175,7 +180,7 @@ README.md
       <vista>false</vista>
       <linux>false</linux>
       <solaris>false</solaris>
-      <osver>10.10.3</osver>
+      <osver>10.12</osver>
       <os32>false</os32>
       <os64>true</os64>
       <arch>maci64</arch>

@@ -38,9 +38,9 @@ Example scripts
 | `example_aga_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **GA** | `aga`
 | `example_aga_knapsack` | Find local minima of a set of [0,1] integer values (knapsack problem) using **GA** | `aga`
 | `example_ade_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **DE** | `ade`
-| `example_ahim_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **AHIM** | `aim` `ade` `aps`
-| `example_aim_aga_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **AIM** with **GA** | `aim` `aga`
-| `example_aim_ade_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **AIM** with **DE** | `aim` `ade`
+| `example_ahim_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **HIM** | `ahim` `aga` `ade` `aps`
+| `example_aim_aga_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **IM** with **GA** | `aim` `aga`
+| `example_aim_ade_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **IM** with **DE** | `aim` `ade`
 | `example_aps_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **PS** | `aps`
 | `example_asa_rastrigin` | Find local minima of a R^2->R function based on _Rastrigin_ function using **SA** | `asa`
 

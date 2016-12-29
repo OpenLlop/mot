@@ -1,6 +1,5 @@
-function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
-    asa( opts, A0, nitemax, mu, goal, ...
-    fitfun, mutfun, prifun )
+function [ bestind, bestfit, nite, lastpop, lastfit, history ] = asa ( ...
+    opts, A0, goal, DATA )
 %ASA finds mimumum of a function using Simulated Annealing (SA)
 %
 %Programmers:   Manel Soria         (UPC/ETSEIAT)
@@ -10,29 +9,29 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
 %Revision:      2
 %
 %Usage:         [bestind, bestfit, nite, lastpop, lastfit, history] = ...
-%                   ASA( opts, A0, nitemax, mu, goal, ...
-%                   fitfun, mutfun, prifun )
+%                   ASA( opts, A0, goal, DATA )
 %
 %Inputs:
 %   opts:       function control parameters [struct] (optional)
-%       ninfo:  iteration control; prints every ninfo iterations
-%       einfo:  prints extended information every ninfo iterations [1,0]
+%       ninfo:  prints information (0=none, 1=basic, 2=extended)
 %       label:  integer number that precedes the prints in case output is
 %               to be filtered
 %       fhist:  saved history level (0=none, 1=just fitness, 2=all data)
-%                   0: history = []
-%                   1: history(nite) = bestfit(i)
-%                   2: history{nite,1:6} = {A,B,fita,fitb,bestind,bestfit}
+%       	0: history = []
+%         	1: history(nite) = bestfit(i)
+%          	2: history{nite,1:6} = {A,B,fita,fitb,bestind,bestfit}
 %   A0:         initial guess
-%   nitemax:    maximum number of iterations allowed
-%   mu:         Simulated annealing parameter (eg, 0.2, read below)
 %   goal:       If function value is below goal, iterations are stopped
+%   DATA:       structure with the specific parameters and callback
+%               functions of the AGA heuristic function.
+%       nitemax:maximum number of iterations allowed
+%       mu:   	Simulated annealing parameter (eg, 0.2, read below)
 %
-%   Call back functions to be provided by the user:
-%   fitfun:     fitness function
-%   mutfun:     mutation (change) function. Receives an individual and its
+%       Call back functions to be provided by the user:
+%       fitfun:	fitness function
+%       mutfun:	mutation (change) function. Receives an individual and its
 %               fitness and returns a modified individual
-%   prifun:     Prints individual
+%       prifun:	prints individual
 %
 %Outputs:
 %   bestind:    best individual from the last generation
@@ -54,10 +53,16 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
 %needs to be empirically determined for different models.
 
 % Get options
-if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 1; end;
-if isfield(opts,'einfo'), einfo = opts.einfo; else einfo = 0; end;
-if isfield(opts,'label'), label = opts.label; else label = 0; end;
-if isfield(opts,'nhist'), nhist = opts.nhist; else nhist = 1; end;
+if isfield(opts,'ninfo'), ninfo = opts.ninfo; else, ninfo = 1; end;
+if isfield(opts,'label'), label = opts.label; else, label = 0; end;
+if isfield(opts,'nhist'), nhist = opts.nhist; else, nhist = 1; end;
+
+% Get heuristic parameters from data structure
+nitemax = DATA.nitemax;
+mu = DATA.mu;
+fitfun = DATA.fitfun;
+mutfun = DATA.mutfun;
+prifun = DATA.prifun;
 
 % Create history array
 history = [];
@@ -71,29 +76,6 @@ bestfit = fitA; % Best fitness
 % Iterate until convergence or max iterations
 for ite=1:nitemax
     
-    % Must print something on this iteration
-    mustprint = ite==1 || mod(ite,ninfo)==0;
-    
-    % Print info
-    if mustprint
-        fprintf('SA label=%d nite=%d ',label,ite); % Print info
-        fprintf(' best= '); prifun(A); % Print individual
-        fprintf(' fitA=%f fitbest=%f \n',fitA,bestfit); % Print fitness
-    end;
-
-    % Check if reached target fitness or max iterations
-    if fitA<goal || ite>=nitemax % Target achieved
-        
-        % Save last iteration data
-        nite = ite; % Save current generation index
-        lastpop = {A,B}; % Save last population
-        lastfit = fi; % Save last fitness values
-        
-        % Stop iterating
-        break;
-        
-    end;
-    
     % Mutate A into a new individual B
     B = mutfun(A,fitA);
     
@@ -106,6 +88,37 @@ for ite=1:nitemax
         bestfit = fitB; % B has now best fitness
     end;
     
+    % Check if reached target fitness or max iterations
+    if bestfit<goal || ite>=nitemax % Target achieved
+        
+        % Save last iteration data
+        nite = ite; % Save current generation index
+        lastpop = {A,B}; % Save last population
+        lastfit = [fitA,fitB]; % Save last fitness values
+        
+        % Show info
+        if ninfo>0
+            fprintf('ASA label=%d nite=%2d fitbest=%f',label,nite,bestfit);
+            if ~isempty(prifun), fprintf(' best='); prifun(bestind); end;
+            if bestfit<goal % Goal achieved
+                fprintf(' goal=%e achieved, leaving\n',goal);
+            else % Maximum generations reached (goal not achieved)
+                fprintf(' max. iterations reached, leaving\n');
+            end;
+        end;
+        
+        % Stop iterating
+        break;
+        
+    end;
+    
+    % Print info
+    if ninfo>1
+        fprintf('ASA label=%d nite=%2d fitbest=%f',label,ite,bestfit);
+        if ~isempty(prifun), fprintf(' best='); prifun(bestind); end;
+        if ninfo<=2, fprintf('\n'); end;
+    end;
+
     % Save history
     if nhist>1 % Save full history {A,B,fita,fitb}
         history{ite,1} = A; %#ok
@@ -125,9 +138,9 @@ for ite=1:nitemax
     probability = exp(-deltafit / (mu * abs(fitA)));
     
     % Print extra info
-    if mustprint && einfo
-        fprintf(['   fitB=%8.2e deltafit=%+8.2e ', ...
-            'deltafit/fit=%+8.2e probability=%+8.2e  '], ...
+    if ninfo>2
+        fprintf([' fitB=%8.2e deltafit=%+8.2e ', ...
+            'deltafit/fit=%+8.2e probability=%+8.2e'], ...
             fitB,deltafit,deltafit/abs(fitA),probability);
     end;
     
@@ -135,15 +148,15 @@ for ite=1:nitemax
     if rand<probability % Jump
         A = B; % Jump from A to B
         fitA = fitB; % Update fitness value
-        if mustprint && einfo % Print extra info
-            fprintf('jump '); 
+        if ninfo>2 % Print extra info
+            fprintf(' jump '); 
             if deltafit<=0, fprintf('>= \n'); % Fitness improved
-            else fprintf('< \n'); % Fitness worsened
+            else, fprintf('< \n'); % Fitness worsened
             end;
         end;
     else % Do not jump
-        if mustprint && einfo % Print extra info
-            fprintf('= \n'); % Fitness does not change
+        if ninfo>2 % Print extra info
+            fprintf(' = \n'); % Fitness does not change
         end;
     end;
     

@@ -4,8 +4,8 @@
 % Programmers:   Manel Soria         (UPC/ETSEIAT)
 %                David de la Torre   (UPC/ETSEIAT)
 %                Arnau Miro          (UPC/ETSEIAT)
-% Date:          16/04/2015
-% Revision:      2
+% Date:          23/11/2016
+% Revision:      3
 
 function example_aga_knapsack
 % Knapsack problem solved with GA
@@ -18,7 +18,7 @@ function example_aga_knapsack
 % An individual will be a vector of 0,1 values, represented using floating
 % point numbers for simplicity, but aga would allow different data types.
 
-% Define GA function options
+% Define heuristic function options (optional)
 opts.ninfo = 2; % Verbosity level (0=none, 1=minimal, 2=extended)
 opts.label = 10; % Label (identification purposes)
 opts.dopar = 1; % Parallel execution of fitness function
@@ -34,17 +34,17 @@ values = randi(maxval,NN,1); % Values
 capacity = floor(sum(weights)/2); % Capacity
 HUGE = NN*maxval*100; % Huge number
 
-% Define GA parameters
+% Define AGA parameters
+goal = -Inf; % Target fitness value
 ng = 100; % Number of generations
 np = 100; % Population size
 N = [5,... % Number of elites
     floor(np*0.4),... % Number of mutants
     floor(np*0.05),...% Number of newcomers
     floor(np*0.1)]; % Number of parents
-goal = -Inf; % Target fitness value
 
 % Randomize random seed
-rng('shuffle'); % We don't want repetability in the GA 
+rng('shuffle'); % We don't want repetability in the heuristic 
 
 % Now we construct an initial population list
 pop = cell(1,np);
@@ -52,10 +52,19 @@ for i=1:np
     pop{i} = ranfun(); 
 end;
 
+% Assemble AGA data structure
+DATA.ng = ng;
+DATA.N = N;
+DATA.unifun = @unifun;
+DATA.fitfun = @fitfun;
+DATA.mutfun = @mutfun;
+DATA.repfun = @repfun;
+DATA.ranfun = @ranfun;
+DATA.prifun = @prifun;
+
 % Execute Genetic Algorithm
-[bestind, bestfit, nite, lastpop, lastfit, history] = ...
-    aga ( opts, np, ng, N, goal,...
-    @funique, @fitness, @mutfun, @repfun, @ranfun, @prifun );
+[bestind, bestfit, nite, lastpop, lastfit, history] = aga ( ...
+    opts, pop, goal, DATA );
 
                     
 %% Plot history
@@ -66,13 +75,14 @@ if opts.nhist>1 && iscell(history) % Full history; get fitness values
     for i=1:length(history)
         fithist(i) = history{i,2}(1);
     end;
-else fithist = history; % Simple history
+else % Simple history
+    fithist = history;
 end;
 
 % Create figure
 figure('Position',[400,200,900,600]);
 
-% Plot history
+% Plot fitness history
 plot(fithist,'o-');
 
 % Beautify plot
@@ -90,17 +100,17 @@ ylabel('Best fitness function value');
     end
 
     % Fitness function
-    function f = fitness(x) 
+    function f = fitfun(x) 
         f = -dot(x,values)+HUGE*NN*(dot(x,weights)>capacity);
     end
 
     % Discard identical individuals
-    function [popu,diversity] = funique(pop,fitness)
+    function [popu,f] = unifun(pop,f)
         % Convert population to a matrix, individuals by rows
         mat = transpose(reshape(cell2mat(pop),NN,np));
         matu = transpose(unique(mat,'rows')); % Get unique individuals
         popu = mat2cell(matu,NN,ones(1,size(matu,2)));
-        diversity=[]; % this is a meaasure of the diversity that we don't implement
+        f = unique(f);
     end
 
     % Mutate an individual
@@ -112,27 +122,16 @@ ylabel('Best fitness function value');
     end
                 
     % Reproduction of two individuals
-    function c=repfun(a,b,fa,fb)
+    function c = repfun(a,b,fa,fb)
         e=size(a,1);
         p=randi(size(a,1));
-        c=[ a(1:p-1); b(p:e) ];
+        c=[a(1:p-1);b(p:e)];
     end
 
     % Print and individual
     function prifun(x)
         for ii=1:size(x,1)
             fprintf('%d',x(ii,1));
-        end;
-        fprintf(' ');
-    end
-
-    % Print entire population
-    function printpop(pop) 
-        for ii=1:length(pop)
-            for j=1:length(pop{ii})
-                fprintf('%d',pop{ii}(j));
-            end;
-            fprintf('\n');
         end;
     end
 

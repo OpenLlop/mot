@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Example AGA</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-11-23"><meta name="DC.source" content="example_aga_rastrigin.m"><style type="text/css">
+      --><title>Example ADE</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-11-23"><meta name="DC.source" content="example_ade_rastrigin.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,7 +66,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>Example AGA</h1><!--introduction--><p>Find minima of a function with Genetic Algorithm (GA)</p><p>Programmers:   Manel Soria         (UPC/ETSEIAT)                David de la Torre   (UPC/ETSEIAT)                Arnau Miro          (UPC/ETSEIAT) Date:          23/11/2016 Revision:      3</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">AGA</a></li><li><a href="#2">Fitness plot</a></li><li><a href="#3">Generations plot</a></li></ul></div><h2 id="1">AGA</h2><pre class="codeinput"><span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function.</span>
+  </style></head><body><div class="content"><h1>Example ADE</h1><!--introduction--><p>Find minima of a function with Differential Evolution (DE)</p><p>Programmers:   David de la Torre   (UPC/ETSEIAT)                Manel Soria         (UPC/ETSEIAT)                Arnau Miro          (UPC/ETSEIAT) Date:          23/11/2016 Revision:      2</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">ADE</a></li><li><a href="#2">Fitness plot</a></li><li><a href="#3">Generations plot</a></li></ul></div><h2 id="1">ADE</h2><pre class="codeinput"><span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function.</span>
 <span class="comment">% It is challenging because it has infinite local extrema, located at</span>
 <span class="comment">% integer numbers (ie, 8,-9)</span>
 <span class="comment">% The global minimum is at (1,1), and its value is 0</span>
@@ -78,41 +78,41 @@ opts.label = 10; <span class="comment">% Label (identification purposes)</span>
 opts.dopar = 1; <span class="comment">% Parallel execution of fitness function</span>
 opts.nhist = 2; <span class="comment">% Save history (0=none, 1=fitness, 2=all{pop,fit})</span>
 
-<span class="comment">% Define AGA algorithm parameters</span>
-goal = 1E-5; <span class="comment">% Target fitness value</span>
+<span class="comment">% Define ADE parameters</span>
 ng = 50; <span class="comment">% Number of generations</span>
 np = 200; <span class="comment">% Population size</span>
 N = [3,<span class="keyword">...</span><span class="comment"> % Number of elites</span>
-    floor(np*0.1),<span class="keyword">...</span><span class="comment"> % Number of mutants</span>
-    floor(np*0.05),<span class="keyword">...</span><span class="comment">% Number of newcomers</span>
-    floor(np*0.2)]; <span class="comment">% Number of parents</span>
+    floor(np*0.7)]; <span class="comment">% Number of mutants</span>
+F = 0.1; <span class="comment">% Mutation scaling factor</span>
+ms = 1; <span class="comment">% Mutation strategy (see ade.m)</span>
+goal = 1E-5; <span class="comment">% Target fitness value</span>
 
 <span class="comment">% Auxiliary function</span>
-ranrange = @(a,b,n) a + (b-a)*rand(n,1); <span class="comment">% n random values between a and b</span>
+ranrange = @(a,b,n) a + (b-a)*rand(n,1); <span class="comment">% n random values between a i b</span>
 
-<span class="comment">% Define AGA algorithm functions</span>
+<span class="comment">% Define ADE functions</span>
 unifun = @(x,f) deal(x,f); <span class="comment">% Discard identical individuals (unimplemented)</span>
-fitfun = @(x) ras(x(1),x(2)); <span class="comment">% Fitness function (to be minimized)</span>
-mutfun = @(x,f) x + ranrange(-0.1,0.1,2); <span class="comment">% Mutation: small random movement</span>
-repfun = @(x,y,fx,fy) (x+y)/2; <span class="comment">% Reproduction: average of two individuals</span>
+fitfun = @(x) ras(x(1),x(2)); <span class="comment">% Fitness function - TO BE MINIMIZED</span>
+mutfun = @(F,a,b,c) a + F * rand() * (b - c); <span class="comment">% Mutation: random vector movement</span>
 ranfun = @() ranrange(-5,5,2); <span class="comment">% Random individual</span>
 prifun = @(x) fprintf(<span class="string">'%f %f '</span>,x(1),x(2)); <span class="comment">% Print an individual</span>
 
-<span class="comment">% Assemble AGA data structure</span>
+<span class="comment">% Assemble ADE data structure</span>
 DATA.ng = ng;
 DATA.N = N;
+DATA.F = F;
+DATA.ms = ms;
 DATA.unifun = unifun;
 DATA.fitfun = fitfun;
 DATA.mutfun = mutfun;
-DATA.repfun = repfun;
 DATA.ranfun = ranfun;
 DATA.prifun = prifun;
 
 <span class="comment">% Randomize random seed</span>
-rng(<span class="string">'shuffle'</span>); <span class="comment">% We don't want repeatability in the heuristic</span>
+rng(<span class="string">'shuffle'</span>); <span class="comment">% We don't want repeatability in the GA</span>
 
-<span class="comment">% Execute Genetic Algorithm (GA)</span>
-[ bestInd, bestFit, nite, lastPop, lastFit, history ] = aga ( <span class="keyword">...</span>
+<span class="comment">% Execute Differential Evolution (DE)</span>
+[ bestInd, bestFit, nite, lastPop, lastFit, history ] = ade ( <span class="keyword">...</span>
     opts, np, goal, DATA );
 
 <span class="comment">% Now, we can easily improve the accuracy of the local extremum found</span>
@@ -121,20 +121,63 @@ options = optimset(<span class="string">'TolFun'</span>,1E-8,<span class="string
 
 <span class="comment">% Display results of aga and fminsearch algorithms</span>
 fprintf(<span class="string">'\nAlgorithm \tBest individual (x,y) \tValue\n'</span>);
-fprintf(<span class="string">'AGA \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestInd,bestFit);
+fprintf(<span class="string">'ADE \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestInd,bestFit);
 fprintf(<span class="string">'FMS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndFMS,bestFitFMS);
-</pre><pre class="codeoutput">AGA label=10 g=  1 ng=50 fitbest=2.000106 best=1.988664 0.008473 
-AGA label=10 g=  2 ng=50 fitbest=1.326286 best=0.971328 -0.024137 
-AGA label=10 g=  3 ng=50 fitbest=0.015804 best=1.007252 0.994796 
-AGA label=10 g=  4 ng=50 fitbest=0.015804 best=1.007252 0.994796 
-AGA label=10 g=  5 ng=50 fitbest=0.003072 best=1.003866 1.000737 
-AGA label=10 g=  6 ng=50 fitbest=0.001271 best=0.997764 0.998814 
-AGA label=10 g=  7 ng=50 fitbest=0.000007 best=1.000095 1.000162 
-AGA label=10 nite=7 fitbest=0.000007 best=1.000095 1.000162 goal=1.000000e-05 achieved !!
+</pre><pre class="codeoutput">ADE label=10 g=  1 ng=50 best=2.103465e+00 1.971066 1.996890 
+ADE label=10 g=  2 ng=50 best=2.103465e+00 1.971066 1.996890 
+ADE label=10 g=  3 ng=50 best=2.103465e+00 1.971066 1.996890 
+ADE label=10 g=  4 ng=50 best=1.698664e+00 2.047260 0.971187 
+ADE label=10 g=  5 ng=50 best=1.698664e+00 2.047260 0.971187 
+ADE label=10 g=  6 ng=50 best=8.670933e-01 1.066095 1.008008 
+ADE label=10 g=  7 ng=50 best=8.670933e-01 1.066095 1.008008 
+ADE label=10 g=  8 ng=50 best=6.880046e-02 0.988507 0.985340 
+ADE label=10 g=  9 ng=50 best=6.880046e-02 0.988507 0.985340 
+ADE label=10 g= 10 ng=50 best=4.456106e-02 0.985104 1.001695 
+ADE label=10 g= 11 ng=50 best=4.456106e-02 0.985104 1.001695 
+ADE label=10 g= 12 ng=50 best=4.456106e-02 0.985104 1.001695 
+ADE label=10 g= 13 ng=50 best=4.456106e-02 0.985104 1.001695 
+ADE label=10 g= 14 ng=50 best=4.456106e-02 0.985104 1.001695 
+ADE label=10 g= 15 ng=50 best=4.456106e-02 0.985104 1.001695 
+ADE label=10 g= 16 ng=50 best=4.456106e-02 0.985104 1.001695 
+ADE label=10 g= 17 ng=50 best=4.456106e-02 0.985104 1.001695 
+ADE label=10 g= 18 ng=50 best=3.198047e-02 0.988258 0.995163 
+ADE label=10 g= 19 ng=50 best=3.198047e-02 0.988258 0.995163 
+ADE label=10 g= 20 ng=50 best=2.995320e-02 0.988951 0.994619 
+ADE label=10 g= 21 ng=50 best=1.799177e-02 1.005628 1.007683 
+ADE label=10 g= 22 ng=50 best=1.799177e-02 1.005628 1.007683 
+ADE label=10 g= 23 ng=50 best=1.799177e-02 1.005628 1.007683 
+ADE label=10 g= 24 ng=50 best=1.799177e-02 1.005628 1.007683 
+ADE label=10 g= 25 ng=50 best=1.799177e-02 1.005628 1.007683 
+ADE label=10 g= 26 ng=50 best=1.799177e-02 1.005628 1.007683 
+ADE label=10 g= 27 ng=50 best=1.799177e-02 1.005628 1.007683 
+ADE label=10 g= 28 ng=50 best=1.799177e-02 1.005628 1.007683 
+ADE label=10 g= 29 ng=50 best=1.799177e-02 1.005628 1.007683 
+ADE label=10 g= 30 ng=50 best=1.799177e-02 1.005628 1.007683 
+ADE label=10 g= 31 ng=50 best=1.799177e-02 1.005628 1.007683 
+ADE label=10 g= 32 ng=50 best=1.354023e-02 1.004661 1.006822 
+ADE label=10 g= 33 ng=50 best=1.354023e-02 1.004661 1.006822 
+ADE label=10 g= 34 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 35 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 36 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 37 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 38 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 39 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 40 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 41 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 42 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 43 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 44 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 45 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 46 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 47 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 48 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 49 ng=50 best=2.257413e-03 1.002553 0.997795 
+ADE label=10 g= 50 ng=50 best=1.776214e-03 1.001981 0.997758 
+ADE label=10 nite=50  best= 1.001981 0.997758  fitbest=0.001776 max. iterations reached, leaving
 
 Algorithm 	Best individual (x,y) 	Value
-AGA 		1.000095,1.000162 		6.996936E-06
-FMS 		1.000009,1.000003 		1.961536E-08
+ADE 		1.001981,0.997758 		1.776214E-03
+FMS 		1.000001,1.000005 		4.469896E-09
 </pre><h2 id="2">Fitness plot</h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history) <span class="comment">% Full history; get fitness values</span>
     fithist = zeros(length(history),1);
@@ -145,7 +188,7 @@ FMS 		1.000009,1.000003 		1.961536E-08
     fithist = history;
 <span class="keyword">end</span>;
 
-<span class="comment">% Plot fitness history</span>
+<span class="comment">% Plot fitness histroy</span>
 <span class="keyword">if</span> ~isempty(fithist)
 
     <span class="comment">% Create figure</span>
@@ -156,12 +199,12 @@ FMS 		1.000009,1.000003 		1.961536E-08
 
     <span class="comment">% Beautify plot</span>
     grid <span class="string">minor</span>;
-    title(<span class="string">'Genetic Algorithm optimization | Rastrigin function'</span>);
+    title(<span class="string">'Differential Evolution optimization | Rastrigin function'</span>);
     xlabel(<span class="string">'Generation [#]'</span>);
     ylabel(<span class="string">'Best fitness function value [log]'</span>);
 
 <span class="keyword">end</span>;
-</pre><img vspace="5" hspace="5" src="example_aga_rastrigin_01.png" alt=""> <h2 id="3">Generations plot</h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
+</pre><img vspace="5" hspace="5" src="example_ade_rastrigin_01.png" alt=""> <h2 id="3">Generations plot</h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history)
 
     <span class="comment">% Create figure</span>
@@ -176,15 +219,14 @@ FMS 		1.000009,1.000003 		1.961536E-08
     <span class="comment">% Population size</span>
     ne = N(1); <span class="comment">% Number of elites</span>
     nm = N(2); <span class="comment">% Number of mutants</span>
-    nd = np - N(1) - N(2) - N(3); <span class="comment">% Number of descendants</span>
 
     <span class="comment">% Plot generations</span>
     ph = cell(np,1); <span class="comment">% Handles</span>
     <span class="keyword">for</span> g=1:length(history)
 
         <span class="comment">% Title</span>
-        title({<span class="string">'Genetic Algorithm optimization | Rastrigin function'</span>;<span class="keyword">...</span>
-            sprintf(<span class="string">'Generation %03.0f'</span>,g)});
+        title({[<span class="string">'Differential Evolution optimization'</span>,<span class="keyword">...</span>
+            <span class="string">' | Rastrigin function'</span>];sprintf(<span class="string">'Generation %03.0f'</span>,g)});
 
         <span class="comment">% Plot individuals</span>
         <span class="keyword">for</span> i=1:np
@@ -192,7 +234,6 @@ FMS 		1.000009,1.000003 		1.961536E-08
             <span class="comment">% Select plotting marker</span>
             <span class="keyword">if</span> i&lt;=ne, marker = <span class="string">'rv'</span>; <span class="comment">% Elites</span>
             <span class="keyword">elseif</span> i&lt;=ne+nm, marker = <span class="string">'mo'</span>; <span class="comment">% Mutants</span>
-            <span class="keyword">elseif</span> i&lt;=ne+nm+nd, marker = <span class="string">'bx'</span>; <span class="comment">% Descendants</span>
             <span class="keyword">else</span>, marker = <span class="string">'ks'</span>; <span class="comment">% Newcomers</span>
             <span class="keyword">end</span>;
 
@@ -205,14 +246,13 @@ FMS 		1.000009,1.000003 		1.961536E-08
             <span class="comment">% Save legend ticks</span>
             <span class="keyword">if</span> i==ne, lh(1) = ph{i}; <span class="comment">% Elite</span>
             <span class="keyword">elseif</span> i==ne+nm, lh(2) = ph{i}; <span class="comment">% Mutant</span>
-            <span class="keyword">elseif</span> i==ne+nm+nd, lh(3) = ph{i}; <span class="comment">% Descendant</span>
-            <span class="keyword">elseif</span> i==ne+nm+nd+1, lh(4) = ph{i}; <span class="comment">% Newcomer</span>
+            <span class="keyword">elseif</span> i==ne+nm+1, lh(3) = ph{i}; <span class="comment">% Newcomer</span>
             <span class="keyword">end</span>;
 
         <span class="keyword">end</span>;
 
         <span class="comment">% Legend</span>
-        legend(lh(1:4),<span class="string">'Elites'</span>,<span class="string">'Mutants'</span>,<span class="string">'Descendants'</span>,<span class="string">'Newcomers'</span>,<span class="keyword">...</span>
+        legend(lh(1:3),<span class="string">'Elites'</span>,<span class="string">'Mutants'</span>,<span class="string">'Newcomers'</span>,<span class="keyword">...</span>
             <span class="string">'Location'</span>,<span class="string">'NorthEastOutside'</span>);
 
         <span class="comment">% Do events</span>
@@ -229,18 +269,18 @@ FMS 		1.000009,1.000003 		1.961536E-08
     <span class="keyword">end</span>;
 
 <span class="keyword">end</span>;
-</pre><img vspace="5" hspace="5" src="example_aga_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+</pre><img vspace="5" hspace="5" src="example_ade_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
-%% Example AGA
-% Find minima of a function with Genetic Algorithm (GA)
+%% Example ADE
+% Find minima of a function with Differential Evolution (DE)
 %
-% Programmers:   Manel Soria         (UPC/ETSEIAT)
-%                David de la Torre   (UPC/ETSEIAT)
+% Programmers:   David de la Torre   (UPC/ETSEIAT)
+%                Manel Soria         (UPC/ETSEIAT)
 %                Arnau Miro          (UPC/ETSEIAT)
 % Date:          23/11/2016
-% Revision:      3
+% Revision:      2
 
-%% AGA
+%% ADE
 
 % Our test is a R^2->R function based on Rastrigin function.
 % It is challenging because it has infinite local extrema, located at
@@ -254,41 +294,41 @@ opts.label = 10; % Label (identification purposes)
 opts.dopar = 1; % Parallel execution of fitness function
 opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 
-% Define AGA algorithm parameters
-goal = 1E-5; % Target fitness value
+% Define ADE parameters
 ng = 50; % Number of generations
 np = 200; % Population size
 N = [3,... % Number of elites
-    floor(np*0.1),... % Number of mutants
-    floor(np*0.05),...% Number of newcomers
-    floor(np*0.2)]; % Number of parents
+    floor(np*0.7)]; % Number of mutants
+F = 0.1; % Mutation scaling factor
+ms = 1; % Mutation strategy (see ade.m)
+goal = 1E-5; % Target fitness value
 
 % Auxiliary function
-ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a and b
+ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 
-% Define AGA algorithm functions
+% Define ADE functions
 unifun = @(x,f) deal(x,f); % Discard identical individuals (unimplemented)
-fitfun = @(x) ras(x(1),x(2)); % Fitness function (to be minimized)
-mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random movement
-repfun = @(x,y,fx,fy) (x+y)/2; % Reproduction: average of two individuals
+fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
+mutfun = @(F,a,b,c) a + F * rand() * (b - c); % Mutation: random vector movement
 ranfun = @() ranrange(-5,5,2); % Random individual
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 
-% Assemble AGA data structure
+% Assemble ADE data structure
 DATA.ng = ng;
 DATA.N = N;
+DATA.F = F;
+DATA.ms = ms;
 DATA.unifun = unifun;
 DATA.fitfun = fitfun;
 DATA.mutfun = mutfun;
-DATA.repfun = repfun;
 DATA.ranfun = ranfun;
 DATA.prifun = prifun;
 
 % Randomize random seed
-rng('shuffle'); % We don't want repeatability in the heuristic
+rng('shuffle'); % We don't want repeatability in the GA
 
-% Execute Genetic Algorithm (GA)
-[ bestInd, bestFit, nite, lastPop, lastFit, history ] = aga ( ...
+% Execute Differential Evolution (DE)
+[ bestInd, bestFit, nite, lastPop, lastFit, history ] = ade ( ...
     opts, np, goal, DATA );
 
 % Now, we can easily improve the accuracy of the local extremum found
@@ -297,7 +337,7 @@ options = optimset('TolFun',1E-8,'Display','none');
 
 % Display results of aga and fminsearch algorithms
 fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
-fprintf('AGA \t\t%1.6f,%1.6f \t\t%1.6E\n',bestInd,bestFit);
+fprintf('ADE \t\t%1.6f,%1.6f \t\t%1.6E\n',bestInd,bestFit);
 fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 %% Fitness plot
@@ -312,7 +352,7 @@ else % Simple history
     fithist = history;
 end;
 
-% Plot fitness history
+% Plot fitness histroy
 if ~isempty(fithist)
 
     % Create figure
@@ -323,7 +363,7 @@ if ~isempty(fithist)
 
     % Beautify plot
     grid minor;
-    title('Genetic Algorithm optimization | Rastrigin function');
+    title('Differential Evolution optimization | Rastrigin function');
     xlabel('Generation [#]');
     ylabel('Best fitness function value [log]');
 
@@ -346,15 +386,14 @@ if opts.nhist>1 && iscell(history)
     % Population size
     ne = N(1); % Number of elites
     nm = N(2); % Number of mutants
-    nd = np - N(1) - N(2) - N(3); % Number of descendants
 
     % Plot generations
     ph = cell(np,1); % Handles
     for g=1:length(history)
 
         % Title
-        title({'Genetic Algorithm optimization | Rastrigin function';...
-            sprintf('Generation %03.0f',g)});
+        title({['Differential Evolution optimization',...
+            ' | Rastrigin function'];sprintf('Generation %03.0f',g)});
         
         % Plot individuals
         for i=1:np
@@ -362,7 +401,6 @@ if opts.nhist>1 && iscell(history)
             % Select plotting marker
             if i<=ne, marker = 'rv'; % Elites
             elseif i<=ne+nm, marker = 'mo'; % Mutants
-            elseif i<=ne+nm+nd, marker = 'bx'; % Descendants
             else, marker = 'ks'; % Newcomers
             end;
 
@@ -375,14 +413,13 @@ if opts.nhist>1 && iscell(history)
             % Save legend ticks
             if i==ne, lh(1) = ph{i}; % Elite
             elseif i==ne+nm, lh(2) = ph{i}; % Mutant
-            elseif i==ne+nm+nd, lh(3) = ph{i}; % Descendant
-            elseif i==ne+nm+nd+1, lh(4) = ph{i}; % Newcomer
+            elseif i==ne+nm+1, lh(3) = ph{i}; % Newcomer
             end;
 
         end;
 
         % Legend
-        legend(lh(1:4),'Elites','Mutants','Descendants','Newcomers',...
+        legend(lh(1:3),'Elites','Mutants','Newcomers',...
             'Location','NorthEastOutside');
 
         % Do events

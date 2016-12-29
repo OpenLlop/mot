@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Example AGA Islands</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-04-16"><meta name="DC.source" content="example_aga_islands_rastrigin.m"><style type="text/css">
+      --><title>Example Islands Model + AGA</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-11-23"><meta name="DC.source" content="example_aim_aga_rastrigin.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,58 +66,70 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>Example AGA Islands</h1><!--introduction--><p>Find minima of a function with Genetic Algorithm (GA) + Islands</p><p>Programmers:   Manel Soria         (UPC/ETSEIAT)                David de la Torre   (UPC/ETSEIAT)                Arnau Miro          (UPC/ETSEIAT) Date:          16/04/2015 Revision:      2</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">AGA Islands</a></li><li><a href="#2">Fitness plot</a></li><li><a href="#3">Generations plot</a></li></ul></div><h2>AGA Islands<a name="1"></a></h2><pre class="codeinput"><span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function.</span>
+  </style></head><body><div class="content"><h1>Example Islands Model + AGA</h1><!--introduction--><p>Find minima of a function with Islands Model + Genetic Algorithm (GA)</p><p>Programmers:   Manel Soria         (UPC/ETSEIAT)                David de la Torre   (UPC/ETSEIAT)                Arnau Miro          (UPC/ETSEIAT) Date:          23/11/2016 Revision:      3</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">AGA Islands</a></li><li><a href="#2">Fitness plot</a></li><li><a href="#3">Generations plot</a></li></ul></div><h2 id="1">AGA Islands</h2><pre class="codeinput"><span class="comment">% Our test is a R^2-&gt;R function based on Rastrigin function.</span>
 <span class="comment">% It is challenging because it has infinite local extrema, located at</span>
 <span class="comment">% integer numbers (ie, 8,-9).</span>
 <span class="comment">% The global minimum is at (1,1), and its value is 0.</span>
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
-<span class="comment">% Define GA function options</span>
-opts.ninfo = 1; <span class="comment">% Verbosity level (0=none, 1=minimal, 2=extended)</span>
+<span class="comment">% Define heuristic function options (optional)</span>
+opts.ninfo = 2; <span class="comment">% Verbosity level (0=none, 1=minimal, 2=extended)</span>
 opts.label = 10; <span class="comment">% Label (identification purposes)</span>
 opts.dopar = 1; <span class="comment">% Parallel execution of fitness function</span>
 opts.nhist = 2; <span class="comment">% Save history (0=none, 1=fitness, 2=all{pop,fit})</span>
 
-<span class="comment">% Define GA_Islands parameters</span>
+<span class="comment">% Define Islands Model parameters</span>
 ni = 3; <span class="comment">% Number of islands</span>
 ngg = 6; <span class="comment">% Number of global iterations</span>
-np = 40; <span class="comment">% population of each island</span>
-ng = 6; <span class="comment">% Number of local generations</span>
 nemi = 5; <span class="comment">% Number of emigrants</span>
+goal = -Inf; <span class="comment">% Target fitness value</span>
+heufun = @aga; <span class="comment">% Heuristic function to use with the Islands Model</span>
+
+<span class="comment">% Define AGA parameters</span>
+ng = 6; <span class="comment">% Number of local generations</span>
+np = 40; <span class="comment">% population of each island</span>
 N = [3,<span class="keyword">...</span><span class="comment"> % Number of elites</span>
     floor(np*0.1),<span class="keyword">...</span><span class="comment"> % Number of mutants</span>
     floor(np*0.05),<span class="keyword">...</span><span class="comment">% Number of newcomers</span>
     floor(np*0.2)]; <span class="comment">% Number of parents</span>
-goal = 1E-5; <span class="comment">% Target fitness value</span>
 
 <span class="comment">% Auxiliary function</span>
 ranrange = @(a,b,n) a + (b-a)*rand(n,1); <span class="comment">% n random values between a i b</span>
 
-<span class="comment">% Define GA functions</span>
-funique = @(x) x; <span class="comment">% Discard identical individuals: currently not in use</span>
-fitfun = @(x) ras(x(1),x(2)); <span class="comment">% Fitness function - TO BE MINIMIZED</span>
+<span class="comment">% Define AGA functions</span>
+unifun = @(x,f) deal(x,f); <span class="comment">% Discard identical individuals: currently not in use</span>
+fitfun = @(x) ras(x(1),x(2)); <span class="comment">% Fitness function (to be minimized)</span>
 mutfun = @(x,f) x + ranrange(-0.1,0.1,2); <span class="comment">% Mutation: small random mov</span>
 repfun = @(x,y,fx,fy) (x+y)/2; <span class="comment">% Reproduction: average</span>
 ranfun = @() ranrange(-5,5,2); <span class="comment">% Random individual</span>
-prifun = @(x) fprintf(<span class="string">'%f %f '</span>,x(1),x(2)); <span class="comment">% Print an individual</span>
+prifun = @(x) fprintf(<span class="string">'%f %f'</span>,x(1),x(2)); <span class="comment">% Print an individual</span>
+
+<span class="comment">% Assemble AGA data structure</span>
+DATA.ng = ng;
+DATA.N = N;
+DATA.unifun = unifun;
+DATA.fitfun = fitfun;
+DATA.mutfun = mutfun;
+DATA.repfun = repfun;
+DATA.ranfun = ranfun;
+DATA.prifun = prifun;
 
 <span class="comment">% Randomize random seed</span>
-rng(<span class="string">'shuffle'</span>); <span class="comment">% We don't want repeatability in the GA</span>
+rng(<span class="string">'shuffle'</span>); <span class="comment">% We don't want repeatability in the heuristic</span>
 
 <span class="comment">% We can just give the number of islands and individuals (pops = [ni np]),</span>
-<span class="comment">% then aga_islands generates the populations calling our ranfun. Or we can</span>
+<span class="comment">% then aim generates the populations calling our ranfun. Or we can</span>
 <span class="comment">% generate our own initial populations:</span>
 pops = cell(1,ni);
-<span class="keyword">for</span> illa=1:ni
+<span class="keyword">for</span> isl=1:ni
     <span class="keyword">for</span> i=1:np
-        pops{illa}{i} = ranfun(); <span class="comment">% Create random individual</span>
+        pops{isl}{i} = ranfun(); <span class="comment">% Create random individual</span>
     <span class="keyword">end</span>;
 <span class="keyword">end</span>;
 
-<span class="comment">% Execute Genetic Algorithm (GA) + Islands</span>
-[bestind, bestfit, nite, lastpop, lastfit, history] = <span class="keyword">...</span>
-    aga_islands ( opts, pops, ngg, nemi, ng, N, goal, <span class="keyword">...</span>
-    funique, fitfun, mutfun, repfun, ranfun, prifun );
+<span class="comment">% Execute Islands Model + Genetic Algorithm (GA)</span>
+[bestind, bestfit, nite, lastpop, lastfit, history] = aim ( <span class="keyword">...</span>
+    opts, pops, ngg, nemi, goal, heufun, DATA );
 
 <span class="comment">% Now, we can easily improve the accuracy of the local extremum found</span>
 options = optimset(<span class="string">'TolFun'</span>,1e-8,<span class="string">'Display'</span>,<span class="string">'none'</span>);
@@ -127,25 +139,137 @@ options = optimset(<span class="string">'TolFun'</span>,1e-8,<span class="string
 fprintf(<span class="string">'\nAlgorithm \tBest individual (x,y) \tValue\n'</span>);
 fprintf(<span class="string">'AGAI \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestind,bestfit);
 fprintf(<span class="string">'FMS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndFMS,bestFitFMS);
-</pre><pre class="codeoutput">aga_islands begin ni=3 np=40 ngg=6 ng=6
-Starting parallel pool (parpool) using the 'local' profile ... connected to 4 workers.
-aga_islands label= 10 gg= 1 fbest= 1.273e+00 island= 2 best: 0.977065 1.965257 
-aga_islands label= 10 gg= 2 fbest= 1.135e-01 island= 1 best: 0.976567 1.004874 
-aga_islands label= 10 gg= 3 fbest= 1.655e-02 island= 1 best: 0.999883 0.990867 
-aga_islands label= 10 gg= 4 fbest= 1.655e-02 island= 1 best: 0.999883 0.990867 
-aga_islands label= 10 gg= 5 fbest= 1.655e-02 island= 1 best: 0.999883 0.990867 
-aga_islands label= 10 gg= 6 fbest= 1.655e-02 island= 1 best: 0.999883 0.990867 
+</pre><pre class="codeoutput">AIM begin ni=3 np=40 ngg=6
+AGA label=1011 nite=6 fitbest=1.463184 best=1.954868 1.027718max. iterations reached, leaving
+AIM label=10 end ite global=1 island=1 fbest=1.463184e+00 best: 1.954868 1.027718
+AGA label=1012 nite=6 fitbest=3.350240 best=-0.031772 0.080132max. iterations reached, leaving
+AIM label=10 end ite global=1 island=2 fbest=3.350240e+00 best: -0.031772 0.080132
+AGA label=1013 nite=6 fitbest=0.034631 best=1.000746 0.986805max. iterations reached, leaving
+AIM label=10 end ite global=1 island=3 fbest=3.463094e-02 best: 1.000746 0.986805
+AIM label=10 gg=1 fbest=3.463e-02 island=3 best: 1.000746 0.986805
+AIM label=10 gg=1 migrant from island=2 indi=1 to replace island=1 indi=40
+AIM label=10 gg=1 migrant from island=2 indi=2 to replace island=1 indi=39
+AIM label=10 gg=1 migrant from island=2 indi=3 to replace island=1 indi=38
+AIM label=10 gg=1 migrant from island=2 indi=4 to replace island=1 indi=37
+AIM label=10 gg=1 migrant from island=2 indi=5 to replace island=1 indi=36
+AIM label=10 gg=1 migrant from island=3 indi=1 to replace island=2 indi=40
+AIM label=10 gg=1 migrant from island=3 indi=2 to replace island=2 indi=39
+AIM label=10 gg=1 migrant from island=3 indi=3 to replace island=2 indi=38
+AIM label=10 gg=1 migrant from island=3 indi=4 to replace island=2 indi=37
+AIM label=10 gg=1 migrant from island=3 indi=5 to replace island=2 indi=36
+AIM label=10 gg=1 migrant from island=1 indi=1 to replace island=3 indi=40
+AIM label=10 gg=1 migrant from island=1 indi=2 to replace island=3 indi=39
+AIM label=10 gg=1 migrant from island=1 indi=3 to replace island=3 indi=38
+AIM label=10 gg=1 migrant from island=1 indi=4 to replace island=3 indi=37
+AIM label=10 gg=1 migrant from island=1 indi=5 to replace island=3 indi=36
+AGA label=2011 nite=6 fitbest=1.002207 best=1.988953 1.000704max. iterations reached, leaving
+AIM label=10 end ite global=2 island=1 fbest=1.002207e+00 best: 1.988953 1.000704
+AGA label=2012 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
+AIM label=10 end ite global=2 island=2 fbest=1.816710e-03 best: 1.001576 1.002583
+AGA label=2013 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
+AIM label=10 end ite global=2 island=3 fbest=1.816710e-03 best: 1.001576 1.002583
+AIM label=10 gg=2 fbest=1.817e-03 island=2 best: 1.001576 1.002583
+AIM label=10 gg=2 migrant from island=2 indi=1 to replace island=1 indi=40
+AIM label=10 gg=2 migrant from island=2 indi=2 to replace island=1 indi=39
+AIM label=10 gg=2 migrant from island=2 indi=3 to replace island=1 indi=38
+AIM label=10 gg=2 migrant from island=2 indi=4 to replace island=1 indi=37
+AIM label=10 gg=2 migrant from island=2 indi=5 to replace island=1 indi=36
+AIM label=10 gg=2 migrant from island=3 indi=1 to replace island=2 indi=40
+AIM label=10 gg=2 migrant from island=3 indi=2 to replace island=2 indi=39
+AIM label=10 gg=2 migrant from island=3 indi=3 to replace island=2 indi=38
+AIM label=10 gg=2 migrant from island=3 indi=4 to replace island=2 indi=37
+AIM label=10 gg=2 migrant from island=3 indi=5 to replace island=2 indi=36
+AIM label=10 gg=2 migrant from island=1 indi=1 to replace island=3 indi=40
+AIM label=10 gg=2 migrant from island=1 indi=2 to replace island=3 indi=39
+AIM label=10 gg=2 migrant from island=1 indi=3 to replace island=3 indi=38
+AIM label=10 gg=2 migrant from island=1 indi=4 to replace island=3 indi=37
+AIM label=10 gg=2 migrant from island=1 indi=5 to replace island=3 indi=36
+AGA label=3011 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
+AIM label=10 end ite global=3 island=1 fbest=1.816710e-03 best: 1.001576 1.002583
+AGA label=3012 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
+AIM label=10 end ite global=3 island=2 fbest=1.816710e-03 best: 1.001576 1.002583
+AGA label=3013 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
+AIM label=10 end ite global=3 island=3 fbest=1.816710e-03 best: 1.001576 1.002583
+AIM label=10 gg=3 fbest=1.817e-03 island=1 best: 1.001576 1.002583
+AIM label=10 gg=3 migrant from island=2 indi=1 to replace island=1 indi=40
+AIM label=10 gg=3 migrant from island=2 indi=2 to replace island=1 indi=39
+AIM label=10 gg=3 migrant from island=2 indi=3 to replace island=1 indi=38
+AIM label=10 gg=3 migrant from island=2 indi=4 to replace island=1 indi=37
+AIM label=10 gg=3 migrant from island=2 indi=5 to replace island=1 indi=36
+AIM label=10 gg=3 migrant from island=3 indi=1 to replace island=2 indi=40
+AIM label=10 gg=3 migrant from island=3 indi=2 to replace island=2 indi=39
+AIM label=10 gg=3 migrant from island=3 indi=3 to replace island=2 indi=38
+AIM label=10 gg=3 migrant from island=3 indi=4 to replace island=2 indi=37
+AIM label=10 gg=3 migrant from island=3 indi=5 to replace island=2 indi=36
+AIM label=10 gg=3 migrant from island=1 indi=1 to replace island=3 indi=40
+AIM label=10 gg=3 migrant from island=1 indi=2 to replace island=3 indi=39
+AIM label=10 gg=3 migrant from island=1 indi=3 to replace island=3 indi=38
+AIM label=10 gg=3 migrant from island=1 indi=4 to replace island=3 indi=37
+AIM label=10 gg=3 migrant from island=1 indi=5 to replace island=3 indi=36
+AGA label=4011 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
+AIM label=10 end ite global=4 island=1 fbest=1.816710e-03 best: 1.001576 1.002583
+AGA label=4012 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
+AIM label=10 end ite global=4 island=2 fbest=1.816710e-03 best: 1.001576 1.002583
+AGA label=4013 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
+AIM label=10 end ite global=4 island=3 fbest=1.816710e-03 best: 1.001576 1.002583
+AIM label=10 gg=4 fbest=1.817e-03 island=1 best: 1.001576 1.002583
+AIM label=10 gg=4 migrant from island=2 indi=1 to replace island=1 indi=40
+AIM label=10 gg=4 migrant from island=2 indi=2 to replace island=1 indi=39
+AIM label=10 gg=4 migrant from island=2 indi=3 to replace island=1 indi=38
+AIM label=10 gg=4 migrant from island=2 indi=4 to replace island=1 indi=37
+AIM label=10 gg=4 migrant from island=2 indi=5 to replace island=1 indi=36
+AIM label=10 gg=4 migrant from island=3 indi=1 to replace island=2 indi=40
+AIM label=10 gg=4 migrant from island=3 indi=2 to replace island=2 indi=39
+AIM label=10 gg=4 migrant from island=3 indi=3 to replace island=2 indi=38
+AIM label=10 gg=4 migrant from island=3 indi=4 to replace island=2 indi=37
+AIM label=10 gg=4 migrant from island=3 indi=5 to replace island=2 indi=36
+AIM label=10 gg=4 migrant from island=1 indi=1 to replace island=3 indi=40
+AIM label=10 gg=4 migrant from island=1 indi=2 to replace island=3 indi=39
+AIM label=10 gg=4 migrant from island=1 indi=3 to replace island=3 indi=38
+AIM label=10 gg=4 migrant from island=1 indi=4 to replace island=3 indi=37
+AIM label=10 gg=4 migrant from island=1 indi=5 to replace island=3 indi=36
+AGA label=5011 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
+AIM label=10 end ite global=5 island=1 fbest=1.816710e-03 best: 1.001576 1.002583
+AGA label=5012 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
+AIM label=10 end ite global=5 island=2 fbest=1.816710e-03 best: 1.001576 1.002583
+AGA label=5013 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
+AIM label=10 end ite global=5 island=3 fbest=1.816710e-03 best: 1.001576 1.002583
+AIM label=10 gg=5 fbest=1.817e-03 island=1 best: 1.001576 1.002583
+AIM label=10 gg=5 migrant from island=2 indi=1 to replace island=1 indi=40
+AIM label=10 gg=5 migrant from island=2 indi=2 to replace island=1 indi=39
+AIM label=10 gg=5 migrant from island=2 indi=3 to replace island=1 indi=38
+AIM label=10 gg=5 migrant from island=2 indi=4 to replace island=1 indi=37
+AIM label=10 gg=5 migrant from island=2 indi=5 to replace island=1 indi=36
+AIM label=10 gg=5 migrant from island=3 indi=1 to replace island=2 indi=40
+AIM label=10 gg=5 migrant from island=3 indi=2 to replace island=2 indi=39
+AIM label=10 gg=5 migrant from island=3 indi=3 to replace island=2 indi=38
+AIM label=10 gg=5 migrant from island=3 indi=4 to replace island=2 indi=37
+AIM label=10 gg=5 migrant from island=3 indi=5 to replace island=2 indi=36
+AIM label=10 gg=5 migrant from island=1 indi=1 to replace island=3 indi=40
+AIM label=10 gg=5 migrant from island=1 indi=2 to replace island=3 indi=39
+AIM label=10 gg=5 migrant from island=1 indi=3 to replace island=3 indi=38
+AIM label=10 gg=5 migrant from island=1 indi=4 to replace island=3 indi=37
+AIM label=10 gg=5 migrant from island=1 indi=5 to replace island=3 indi=36
+AGA label=6011 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
+AIM label=10 end ite global=6 island=1 fbest=1.816710e-03 best: 1.001576 1.002583
+AGA label=6012 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
+AIM label=10 end ite global=6 island=2 fbest=1.816710e-03 best: 1.001576 1.002583
+AGA label=6013 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
+AIM label=10 end ite global=6 island=3 fbest=1.816710e-03 best: 1.001576 1.002583
+AIM label=10 gg=6 fbest=1.817e-03 island=1 best: 1.001576 1.002583
+AIM stoping because maximum number of global iterations 6 has been reached
 
 Algorithm 	Best individual (x,y) 	Value
-AGAI 		0.999883,0.990867 		1.654673E-02
-FMS 		1.000005,0.999997 		5.668984E-09
-</pre><h2>Fitness plot<a name="2"></a></h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
+AGAI 		1.001576,1.002583 		1.816710E-03
+FMS 		1.000001,1.000003 		1.890186E-09
+</pre><h2 id="2">Fitness plot</h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history) <span class="comment">% Full history; get fitness values</span>
     fithist = zeros(size(history,1),1);
     <span class="keyword">for</span> g=1:size(history,1)
         fithist(g) = history{g,ni+2};
     <span class="keyword">end</span>;
-<span class="keyword">else</span> fithist = min(history,[],2); <span class="comment">% Simple history</span>
+<span class="keyword">else</span> <span class="comment">% Simple history</span>
+    fithist = min(history,[],2);
 <span class="keyword">end</span>;
 
 <span class="comment">% Plot data</span>
@@ -159,12 +283,13 @@ FMS 		1.000005,0.999997 		5.668984E-09
 
     <span class="comment">% Beautify plot</span>
     grid <span class="string">minor</span>;
-    title(<span class="string">'Genetic Algorithm optimization | Rastrigin function'</span>);
+    title([<span class="string">'Islands Model + Genetic Algorithm optimization'</span>,<span class="keyword">...</span>
+        <span class="string">' | Rastrigin function'</span>]);
     xlabel(<span class="string">'Generation [#]'</span>);
     ylabel(<span class="string">'Best fitness function value [log]'</span>);
 
 <span class="keyword">end</span>;
-</pre><img vspace="5" hspace="5" src="example_aga_islands_rastrigin_01.png" alt=""> <h2>Generations plot<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
+</pre><img vspace="5" hspace="5" src="example_aim_aga_rastrigin_01.png" alt=""> <h2 id="3">Generations plot</h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history)
 
     <span class="comment">% Create figure</span>
@@ -188,7 +313,7 @@ FMS 		1.000005,0.999997 		5.668984E-09
         <span class="keyword">for</span> g=1:ng
 
             <span class="comment">% Title</span>
-            title({[<span class="string">'Genetic Algorithm optimization + Islands'</span>,<span class="keyword">...</span>
+            title({[<span class="string">'Islands Model + Genetic Algorithm optimization'</span>,<span class="keyword">...</span>
                 <span class="string">' | Rastrigin function'</span>];<span class="keyword">...</span>
                 sprintf([<span class="string">'Generation %03.0f'</span>,<span class="keyword">...</span>
                 <span class="string">' | Local generation %03.0f'</span>],gg,g)});
@@ -206,7 +331,7 @@ FMS 		1.000005,0.999997 		5.668984E-09
                     <span class="keyword">if</span> i&lt;=ne, marker = <span class="string">'rv'</span>; <span class="comment">% Elites range</span>
                     <span class="keyword">elseif</span> i&lt;=ne+nm, marker = <span class="string">'mo'</span>; <span class="comment">% Mutants range</span>
                     <span class="keyword">elseif</span> i&lt;=ne+nm+nd, marker = <span class="string">'bx'</span>; <span class="comment">% Descendants range</span>
-                    <span class="keyword">else</span> marker = <span class="string">'ks'</span>; <span class="comment">% Newcomers range</span>
+                    <span class="keyword">else</span>, marker = <span class="string">'ks'</span>; <span class="comment">% Newcomers range</span>
                     <span class="keyword">end</span>;
 
                     <span class="comment">% Plot individual</span>
@@ -227,8 +352,10 @@ FMS 		1.000005,0.999997 		5.668984E-09
             <span class="keyword">end</span>;
 
             <span class="comment">% Legend</span>
-            legend(lh,<span class="string">'Elites'</span>,<span class="string">'Mutants'</span>,<span class="string">'Descendants'</span>,<span class="string">'Newcomers'</span>,<span class="keyword">...</span>
+            <span class="keyword">try</span> legend(lh(1:4),<span class="string">'Elites'</span>,<span class="string">'Mutants'</span>,<span class="string">'Descendants'</span>,<span class="string">'Newcomers'</span>,<span class="keyword">...</span>
                 <span class="string">'Location'</span>,<span class="string">'NorthEastOutside'</span>);
+            <span class="keyword">catch</span>
+            <span class="keyword">end</span>;
 
             <span class="comment">% Do events</span>
             drawnow;
@@ -246,16 +373,16 @@ FMS 		1.000005,0.999997 		5.668984E-09
     <span class="keyword">end</span>;
 
 <span class="keyword">end</span>;
-</pre><img vspace="5" hspace="5" src="example_aga_islands_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
+</pre><img vspace="5" hspace="5" src="example_aim_aga_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
-%% Example AGA Islands
-% Find minima of a function with Genetic Algorithm (GA) + Islands
+%% Example Islands Model + AGA
+% Find minima of a function with Islands Model + Genetic Algorithm (GA)
 %
 % Programmers:   Manel Soria         (UPC/ETSEIAT)
 %                David de la Torre   (UPC/ETSEIAT)
 %                Arnau Miro          (UPC/ETSEIAT)
-% Date:          16/04/2015
-% Revision:      2
+% Date:          23/11/2016
+% Revision:      3
 
 %% AGA Islands
 
@@ -265,52 +392,64 @@ FMS 		1.000005,0.999997 		5.668984E-09
 % The global minimum is at (1,1), and its value is 0.
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
-% Define GA function options
-opts.ninfo = 1; % Verbosity level (0=none, 1=minimal, 2=extended)
+% Define heuristic function options (optional)
+opts.ninfo = 2; % Verbosity level (0=none, 1=minimal, 2=extended)
 opts.label = 10; % Label (identification purposes)
 opts.dopar = 1; % Parallel execution of fitness function
 opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 
-% Define GA_Islands parameters
+% Define Islands Model parameters
 ni = 3; % Number of islands
 ngg = 6; % Number of global iterations
-np = 40; % population of each island
-ng = 6; % Number of local generations
 nemi = 5; % Number of emigrants
+goal = -Inf; % Target fitness value
+heufun = @aga; % Heuristic function to use with the Islands Model
+
+% Define AGA parameters
+ng = 6; % Number of local generations
+np = 40; % population of each island
 N = [3,... % Number of elites
     floor(np*0.1),... % Number of mutants
     floor(np*0.05),...% Number of newcomers
     floor(np*0.2)]; % Number of parents
-goal = 1E-5; % Target fitness value
 
 % Auxiliary function
 ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 
-% Define GA functions
-funique = @(x) x; % Discard identical individuals: currently not in use
-fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
+% Define AGA functions
+unifun = @(x,f) deal(x,f); % Discard identical individuals: currently not in use
+fitfun = @(x) ras(x(1),x(2)); % Fitness function (to be minimized)
 mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random mov
 repfun = @(x,y,fx,fy) (x+y)/2; % Reproduction: average
 ranfun = @() ranrange(-5,5,2); % Random individual
-prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
+prifun = @(x) fprintf('%f %f',x(1),x(2)); % Print an individual
+
+% Assemble AGA data structure
+DATA.ng = ng;
+DATA.N = N;
+DATA.unifun = unifun;
+DATA.fitfun = fitfun;
+DATA.mutfun = mutfun;
+DATA.repfun = repfun;
+DATA.ranfun = ranfun;
+DATA.prifun = prifun;
 
 % Randomize random seed
-rng('shuffle'); % We don't want repeatability in the GA
+rng('shuffle'); % We don't want repeatability in the heuristic
 
 % We can just give the number of islands and individuals (pops = [ni np]),
-% then aga_islands generates the populations calling our ranfun. Or we can
+% then aim generates the populations calling our ranfun. Or we can
 % generate our own initial populations:
 pops = cell(1,ni);
-for illa=1:ni
+for isl=1:ni
     for i=1:np
-        pops{illa}{i} = ranfun(); % Create random individual
+        pops{isl}{i} = ranfun(); % Create random individual
     end;
 end;
 
-% Execute Genetic Algorithm (GA) + Islands
-[bestind, bestfit, nite, lastpop, lastfit, history] = ...
-    aga_islands ( opts, pops, ngg, nemi, ng, N, goal, ...
-    funique, fitfun, mutfun, repfun, ranfun, prifun );
+% Execute Islands Model + Genetic Algorithm (GA)
+[bestind, bestfit, nite, lastpop, lastfit, history] = aim ( ...
+    opts, pops, ngg, nemi, goal, heufun, DATA );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1e-8,'Display','none');
@@ -329,7 +468,8 @@ if opts.nhist>1 && iscell(history) % Full history; get fitness values
     for g=1:size(history,1)
         fithist(g) = history{g,ni+2};
     end;
-else fithist = min(history,[],2); % Simple history
+else % Simple history
+    fithist = min(history,[],2);
 end;
 
 % Plot data
@@ -343,7 +483,8 @@ if ~isempty(fithist)
 
     % Beautify plot
     grid minor;
-    title('Genetic Algorithm optimization | Rastrigin function');
+    title(['Islands Model + Genetic Algorithm optimization',...
+        ' | Rastrigin function']);
     xlabel('Generation [#]');
     ylabel('Best fitness function value [log]');
 
@@ -375,7 +516,7 @@ if opts.nhist>1 && iscell(history)
         for g=1:ng
 
             % Title
-            title({['Genetic Algorithm optimization + Islands',...
+            title({['Islands Model + Genetic Algorithm optimization',...
                 ' | Rastrigin function'];...
                 sprintf(['Generation %03.0f',...
                 ' | Local generation %03.0f'],gg,g)});
@@ -393,7 +534,7 @@ if opts.nhist>1 && iscell(history)
                     if i<=ne, marker = 'rv'; % Elites range
                     elseif i<=ne+nm, marker = 'mo'; % Mutants range
                     elseif i<=ne+nm+nd, marker = 'bx'; % Descendants range
-                    else marker = 'ks'; % Newcomers range
+                    else, marker = 'ks'; % Newcomers range
                     end;
 
                     % Plot individual
@@ -414,8 +555,10 @@ if opts.nhist>1 && iscell(history)
             end;
 
             % Legend
-            legend(lh,'Elites','Mutants','Descendants','Newcomers',...
+            try legend(lh(1:4),'Elites','Mutants','Descendants','Newcomers',...
                 'Location','NorthEastOutside');
+            catch
+            end;
 
             % Do events
             drawnow;

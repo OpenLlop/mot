@@ -1,11 +1,11 @@
-%% Example AGA Islands
-% Find minima of a function with Genetic Algorithm (GA) + Islands
+%% Example Islands Model + AGA
+% Find minima of a function with Islands Model + Genetic Algorithm (GA)
 %
 % Programmers:   Manel Soria         (UPC/ETSEIAT)
 %                David de la Torre   (UPC/ETSEIAT)
 %                Arnau Miro          (UPC/ETSEIAT)
-% Date:          16/04/2015
-% Revision:      2
+% Date:          23/11/2016
+% Revision:      3
 
 %% AGA Islands
 
@@ -15,52 +15,64 @@
 % The global minimum is at (1,1), and its value is 0.
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
-% Define GA function options
-opts.ninfo = 1; % Verbosity level (0=none, 1=minimal, 2=extended)
+% Define heuristic function options (optional)
+opts.ninfo = 2; % Verbosity level (0=none, 1=minimal, 2=extended)
 opts.label = 10; % Label (identification purposes)
 opts.dopar = 1; % Parallel execution of fitness function
 opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 
-% Define GA_Islands parameters
+% Define Islands Model parameters
 ni = 3; % Number of islands
 ngg = 6; % Number of global iterations
-np = 40; % population of each island
-ng = 6; % Number of local generations
 nemi = 5; % Number of emigrants
+goal = -Inf; % Target fitness value
+heufun = @aga; % Heuristic function to use with the Islands Model
+
+% Define AGA parameters
+ng = 6; % Number of local generations
+np = 40; % population of each island
 N = [3,... % Number of elites
     floor(np*0.1),... % Number of mutants
     floor(np*0.05),...% Number of newcomers
     floor(np*0.2)]; % Number of parents
-goal = 1E-5; % Target fitness value
 
 % Auxiliary function
 ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 
-% Define GA functions
-funique = []; % Discard identical individuals: currently not in use
-fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
+% Define AGA functions
+unifun = @(x,f) deal(x,f); % Discard identical individuals: currently not in use
+fitfun = @(x) ras(x(1),x(2)); % Fitness function (to be minimized)
 mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random mov
 repfun = @(x,y,fx,fy) (x+y)/2; % Reproduction: average
 ranfun = @() ranrange(-5,5,2); % Random individual
-prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
+prifun = @(x) fprintf('%f %f',x(1),x(2)); % Print an individual
+
+% Assemble AGA data structure
+DATA.ng = ng;
+DATA.N = N;
+DATA.unifun = unifun;
+DATA.fitfun = fitfun;
+DATA.mutfun = mutfun;
+DATA.repfun = repfun;
+DATA.ranfun = ranfun;
+DATA.prifun = prifun;
 
 % Randomize random seed
-rng('shuffle'); % We don't want repeatability in the GA
+rng('shuffle'); % We don't want repeatability in the heuristic
 
 % We can just give the number of islands and individuals (pops = [ni np]),
-% then aga_islands generates the populations calling our ranfun. Or we can
+% then aim generates the populations calling our ranfun. Or we can
 % generate our own initial populations:
 pops = cell(1,ni);
-for illa=1:ni
+for isl=1:ni
     for i=1:np
-        pops{illa}{i} = ranfun(); % Create random individual
+        pops{isl}{i} = ranfun(); % Create random individual
     end;
 end;
 
-% Execute Genetic Algorithm (GA) + Islands
-[bestind, bestfit, nite, lastpop, lastfit, history] = ...
-    aga_islands ( opts, pops, ngg, nemi, ng, N, goal, ...
-    funique, fitfun, mutfun, repfun, ranfun, prifun );
+% Execute Islands Model + Genetic Algorithm (GA)
+[bestind, bestfit, nite, lastpop, lastfit, history] = aim ( ...
+    opts, pops, ngg, nemi, goal, heufun, DATA );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1e-8,'Display','none');
@@ -79,7 +91,8 @@ if opts.nhist>1 && iscell(history) % Full history; get fitness values
     for g=1:size(history,1)
         fithist(g) = history{g,ni+2};
     end;
-else fithist = min(history,[],2); % Simple history
+else % Simple history
+    fithist = min(history,[],2);
 end;
 
 % Plot data
@@ -93,7 +106,8 @@ if ~isempty(fithist)
 
     % Beautify plot
     grid minor;
-    title('Genetic Algorithm optimization | Rastrigin function');
+    title(['Islands Model + Genetic Algorithm optimization',...
+        ' | Rastrigin function']);
     xlabel('Generation [#]');
     ylabel('Best fitness function value [log]');
 
@@ -125,7 +139,7 @@ if opts.nhist>1 && iscell(history)
         for g=1:ng
 
             % Title
-            title({['Genetic Algorithm optimization + Islands',...
+            title({['Islands Model + Genetic Algorithm optimization',...
                 ' | Rastrigin function'];...
                 sprintf(['Generation %03.0f',...
                 ' | Local generation %03.0f'],gg,g)});
@@ -143,7 +157,7 @@ if opts.nhist>1 && iscell(history)
                     if i<=ne, marker = 'rv'; % Elites range
                     elseif i<=ne+nm, marker = 'mo'; % Mutants range
                     elseif i<=ne+nm+nd, marker = 'bx'; % Descendants range
-                    else marker = 'ks'; % Newcomers range
+                    else, marker = 'ks'; % Newcomers range
                     end;
 
                     % Plot individual
@@ -164,8 +178,10 @@ if opts.nhist>1 && iscell(history)
             end;
 
             % Legend
-            legend(lh,'Elites','Mutants','Descendants','Newcomers',...
+            try legend(lh(1:4),'Elites','Mutants','Descendants','Newcomers',...
                 'Location','NorthEastOutside');
+            catch
+            end;
 
             % Do events
             drawnow;

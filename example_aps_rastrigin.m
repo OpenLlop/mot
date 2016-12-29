@@ -4,8 +4,8 @@
 % Programmers:   Manel Soria         (UPC/ETSEIAT)
 %                David de la Torre   (UPC/ETSEIAT)
 %                Arnau Miro          (UPC/ETSEIAT)
-% Date:          16/04/2015
-% Revision:      1
+% Date:          29/12/2016
+% Revision:      3
 
 %% APS
 
@@ -15,49 +15,71 @@
 % The global minimum is at (1,1), and its value is 0
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
-% Define PS function options (optional)
+% Define heuristic function options (optional)
 opts.ninfo = 2; % Verbosity level (0=none, 1=minimal, 2=extended)
 opts.label = 10; % Label (identification purposes)
 opts.dopar = 0; % Parallel execution of fitness function
 opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 
-% Define PS parameters
+% Define APS parameters
 nitemax = 50; % Maximum number of iterations
 np = 50; % Population size
 c1 = 10; % Local learning factor
 c2 = 20; % Global learning factor
-P1 = 1E-2; % Maximum step size (velocity) allowed in one iteration
+vmax = 0.2; % Maximum step size (velocity) allowed in one iteration
 goal = 1E-5; % Target fitness value
 
 % Auxiliary function
 ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 
-% Define PS functions
-fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
+% Define APS functions
+fitfun = @(x) ras(x(1),x(2)); % Fitness function (to be minimized)
 ranfun = @() ranrange(-5,5,2); % Random individual
+rvlfun = @() 0.1 * ranrange(-5,5,2); % Random individual
+posfun = @(x,v) x + v; % Update particle position
+velfun = @(v,x,xb,ib,c1,c2) v ... % Current velocity
+    + c1*rand()*(xb - x) ... % Local learning factor
+    + c2*rand()*(ib - x); % Global learning factor
+vscfun = @(v,vmax) v*(norm(v)<vmax) ... % Velocity scaling not required
+    + v*(vmax/norm(v))*(norm(v)>=vmax); % Limit excesive velocity
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 
 % Randomize random seed
-rng('shuffle'); % We don't want repeatability in the PS
+rng('shuffle'); % We don't want repeatability in the heuristic
 
 % Generate initial population
+pop = cell(np,1);
+v = cell(np,1);
 for i=1:np
-    pop{i} = ranfun(); %#ok
-    v{i} = 0.1 * ranfun(); %#ok
+    pop{i} = ranfun();
+    v{i} = rvlfun();
 end;
 
+% Assemble APS data structure
+DATA.nitemax = nitemax;
+DATA.v = v;
+DATA.c1 = c1;
+DATA.c2 = c2;
+DATA.vmax = vmax;
+DATA.fitfun = fitfun;
+DATA.posfun = posfun;
+DATA.velfun = velfun;
+DATA.vscfun = vscfun;
+DATA.prifun = prifun;
+DATA.ranfun = ranfun;
+DATA.rvlfun = rvlfun;
+
 % Execute Particle Swarm
-[ bestIndAPS, bestFitAPS, nite, lastPopAPS, lastFitAPS, history ] = ...
-    aps ( opts, pop, v, c1, c2, P1, nitemax, goal, ... 
-    fitfun, prifun );
+[ bestInd, bestFit, nite, lastPop, lastFit, history ] = aps ( ...
+    opts, pop, goal, DATA );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1E-8,'Display','none');
-[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndAPS,options);
+[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestInd,options);
 
 % Display results of aps and fminsearch algorithms
 fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
-fprintf('APS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndAPS,bestFitAPS);
+fprintf('APS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestInd,bestFit);
 fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 %% Fitness plot
@@ -68,7 +90,8 @@ if opts.nhist>1 && iscell(history) % Full history; get fitness values
     for i=1:length(history)
         fithist(i) = history{i,2}(1);
     end;
-else fithist = history; % Simple history
+else % Simple history
+    fithist = history;
 end;
 
 % Plot data

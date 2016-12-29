@@ -1,16 +1,15 @@
-function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aga ( ...
+function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ade ( ...
     opts, pop, goal, DATA )
-%AGA finds minimum of a function using Genetic Algorithm (GA)
+%ADE finds minimum of a function using Differential Evolution (DE)
 %
-%Programmers:   Manel Soria         (UPC/ETSEIAT)
-%               David de la Torre   (UPC/ETSEIAT)
+%Programmers:   David de la Torre   (UPC/ETSEIAT)
+%               Manel Soria         (UPC/ETSEIAT)
 %               Arnau Miro          (UPC/ETSEIAT)
 %Date:          17/11/2016
-%Revision:      3
+%Revision:      2
 %
 %Usage:         [bestind, bestfit, nite, lastpop, lastfit, history] = ...
-%                   AGA( opts, pop, ng, N, goal, ...
-%                   unifun, fitfun, mutfun, repfun, ranfun, prifun )
+%                   ADE ( opts, pop, goal, DATA )
 %
 %Inputs:
 %   opts:       function control parameters [struct] (optional)
@@ -19,26 +18,30 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aga ( ...
 %               to be filtered
 %       dopar:  parallel execution of fitness function [1,0]
 %       nhist:  save history (0=none, 1=fitness, 2=all{pop,fit})
-%                   0: history = []
-%                   1: history(ng) = bestfit(i)
-%                   2: history{ng,1:2} = {pop,fitness}
+%           0:  history = []
+%           1:  history(ng) = bestfit(i)
+%           2:  history{ng,1:2} = {pop,fitness}
 %   pop:        list with initial population elements
 %   goal:       if function value is below goal, iterations are stopped
 %   DATA:       structure with the specific parameters and callback
-%               functions of the AGA heuristic function.
+%               functions of the ADE heuristic function.
 %       ng:     maximum number of generations allowed
 %       N:      population control parameters
 %           N(1)    ne: number of elite individuals that remain unchanged
 %           N(2)    nm: number of mutants
-%           N(3)    nn: number of newcomers
-%           The rest are descendants
-%           N(4)    na: number of parents. The descendants are choosen
-%                   among the na best individuals
-%                   The rest of individuals (ie: nn=length(pop)-ne+nm+nd)
-%                   are newcomers, randomly choosen
+%                   The rest of individuals (ie: nn=length(pop)-ne+nm) are
+%                   newcomers, randomly choosen
+%       F:      mutation scaling factor (usually between 0-1)
+%       ms:     mutation strategy
+%           1:  DE/rand/1/exp -> p = mutfun(F,a,b,c)
+%           2:  DE/rand/2/exp -> p = mutfun(F,a,b,c,d,e)
+%           3:  DE/best/1/exp -> p = mutfun(F,best,b,c)
+%           4:  DE/best/2/exp -> p = mutfun(F,best,b,c)
+%           5:  DE/rand-to-best/1/exp -> p = mutfun(F,best,a,b,c)
+%           6:  DE/rand-to-best/2/exp -> p = mutfun(F,best,a,b,c,d,e)
 % 
-%       If there are less than nm-1 non-identical indivials, population is 
-%       considered degenerate and iterations stop
+%       If there are less than nm-1 non-identical individuals, population
+%       is considered degenerate and iterations stop
 %
 %       Call back functions to be provided by the user:
 %       unifun: deletes repeated individuals in a population
@@ -46,12 +49,9 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aga ( ...
 %               population+fitness (a population is a list of individuals)
 %       fitfun: fitness function, given one individual returns its fitness
 %               (RECALL that in this GA algoritm fitness is MINIMIZED)
-%       mutfun: mutation funcion, given one individual and its fitness,
-%               mutfun should return a mutant individual. Fitness is given
-%               in case mutation intensity is to be decreased when close
-%               to the goal
-%       repfun: given two individuals and their fitnesses, returns a
-%               descendant
+%       mutfun: given X individuals and their fitnesses, returns a
+%               combination of the individuals (X will depend on the
+%               mutation strategy)
 %       ranfun: returns a random individual
 %       prifun: prints best individual
 %
@@ -63,19 +63,20 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aga ( ...
 %   lastfit:    fitness values of last population
 %   history:    array with saved history array
 
-% Get configuration options
+% Get options
 if isfield(opts,'ninfo'), ninfo = opts.ninfo; else, ninfo = 1; end;
 if isfield(opts,'label'), label = opts.label; else, label = 0; end;
 if isfield(opts,'dopar'), dopar = opts.dopar; else, dopar = 0; end;
 if isfield(opts,'nhist'), nhist = opts.nhist; else, nhist = 1; end;
 
-% Get heuristic parameters from data structure
+% Get heuristic parameters from DATA structure
 ng = DATA.ng;
 N = DATA.N;
+F = DATA.F;
+ms = DATA.ms;
 unifun = DATA.unifun;
 fitfun = DATA.fitfun;
 mutfun = DATA.mutfun;
-repfun = DATA.repfun;
 ranfun = DATA.ranfun;
 prifun = DATA.prifun;
 
@@ -94,14 +95,12 @@ end;
 % Population size
 ne = N(1); % Number of elites
 nm = N(2); % Number of mutants
-nn = N(3); % Number of newcomers
-na = N(4); % Number of breeders (selected from the best individuals)
 np = length(pop); % Population size
-nd = np - N(1) - N(2) - N(3); % Number of descendants
+nn = np - (ne + nm); % Number of newcomers
 
 % Safety checks
-if na<=0, na=1; end;
-if nn<0, error('AGA nn (number of newcomers) must be positive'); end;
+if nm<=0, nm=1; end; % Ensure there is at least one mutant
+if nn<0, error('ADE number of elites/mutants exceeds population\n'); end;
 
 % Iterate through generations
 for g=1:ng
@@ -114,11 +113,11 @@ for g=1:ng
     ncleanpop = length(pop); % Length of clean population
 
     % Avoid population degeneration (i.e., poor genetic pool)
-    if ncleanpop<na % Clean population size is less than breeders size
+    if ncleanpop<nm % Clean population size is less than mutants size
         
         % Show info
         if ninfo>0
-            fprintf('AGA label=%d degenerate population, leaving\n',label);
+            fprintf('ADE label=%d degenerate population, leaving\n',label);
         end;
         
         % Save last iteration data
@@ -169,8 +168,8 @@ for g=1:ng
         
         % Show info
         if ninfo>0
-            fprintf('AGA label=%d nite=%2d fitbest=%f',label,nite,bestfit);
-            if ~isempty(prifun), fprintf(' best='); prifun(bestind); end;
+            fprintf('ADE label=%d nite=%2d fitbest=%f',label,nite,bestfit);
+            if ~isempty(prifun), fprintf(' best= '); prifun(bestind); end;
             if bestfit<goal % Goal achieved
                 fprintf(' goal=%e achieved, leaving\n',goal);
             else % Maximum generations reached (goal not achieved)
@@ -185,14 +184,14 @@ for g=1:ng
 
     % Show extended info
     if ninfo>1
-        fprintf('AGA label=%d g=%2d fitbest=%f',label,g,fi(1));
+        fprintf('ADE label=%d g=%2d fitbest=%e',label,g,fi(1));
         if ~isempty(prifun), fprintf(' best='); prifun(pop{1}); end;
         fprintf('\n');
     end;
     
     % Compute population for next generation:
-    % <<[elites, mutants, descendants, newcomers]<<
-    nextpop = cell(1,ne+nm+nd+nn); % Preallocate/clear next population
+    % <<[elites, mutants, newcomers]<<
+    nextpop = cell(1,ne+nm+nn); % Preallocate/clear next population
     k = 1; % Start individual counter index
 
     for i=1:ne % Elites
@@ -201,18 +200,90 @@ for g=1:ng
     end;
 
     for i=1:nm % Mutants
-        if isempty(mutfun), nextpop{k} = pop{k}; % Do not mutate
-        else, nextpop{k} = mutfun(pop{k},fi(k)); % Mutate
-        end;
-        k = k + 1; % Next individual
-    end;
+        
+        % Select mutation strategy
+        switch ms
+            
+            case 1 % DE/rand/1/exp
 
-    for i=1:nd % Descendants
-        parentA = randi([1,na]); % Parent A is choosen among the na best 
-        parentB = randi([1,na]); % Parent B is choosen among the na best 
-        nextpop{k} = repfun(pop{parentA}, pop{parentB}, ...
-            fi(parentA), fi(parentB)); % Breed individuals A and B
-        k = k + 1; % Next individual
+                % Individuals are choosen among the nm best
+                p = num2cell(randperm(nm,3));
+                [a,b,c] = p{:};
+
+                % Mutate individual
+                nextpop{k} = mutfun(F,pop{a},pop{b},pop{c});
+                
+            case 2 % DE/rand/1/exp
+
+                % Individuals are choosen among the nm best
+                p = num2cell(randperm(nm,5));
+                [a,b,c,d,e] = p{:};
+
+                % Mutate individual
+                nextpop{k} = mutfun(F,pop{a},...
+                    pop{b},pop{c},pop{d},pop{e});
+                
+            case 3 % DE/best/1/exp
+
+                % Individuals are choosen among the nm best
+                p = num2cell(randperm(nm,2));
+                [b,c] = p{:};
+
+                % Mutate individual
+                nextpop{k} = mutfun(F,pop{1},pop{b},pop{c});
+                
+            case 4 % DE/best/2/exp
+
+                % Individuals are choosen among the nm best
+                p = num2cell(randperm(nm,4));
+                [b,c,d,e] = p{:};
+
+                % Mutate individual
+                nextpop{k} = mutfun(F,pop{1},pop{b},...
+                    pop{c},pop{d},pop{e});
+                
+            case 5 % DE/rand-to-best/1/exp
+
+                % Individuals are choosen among the nm best
+                p = num2cell(randperm(nm,3));
+                [a,b,c] = p{:};
+
+                % Mutate individual
+                nextpop{k} = mutfun(F,pop{1},...
+                    pop{a},pop{b},pop{c});
+                
+            case 6 % DE/rand-to-best/2/exp
+
+                % Individuals are choosen among the nm best
+                p = num2cell(randperm(nm,5));
+                [a,b,c,d,e] = p{:};
+
+                % Mutate individual
+                nextpop{k} = mutfun(F,pop{1},pop{a},...
+                    pop{b},pop{c},pop{d},pop{e});
+                
+            otherwise % DE/rand/1/exp
+                
+                % Individuals are choosen among the nm best
+                p = num2cell(randperm(nm,3));
+                [a,b,c] = p{:};
+
+                % Mutate individual
+                nextpop{k} = mutfun(F,pop{a},pop{b},pop{c});
+                
+        end;
+        
+        % Evaluate fitness of tentative new individual
+        nextfit = feval(fitfun,nextpop{i});
+        
+        % Decide if new individual is accepted into new population
+        if nextfit > fi(k) % New individual has worse fitness; rejected
+            nextpop{k} = pop{k}; % Recover old individual
+        end;
+        
+        % Next individual
+        k = k + 1;
+        
     end;
 
     for i=1:nn % Newcommers

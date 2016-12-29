@@ -1,17 +1,15 @@
-function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
-    aps( opts, pop, v, c1, c2, P1, nitemax, goal, ... 
-    fitfun, prifun )
+function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aps ( ...
+    opts, pop, goal, DATA )
 %APS finds minimum of a function using Particle Swarm (PS)
 %
 %Programmers:   Manel Soria         (UPC/ETSEIAT)
 %               David de la Torre   (UPC/ETSEIAT)
 %               Arnau Miro          (UPC/ETSEIAT)
-%Date:          14/04/2015
-%Revision:      1
+%Date:          17/11/2016
+%Revision:      2
 %
 %Usage:         [bestind, bestfit, nite, lastpop, lastfit, history] = ...
-%                   APS( opts, pop, v, c1, c2, P1, nite, goal, ...
-%                   fitfun, prifun )
+%                   APS( opts, pop, goal, DATA )
 %
 %Inputs:
 %   opts:       function control parameters [struct] (optional)
@@ -20,26 +18,27 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
 %               to be filtered
 %       dopar:  parallel execution of fitness function [1,0]
 %       nhist:  save history (0=none, 1=fitness, 2=all{pop,fit})
-%                   0: history = []
-%                   1: history(ng) = bestfit(i)
-%                   2: history{ng,1:2} = {pop,fitness}
+%           0:  history = []
+%           1:  history(ng) = bestfit(i)
+%           2:  history{ng,1:2} = {pop,fitness}
 %   pop:        initial population
-%   v:          initial population velocity
-%   c1:         local learning factor
-%   c2:         global learning factor
-%   P1:         maximum step size (velocity) allowed in one iteration
-%               expressed as a fraction of the domain size
-%               The domain size is estimated based on the initial
-%               distribution of the particles
-%               P1 should be about 1E-2
-%               Low values of P1 slow down the algorithm, too high values
-%               can be unstable
-%   nitemax:    maximum number of iterations allowed
 %   goal:       If function value is below goal, iterations are stopped
+%   DATA:       structure with the specific parameters and callback
+%               functions of the APS heuristic function.
+%       nitemax:maximum number of iterations allowed
+%       v:      initial population velocity
+%       c1:     local learning factor
+%       c2:     global learning factor
+%       vmax:   maximum value for particle velocity
 %
-%   Call back functions to be provided by the user:
-%   fitfun:     fitness function
-%   prifun:     Prints individual
+%       Call back functions to be provided by the user:
+%       fitfun: fitness function
+%       posfun: position update function
+%       velfun: velocity update function
+%       vscfun: velocity scaling function
+%       prifun: prints best individual
+%       rpsfun: returns a random position
+%       rvlfun: returns a random velocity
 %
 %Outputs:
 %   bestind:    best individual from the last generation
@@ -50,10 +49,33 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
 %   history:    array with saved history array
 
 % Get options
-if isfield(opts,'ninfo'), ninfo = opts.ninfo; else ninfo = 1; end;
-if isfield(opts,'label'), label = opts.label; else label = 0; end;
-if isfield(opts,'dopar'), dopar = opts.dopar; else dopar = 0; end;
-if isfield(opts,'nhist'), nhist = opts.nhist; else nhist = 1; end;
+if isfield(opts,'ninfo'), ninfo = opts.ninfo; else, ninfo = 1; end;
+if isfield(opts,'label'), label = opts.label; else, label = 0; end;
+if isfield(opts,'dopar'), dopar = opts.dopar; else, dopar = 0; end;
+if isfield(opts,'nhist'), nhist = opts.nhist; else, nhist = 1; end;
+
+% Get heuristic parameters from data structure
+nitemax = DATA.nitemax;
+v = DATA.v;
+c1 = DATA.c1;
+c2 = DATA.c2;
+vmax = DATA.vmax;
+fitfun = DATA.fitfun;
+posfun = DATA.posfun;
+velfun = DATA.velfun;
+vscfun = DATA.vscfun;
+prifun = DATA.prifun;
+ranfun = DATA.ranfun;
+rvlfun = DATA.rvlfun;
+
+% Build population if required
+if isnumeric(pop) % Population size is given as input
+    np = pop; % Population size
+    pop = cell(1,np); % Preallocate population variable
+    for i=1:np % Fill population
+        pop{i} = ranfun(); % Generate random particle
+    end;
+end;
 
 % Create history array
 history = [];
@@ -65,14 +87,15 @@ fib = zeros(np,1); % Personal best fitness of each particle
 popb = pop; % Personal best position of each particle
 bestfit = 0; % Best global fitness
 
-% Estimate the domain size to limit particle velocity
-xmax = pop{1}; % Select first particle as starter
-xmin = pop{1};
-for i=2:np % Get the global max/min position of the entire population
-    xmax = max(xmax,pop{i}); % Global maximum position
-    xmin = min(xmin,pop{i}); % Global minimum position
+% Build initial velocity if required
+if isnumeric(v) % Population size is given as input
+    vfact = v; % Get scaling factor for the velocity
+    v = cell(1,np); % Preallocate velocity variable
+    for i=1:np % Fill population
+        v{i} = rvlfun(vfact); % Generate random velocity
+        v{i} = vscfun(v{i},vmax); % Limit velocity
+    end;
 end;
-vmax = P1 * norm(xmax-xmin); % Maximum allowed velocity
 
 % Iterate until convergence or max iterations
 for ite=1:nitemax
@@ -92,13 +115,17 @@ for ite=1:nitemax
         end;
     end;
     
-    % Get global minimum fitness value and its particle
-    [minfit, mfp] = min(fi);
-
+    % Sort population individuals by their fitness level
+    [fi,i] = sort(fi); % Sort fitness by increasing value (lower is best)
+    pop = pop(i); % Sort population individuals
+    fib = fib(i); % Sort population personal best fitness
+    popb = popb(i); % Sort population personal best position
+    v = v(i); % Sort population velocities
+    
     % If a better particle is found, update global best values
-    if minfit<bestfit || ite==1
-        bestind = pop{mfp}; % New global best particle
-        bestfit = minfit; % New global best fitness
+    if fi(1)<bestfit || ite==1
+        bestind = pop{1}; % New global best particle
+        bestfit = fi(1); % New global best fitness
     end;
     
     % Save history
@@ -109,47 +136,52 @@ for ite=1:nitemax
         history(ite) = fi(1); %#ok
     end;
     
-    % Show info if required
-    if ninfo>1
-        fprintf('PS label=%d ite=%d',label,ite); % Print info
-        fprintf(' best= '); prifun(pop{mfp}); % Print best individual
-        fprintf(' vbest= '); prifun(v{mfp}); % Print best individual v
-        fprintf(' fbest=%e \n',minfit); % Print best individual fitness
-    end;
-    
     % Check if reached target fitness or max iterations
-    if minfit<goal || ite>=nitemax % Target achieved
+    if fi(1)<goal || ite>=nitemax % Target achieved
         
         % Save last iteration data
-        bestind = pop{mfp}; % Save best individual
-        bestfit = minfit; % Save fitness level of last best individual
+        bestind = pop{1}; % Save best individual
+        bestfit = fi(1); % Save fitness level of last best individual
         nite = ite; % Save current generation index
         lastpop = pop; % Save last population
         lastfit = fi; % Save last fitness values
+        
+        % Show info
+        if ninfo>0
+            fprintf('APS label=%d nite=%2d fitbest=%f',label,nite,bestfit);
+            if ~isempty(prifun), fprintf(' best='); prifun(bestind); end;
+            if bestfit<goal % Goal achieved
+                fprintf(' goal=%e achieved, leaving\n',goal);
+            else % Maximum generations reached (goal not achieved)
+                fprintf(' max. iterations reached, leaving\n');
+            end;
+        end;
         
         % Stop iterating
         break;
         
     end;
     
+    % Show info if required
+    if ninfo>1
+        fprintf('APS label=%d ite=%2d fitbest=%e',label,ite,fi(1));
+        if ~isempty(prifun), fprintf(' best='); prifun(pop{1}); end;
+        fprintf('\n');
+    end;
+    
     % Update positions
     for i=1:np
-        pop{i} = pop{i} + v{i}; % Add velocity for one time step
+        pop{i} = posfun(pop{i},v{i}); % Add velocity for one time step
     end
 
     % Update velocities
     for i=1:np
-        v{i} = v{i} ... % Previous velocity
-            + c1 * rand() * (popb{i} - pop{i}) ... % Local learning 
-            + c2 * rand() * (bestind - pop{i}); % Global learning
+        v{i} = velfun(v{i},pop{i},popb{i},bestind,c1,c2);
     end;
    
     % Limit velocities
     for i=1:np
-        nvi = norm(v{i}); % Velocity norm
-        if nvi>vmax % Ecessive velocity
-            v{i} = v{i} * vmax / nvi; % Scale velocity
-        end;
+        v{i} = vscfun(v{i},vmax);
     end;
     
 end;

@@ -1,16 +1,17 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration build-checksum="2747198298" file="/Users/arnaumiro/Documents/MOT/MOT.prj" location="/Users/arnaumiro/Documents/MOT" name="MOT" target="target.toolbox" target-name="Package Toolbox">
+  <configuration build-checksum="4154539768" file="D:\Projects\LLOP\MOT\MOT.prj" location="D:\Projects\LLOP\MOT" name="MOT" target="target.toolbox" target-name="Package Toolbox">
     <param.appname>MOT</param.appname>
     <param.authnamewatermark>Manel Soria, David de la Torre, Arnau Miro</param.authnamewatermark>
-    <param.email>arnau.miro@upc.edu</param.email>
-    <param.company>UPC, ETSEIAT</param.company>
-    <param.summary>Genetic algorithm codes with and without islands as well as simulated annealing. Intended to be used for educational purposes.</param.summary>
+    <param.email />
+    <param.company>UPC/ESEIAAT</param.company>
+    <param.summary>Heuristic optimisation codes with and without islands model. Intended to be used for educational purposes.</param.summary>
     <param.description>Matlab Optimisation Toolbox (MOT) is a library of optimisation functions for Matlab.
 
 The toolbox includes the following algorithms:
 
 * Genetic Algorithm (**GA**)
-* Genetic Algorithm with Islands (**GA** + **Islands**)
+* Differential Evolution (**DE**)
+* Islands Model (**IS**)
 * Particle Swarm (**PS**)
 * Simulated Annealing (**SA**)
 
@@ -19,27 +20,12 @@ They are intended to be used for optimization of functions of real arguments, in
 The functions are coded focusing on an educational usage; algorithm clarity and ease-of-understanding is given high priority at the expense of any potential code/performance optimisations.
 
 Example scripts are also provided. Some examples show how to improve the result of genetic algorithm with a conventional optimization code.</param.description>
-    <param.screenshot>${PROJECT_ROOT}/icon.png</param.screenshot>
-    <param.version>1.0</param.version>
-    <param.output>${PROJECT_ROOT}/MOT.mltbx</param.output>
-    <param.products.name>
-      <item>MATLAB</item>
-      <item>Datafeed Toolbox</item>
-      <item>Fixed-Point Designer</item>
-      <item>Robust Control Toolbox</item>
-    </param.products.name>
-    <param.products.id>
-      <item>1</item>
-      <item>50</item>
-      <item>91</item>
-      <item>5</item>
-    </param.products.id>
-    <param.products.version>
-      <item>8.6</item>
-      <item>5.2</item>
-      <item>5.1</item>
-      <item>6.0</item>
-    </param.products.version>
+    <param.screenshot>${PROJECT_ROOT}\icon.png</param.screenshot>
+    <param.version>1.3</param.version>
+    <param.output>${PROJECT_ROOT}\MOT.mltbx</param.output>
+    <param.products.name />
+    <param.products.id />
+    <param.products.version />
     <param.platforms />
     <param.guid>b429d2dc-b9a8-42f2-be8c-aa28ffc3b5af</param.guid>
     <param.exclude.filters>% List files contained in your toolbox folder that you would like to exclude
@@ -69,12 +55,12 @@ README.md
     <param.examples>&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;examples&gt;
    &lt;exampleCategory name="MOT"&gt;
-      &lt;example name="example_aga_islands_rastrigin" type="html"&gt;
-         &lt;file type="source"&gt;/html/example_aga_islands_rastrigin.html&lt;/file&gt;
-         &lt;file type="main"&gt;/example_aga_islands_rastrigin.m&lt;/file&gt;
-         &lt;file type="thumbnail"&gt;/html/example_aga_islands_rastrigin.png&lt;/file&gt;
-         &lt;file type="image"&gt;/html/example_aga_islands_rastrigin_01.png&lt;/file&gt;
-         &lt;file type="image"&gt;/html/example_aga_islands_rastrigin_02.png&lt;/file&gt;
+      &lt;example name="example_ade_rastrigin" type="html"&gt;
+         &lt;file type="source"&gt;/html/example_ade_rastrigin.html&lt;/file&gt;
+         &lt;file type="main"&gt;/example_ade_rastrigin.m&lt;/file&gt;
+         &lt;file type="thumbnail"&gt;/html/example_ade_rastrigin.png&lt;/file&gt;
+         &lt;file type="image"&gt;/html/example_ade_rastrigin_01.png&lt;/file&gt;
+         &lt;file type="image"&gt;/html/example_ade_rastrigin_02.png&lt;/file&gt;
       &lt;/example&gt;
       &lt;example name="example_aga_knapsack" type="html"&gt;
          &lt;file type="source"&gt;/html/example_aga_knapsack.html&lt;/file&gt;
@@ -88,6 +74,26 @@ README.md
          &lt;file type="thumbnail"&gt;/html/example_aga_rastrigin.png&lt;/file&gt;
          &lt;file type="image"&gt;/html/example_aga_rastrigin_01.png&lt;/file&gt;
          &lt;file type="image"&gt;/html/example_aga_rastrigin_02.png&lt;/file&gt;
+      &lt;/example&gt;
+      &lt;example name="example_ahim_rastrigin" type="html"&gt;
+         &lt;file type="source"&gt;/html/example_ahim_rastrigin.html&lt;/file&gt;
+         &lt;file type="main"&gt;/example_ahim_rastrigin.m&lt;/file&gt;
+         &lt;file type="thumbnail"&gt;/html/example_ahim_rastrigin.png&lt;/file&gt;
+         &lt;file type="image"&gt;/html/example_ahim_rastrigin_01.png&lt;/file&gt;
+      &lt;/example&gt;
+      &lt;example name="example_aim_ade_rastrigin" type="html"&gt;
+         &lt;file type="source"&gt;/html/example_aim_ade_rastrigin.html&lt;/file&gt;
+         &lt;file type="main"&gt;/example_aim_ade_rastrigin.m&lt;/file&gt;
+         &lt;file type="thumbnail"&gt;/html/example_aim_ade_rastrigin.png&lt;/file&gt;
+         &lt;file type="image"&gt;/html/example_aim_ade_rastrigin_01.png&lt;/file&gt;
+         &lt;file type="image"&gt;/html/example_aim_ade_rastrigin_02.png&lt;/file&gt;
+      &lt;/example&gt;
+      &lt;example name="example_aim_aga_rastrigin" type="html"&gt;
+         &lt;file type="source"&gt;/html/example_aim_aga_rastrigin.html&lt;/file&gt;
+         &lt;file type="main"&gt;/example_aim_aga_rastrigin.m&lt;/file&gt;
+         &lt;file type="thumbnail"&gt;/html/example_aim_aga_rastrigin.png&lt;/file&gt;
+         &lt;file type="image"&gt;/html/example_aim_aga_rastrigin_01.png&lt;/file&gt;
+         &lt;file type="image"&gt;/html/example_aim_aga_rastrigin_02.png&lt;/file&gt;
       &lt;/example&gt;
       &lt;example name="example_aps_rastrigin" type="html"&gt;
          &lt;file type="source"&gt;/html/example_aps_rastrigin.html&lt;/file&gt;
@@ -108,82 +114,91 @@ README.md
     <param.demosxml />
     <param.apps />
     <param.docs />
+    <param.matlabpath.excludes />
+    <param.javaclasspath.excludes />
     <unset>
       <param.email />
-      <param.company />
-      <param.version />
       <param.output />
+      <param.products.name />
+      <param.products.id />
+      <param.products.version />
       <param.platforms />
       <param.demosxml />
       <param.apps />
       <param.docs />
+      <param.matlabpath.excludes />
+      <param.javaclasspath.excludes />
     </unset>
     <fileset.rootdir>
-      <file>/Users/arnaumiro/Documents/MOT</file>
+      <file>D:\Projects\LLOP\MOT</file>
     </fileset.rootdir>
     <fileset.rootfiles>
-      <file>${PROJECT_ROOT}/aga.m</file>
-      <file>${PROJECT_ROOT}/aga_islands.m</file>
-      <file>${PROJECT_ROOT}/aps.m</file>
-      <file>${PROJECT_ROOT}/asa.m</file>
-      <file>${PROJECT_ROOT}/demos.xml</file>
-      <file>${PROJECT_ROOT}/example_aga_islands_rastrigin.m</file>
-      <file>${PROJECT_ROOT}/example_aga_knapsack.m</file>
-      <file>${PROJECT_ROOT}/example_aga_rastrigin.m</file>
-      <file>${PROJECT_ROOT}/example_aga_rastrigin_with_nice_plots.m</file>
-      <file>${PROJECT_ROOT}/example_aps_rastrigin.m</file>
-      <file>${PROJECT_ROOT}/example_asa_rastrigin.m</file>
-      <file>${PROJECT_ROOT}/html</file>
+      <file>${PROJECT_ROOT}\ade.m</file>
+      <file>${PROJECT_ROOT}\aga.m</file>
+      <file>${PROJECT_ROOT}\ahim.m</file>
+      <file>${PROJECT_ROOT}\aim.m</file>
+      <file>${PROJECT_ROOT}\aps.m</file>
+      <file>${PROJECT_ROOT}\asa.m</file>
+      <file>${PROJECT_ROOT}\demos.xml</file>
+      <file>${PROJECT_ROOT}\example_ade_rastrigin.m</file>
+      <file>${PROJECT_ROOT}\example_aga_knapsack.m</file>
+      <file>${PROJECT_ROOT}\example_aga_rastrigin.m</file>
+      <file>${PROJECT_ROOT}\example_ahim_rastrigin.m</file>
+      <file>${PROJECT_ROOT}\example_aim_ade_rastrigin.m</file>
+      <file>${PROJECT_ROOT}\example_aim_aga_rastrigin.m</file>
+      <file>${PROJECT_ROOT}\example_aps_rastrigin.m</file>
+      <file>${PROJECT_ROOT}\example_asa_rastrigin.m</file>
+      <file>${PROJECT_ROOT}\html</file>
     </fileset.rootfiles>
     <fileset.depfun.included />
     <fileset.depfun.excluded />
     <fileset.package />
     <build-deliverables>
-      <file location="/Users/arnaumiro/Documents/MOT" name="MOT.mltbx" optional="false">/Users/arnaumiro/Documents/MOT/MOT.mltbx</file>
+      <file location="D:\Projects\LLOP\MOT" name="MOT.mltbx" optional="false">D:\Projects\LLOP\MOT\MOT.mltbx</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>/Applications/MATLAB_R2015b.app</root>
+      <root>C:\Program Files\MATLAB\R2016b</root>
       <toolboxes>
-        <toolbox name="matlabhdlcoder" />
         <toolbox name="fixedpoint" />
-        <toolbox name="embeddedcoder" />
         <toolbox name="matlabcoder" />
+        <toolbox name="matlabhdlcoder" />
+        <toolbox name="embeddedcoder" />
       </toolboxes>
-      <toolbox>
-        <matlabhdlcoder>
-          <enabled>true</enabled>
-        </matlabhdlcoder>
-      </toolbox>
       <toolbox>
         <fixedpoint>
           <enabled>true</enabled>
         </fixedpoint>
       </toolbox>
       <toolbox>
-        <embeddedcoder>
-          <enabled>true</enabled>
-        </embeddedcoder>
-      </toolbox>
-      <toolbox>
         <matlabcoder>
           <enabled>true</enabled>
         </matlabcoder>
       </toolbox>
+      <toolbox>
+        <matlabhdlcoder>
+          <enabled>true</enabled>
+        </matlabhdlcoder>
+      </toolbox>
+      <toolbox>
+        <embeddedcoder>
+          <enabled>true</enabled>
+        </embeddedcoder>
+      </toolbox>
     </matlab>
     <platform>
-      <unix>true</unix>
-      <mac>true</mac>
-      <windows>false</windows>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
       <win2k>false</win2k>
       <winxp>false</winxp>
       <vista>false</vista>
       <linux>false</linux>
       <solaris>false</solaris>
-      <osver>10.12</osver>
+      <osver>6.2</osver>
       <os32>false</os32>
       <os64>true</os64>
-      <arch>maci64</arch>
+      <arch>win64</arch>
       <matlab>true</matlab>
     </platform>
   </configuration>

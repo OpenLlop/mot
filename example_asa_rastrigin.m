@@ -4,8 +4,8 @@
 % Programmers:   Manel Soria         (UPC/ETSEIAT)
 %                David de la Torre   (UPC/ETSEIAT)
 %                Arnau Miro          (UPC/ETSEIAT)
-% Date:          16/04/2015
-% Revision:      2
+% Date:          23/11/2016
+% Revision:      3
 
 %% ASA
 
@@ -15,40 +15,48 @@
 % The global minimum is at (1,1), and its value is 0
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
-% Define SA function options
-opts.ninfo = 10; % Verbosity level (print every # iterations)
-opts.einfo = 0; % Print extended information
+% Define heuristic function options (optional)
+opts.ninfo = 2; % Verbosity level
 opts.label = 10; % Label (identification purposes)
 opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all data)
 
-% Define SA parameters
+% Define ASA parameters
+goal = 1E-5; % Target fitness value
 nitemax = 200; % Maximum number of iterations
 mu = 5; % Thermal transition probability parameter
-goal = 1E-5; % Target fitness value
 
 % Auxiliary function
 ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 
-% Define SA functions
+% Define ASA functions
 fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
 mutfun = @(x,f) x + ranrange(-0.3,0.3,2); % Mutation: small random mov
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
+
+% Assemble ASA data structure
+DATA.nitemax = nitemax;
+DATA.mu = mu;
+DATA.fitfun = fitfun;
+DATA.mutfun = mutfun;
+DATA.prifun = prifun;
+
+% Randomize random seed
+rng('shuffle'); % We don't want repeatability in the heuristic
 
 % Initial guess
 A0 = [2*rand(); 2*rand()];
 
 % Execute Simulated Annealing
-[ bestIndASA, bestFitASA, nite, lastPopASA, lastFitASA, history ] = ...
-    asa( opts, A0, nitemax, mu, goal, ...
-    fitfun, mutfun, prifun );
+[ bestInd, bestFit, nite, lastPop, lastFit, history ] = asa ( ...
+    opts, A0, goal, DATA );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1e-8,'Display','none');
-[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndASA,options);
+[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestInd,options);
 
 % Display results of aga and fminsearch algorithms
 fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
-fprintf('ASA \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndASA,bestFitASA);
+fprintf('ASA \t\t%1.6f,%1.6f \t\t%1.6E\n',bestInd,bestFit);
 fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 %% Plot fitness
@@ -59,7 +67,8 @@ if opts.nhist>1 % Full history; get fitness values
     for i=1:length(history)
         fithist(i) = history{i,6};
     end;
-else fithist = history; % Simple history
+else % Simple history
+    fithist = history;
 end;
 
 % Create figure
@@ -103,7 +112,7 @@ if opts.nhist>1 && iscell(history)
     for iter=1:length(history)
 
         % Title
-        title({'Genetic Algorithm optimization | Rastrigin function';...
+        title({'Simulated Annealing optimization | Rastrigin function';...
             sprintf('Iteration %03.0f',iter)});
         
         % Plot best

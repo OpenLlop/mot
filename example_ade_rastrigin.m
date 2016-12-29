@@ -1,14 +1,13 @@
-%% Example AGA
-% Find minima of a function with Genetic Algorithm (GA)
+%% Example ADE
+% Find minima of a function with Differential Evolution (DE)
 %
-% Programmers:   Manel Soria         (UPC/ETSEIAT)
-%                David de la Torre   (UPC/ETSEIAT)
+% Programmers:   David de la Torre   (UPC/ETSEIAT)
+%                Manel Soria         (UPC/ETSEIAT)
 %                Arnau Miro          (UPC/ETSEIAT)
-% Date:          16/04/2015
+% Date:          23/11/2016
 % Revision:      2
 
-%% AGA
-clear
+%% ADE
 
 % Our test is a R^2->R function based on Rastrigin function.
 % It is challenging because it has infinite local extrema, located at
@@ -16,47 +15,56 @@ clear
 % The global minimum is at (1,1), and its value is 0
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
-% Define GA function options (optional)
+% Define heuristic function options (optional)
 opts.ninfo = 2; % Verbosity level (0=none, 1=minimal, 2=extended)
 opts.label = 10; % Label (identification purposes)
 opts.dopar = 1; % Parallel execution of fitness function
 opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 
-% Define GA parameters
+% Define ADE parameters
 ng = 50; % Number of generations
 np = 200; % Population size
 N = [3,... % Number of elites
-    floor(np*0.1),... % Number of mutants
-    floor(np*0.05),...% Number of newcomers
-    floor(np*0.2)]; % Number of parents
+    floor(np*0.7)]; % Number of mutants
+F = 0.1; % Mutation scaling factor
+ms = 1; % Mutation strategy (see ade.m)
 goal = 1E-5; % Target fitness value
 
 % Auxiliary function
 ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 
-% Define GA functions
-unifun = [] % Discard identical individuals (unimplemented in this example)
+% Define ADE functions
+unifun = @(x,f) deal(x,f); % Discard identical individuals (unimplemented)
 fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
-mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random mov
-repfun = @(x,y,fx,fy) (x+y)/2; % Reproduction: average
+mutfun = @(F,a,b,c) a + F * rand() * (b - c); % Mutation: random vector movement
 ranfun = @() ranrange(-5,5,2); % Random individual
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
+
+% Assemble ADE data structure
+DATA.ng = ng;
+DATA.N = N;
+DATA.F = F;
+DATA.ms = ms;
+DATA.unifun = unifun;
+DATA.fitfun = fitfun;
+DATA.mutfun = mutfun;
+DATA.ranfun = ranfun;
+DATA.prifun = prifun;
 
 % Randomize random seed
 rng('shuffle'); % We don't want repeatability in the GA
 
-% Execute Genetic Algorithm (GA)
-[ bestIndAGA, bestFitAGA, nite, lastPopAGA, lastFitAGA, history ] = ...
-    aga ( opts, np, ng, N, goal, ...
-    unifun, fitfun, mutfun, repfun, ranfun, prifun );
+% Execute Differential Evolution (DE)
+[ bestInd, bestFit, nite, lastPop, lastFit, history ] = ade ( ...
+    opts, np, goal, DATA );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1E-8,'Display','none');
-[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestIndAGA,options);
+[bestIndFMS,bestFitFMS] = fminsearch(fitfun,bestInd,options);
 
 % Display results of aga and fminsearch algorithms
 fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
-fprintf('AGA \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndAGA,bestFitAGA);
+fprintf('ADE \t\t%1.6f,%1.6f \t\t%1.6E\n',bestInd,bestFit);
 fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 %% Fitness plot
@@ -67,10 +75,11 @@ if opts.nhist>1 && iscell(history) % Full history; get fitness values
     for i=1:length(history)
         fithist(i) = history{i,2}(1);
     end;
-else fithist = history; % Simple history
+else % Simple history
+    fithist = history;
 end;
 
-% Plot data
+% Plot fitness histroy
 if ~isempty(fithist)
 
     % Create figure
@@ -81,7 +90,7 @@ if ~isempty(fithist)
 
     % Beautify plot
     grid minor;
-    title('Genetic Algorithm optimization | Rastrigin function');
+    title('Differential Evolution optimization | Rastrigin function');
     xlabel('Generation [#]');
     ylabel('Best fitness function value [log]');
 
@@ -104,15 +113,14 @@ if opts.nhist>1 && iscell(history)
     % Population size
     ne = N(1); % Number of elites
     nm = N(2); % Number of mutants
-    nd = np - N(1) - N(2) - N(3); % Number of descendants
 
     % Plot generations
     ph = cell(np,1); % Handles
     for g=1:length(history)
 
         % Title
-        title({'Genetic Algorithm optimization | Rastrigin function';...
-            sprintf('Generation %03.0f',g)});
+        title({['Differential Evolution optimization',...
+            ' | Rastrigin function'];sprintf('Generation %03.0f',g)});
         
         % Plot individuals
         for i=1:np
@@ -120,8 +128,7 @@ if opts.nhist>1 && iscell(history)
             % Select plotting marker
             if i<=ne, marker = 'rv'; % Elites
             elseif i<=ne+nm, marker = 'mo'; % Mutants
-            elseif i<=ne+nm+nd, marker = 'bx'; % Descendants
-            else marker = 'ks'; % Newcomers
+            else, marker = 'ks'; % Newcomers
             end;
 
             % Plot individual
@@ -133,14 +140,13 @@ if opts.nhist>1 && iscell(history)
             % Save legend ticks
             if i==ne, lh(1) = ph{i}; % Elite
             elseif i==ne+nm, lh(2) = ph{i}; % Mutant
-            elseif i==ne+nm+nd, lh(3) = ph{i}; % Descendant
-            elseif i==ne+nm+nd+1, lh(4) = ph{i}; % Newcomer
+            elseif i==ne+nm+1, lh(3) = ph{i}; % Newcomer
             end;
 
         end;
 
         % Legend
-        legend(lh,'Elites','Mutants','Descendants','Newcomers',...
+        legend(lh(1:3),'Elites','Mutants','Newcomers',...
             'Location','NorthEastOutside');
 
         % Do events

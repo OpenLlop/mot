@@ -9,7 +9,8 @@
 The toolbox includes the following algorithms:
 
 * Genetic Algorithm (**GA**)
-* Genetic Algorithm with Islands (**GA** + **Islands**)
+* Differential Evolution (**DE**)
+* Islands Model (**IS**)
 * Particle Swarm (**PS**)
 * Simulated Annealing (**SA**)
 
@@ -21,10 +22,10 @@ Example scripts are also provided. Some examples show how to improve the result 
    <demosection>
       <label>MOT</label>
       <demoitem>
-         <label>example_aga_islands_rastrigin</label>
+         <label>example_ade_rastrigin</label>
          <type>other</type>
-         <source>example_aga_islands_rastrigin</source>
-         <file>html/example_aga_islands_rastrigin.html</file>
+         <source>example_ade_rastrigin</source>
+         <file>html/example_ade_rastrigin.html</file>
       </demoitem>
       <demoitem>
          <label>example_aga_knapsack</label>
@@ -37,6 +38,24 @@ Example scripts are also provided. Some examples show how to improve the result 
          <type>other</type>
          <source>example_aga_rastrigin</source>
          <file>html/example_aga_rastrigin.html</file>
+      </demoitem>
+      <demoitem>
+         <label>example_ahim_rastrigin</label>
+         <type>other</type>
+         <source>example_ahim_rastrigin</source>
+         <file>html/example_ahim_rastrigin.html</file>
+      </demoitem>
+      <demoitem>
+         <label>example_aim_ade_rastrigin</label>
+         <type>other</type>
+         <source>example_aim_ade_rastrigin</source>
+         <file>html/example_aim_ade_rastrigin.html</file>
+      </demoitem>
+      <demoitem>
+         <label>example_aim_aga_rastrigin</label>
+         <type>other</type>
+         <source>example_aim_aga_rastrigin</source>
+         <file>html/example_aim_aga_rastrigin.html</file>
       </demoitem>
       <demoitem>
          <label>example_aps_rastrigin</label>

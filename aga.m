@@ -111,6 +111,8 @@ for g=1:ng
 
     % Clean population: remove repeated individuals
     [pop,fi] = unifun(pop,fi); % Return unique individuals
+    pop = pop(~cellfun('isempty',pop)); % Remove empty individuals
+    fi = fi(~cellfun('isempty',pop)); % Remove empty fitness
     ncleanpop = length(pop); % Length of clean population
 
     % Avoid population degeneration (i.e., poor genetic pool)

@@ -88,6 +88,18 @@ for ite=1:nitemax
         bestfit = fitB; % B has now best fitness
     end;
     
+    % Save history
+    if nhist>1 % Save full history {A,B,fita,fitb}
+        history{ite,1} = A; %#ok
+        history{ite,2} = B; %#ok
+        history{ite,3} = fitA; %#ok
+        history{ite,4} = fitB; %#ok
+        history{ite,5} = bestind; %#ok
+        history{ite,6} = bestfit; %#ok
+    elseif nhist>0 % Save best fitness only
+        history(ite) = bestfit; %#ok
+    end;
+
     % Check if reached target fitness or max iterations
     if bestfit<goal || ite>=nitemax % Target achieved
         
@@ -112,23 +124,11 @@ for ite=1:nitemax
         
     end;
     
-    % Print info
+    % Print extended info
     if ninfo>1
         fprintf('ASA label=%d nite=%2d fitbest=%f',label,ite,bestfit);
         if ~isempty(prifun), fprintf(' best='); prifun(bestind); end;
         if ninfo<=2, fprintf('\n'); end;
-    end;
-
-    % Save history
-    if nhist>1 % Save full history {A,B,fita,fitb}
-        history{ite,1} = A; %#ok
-        history{ite,2} = B; %#ok
-        history{ite,3} = fitA; %#ok
-        history{ite,4} = fitB; %#ok
-        history{ite,5} = bestind; %#ok
-        history{ite,6} = bestfit; %#ok
-    elseif nhist>0 % Save best fitness only
-        history(ite) = bestfit; %#ok
     end;
 
     % Compute fitness difference between B and A

@@ -40,23 +40,12 @@ mutfun = @(F,a,b,c) a + F * rand() * (b - c); % Mutation: random vector movement
 ranfun = @() ranrange(-5,5,2); % Random individual
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 
-% Assemble ADE data structure
-DATA.ng = ng;
-DATA.N = N;
-DATA.F = F;
-DATA.ms = ms;
-DATA.unifun = unifun;
-DATA.fitfun = fitfun;
-DATA.mutfun = mutfun;
-DATA.ranfun = ranfun;
-DATA.prifun = prifun;
-
 % Randomize random seed
-rng('shuffle'); % We don't want repeatability in the GA
+rng('shuffle'); % We don't want repeatability in the heuristic algorithm
 
 % Execute Differential Evolution (DE)
 [ bestInd, bestFit, nite, lastPop, lastFit, history ] = ade ( ...
-    opts, np, goal, DATA );
+    opts, np, goal, ng, N, F, ms, unifun, fitfun, mutfun, ranfun, prifun );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1E-8,'Display','none');
@@ -74,10 +63,10 @@ if opts.nhist>1 && iscell(history) % Full history; get fitness values
     fithist = zeros(length(history),1);
     for i=1:length(history)
         fithist(i) = history{i,2}(1);
-    end;
+    end
 else % Simple history
     fithist = history;
-end;
+end
 
 % Plot fitness histroy
 if ~isempty(fithist)
@@ -94,7 +83,7 @@ if ~isempty(fithist)
     xlabel('Generation [#]');
     ylabel('Best fitness function value [log]');
 
-end;
+end
 
 %% Generations plot
 
@@ -129,7 +118,7 @@ if opts.nhist>1 && iscell(history)
             if i<=ne, marker = 'rv'; % Elites
             elseif i<=ne+nm, marker = 'mo'; % Mutants
             else, marker = 'ks'; % Newcomers
-            end;
+            end
 
             % Plot individual
             x = history{g,1}{i}(1);
@@ -141,9 +130,9 @@ if opts.nhist>1 && iscell(history)
             if i==ne, lh(1) = ph{i}; % Elite
             elseif i==ne+nm, lh(2) = ph{i}; % Mutant
             elseif i==ne+nm+1, lh(3) = ph{i}; % Newcomer
-            end;
+            end
 
-        end;
+        end
 
         % Legend
         legend(lh(1:3),'Elites','Mutants','Newcomers',...
@@ -157,10 +146,10 @@ if opts.nhist>1 && iscell(history)
 
         % Delete individuals
         if g~=length(history) % Keep last frame
-            for i=1:np, delete(ph{i}); end;
-        end;
+            for i=1:np, delete(ph{i}); end
+        end
 
-    end;
+    end
 
-end;
+end
 

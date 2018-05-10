@@ -53,25 +53,12 @@ v = cell(np,1);
 for i=1:np
     pop{i} = ranfun();
     v{i} = rvlfun();
-end;
-
-% Assemble APS data structure
-DATA.nitemax = nitemax;
-DATA.v = v;
-DATA.c1 = c1;
-DATA.c2 = c2;
-DATA.vmax = vmax;
-DATA.fitfun = fitfun;
-DATA.posfun = posfun;
-DATA.velfun = velfun;
-DATA.vscfun = vscfun;
-DATA.prifun = prifun;
-DATA.ranfun = ranfun;
-DATA.rvlfun = rvlfun;
+end
 
 % Execute Particle Swarm
 [ bestInd, bestFit, nite, lastPop, lastFit, history ] = aps ( ...
-    opts, pop, goal, DATA );
+    opts, pop, goal, nitemax, v, c1, c2, vmax, fitfun, posfun, ...
+    velfun, vscfun, rvlfun, ranfun, prifun );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1E-8,'Display','none');
@@ -89,10 +76,10 @@ if opts.nhist>1 && iscell(history) % Full history; get fitness values
     fithist = zeros(length(history),1);
     for i=1:length(history)
         fithist(i) = history{i,2}(1);
-    end;
+    end
 else % Simple history
     fithist = history;
-end;
+end
 
 % Plot data
 if ~isempty(fithist)
@@ -109,7 +96,7 @@ if ~isempty(fithist)
     xlabel('Iteration [#]');
     ylabel('Best fitness function value [log]');
 
-end;
+end
 
 %% Generations plot
 
@@ -142,7 +129,7 @@ if opts.nhist>1 && iscell(history)
             z = 100;
             ph{i} = plot3(x,y,z,'ro','MarkerSize',6);
 
-        end;
+        end
 
         % Do events
         axis([-5 5 -5 5]);
@@ -153,10 +140,10 @@ if opts.nhist>1 && iscell(history)
 
         % Delete individuals
         if iter~=length(history) % Keep last frame
-            for i=1:np, delete(ph{i}); end;
-        end;
+            for i=1:np, delete(ph{i}); end
+        end
 
-    end;
+    end
 
-end;
+end
 

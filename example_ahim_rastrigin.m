@@ -25,7 +25,7 @@ opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 ni = 3; % Number of islands
 ngg = 6; % Number of global iterations
 pops = [ni,40,40,40]; % Islands, and Population size of each island
-nemi = 5; % Number of emigrants (must be higher than population of each island)
+nemi = 5; % Number of emigrants (must be lower than population of each island)
 goal = -Inf; % Target fitness value
 heufun = {@aga,@ade,@aps}; % Heuristic functions to use with the Hybrid Islands Model
 
@@ -52,50 +52,50 @@ prifun = @(x) fprintf('%f %f',x(1),x(2)); % Print an individual (generic)
 DATA = cell(ni,1);
 
 % Assemble AGA data structure
-DATA{1}.ng = 6; % Number of local generations
-DATA{1}.N = [3,... % Number of elites
+DATA{1}{1} = 6; % Number of local generations
+DATA{1}{2} = [3,... % Number of elites
     floor(pops(2)*0.1),... % Number of mutants
     floor(pops(2)*0.05),...% Number of newcomers
     floor(pops(2)*0.2)]; % Number of parents
-DATA{1}.unifun = unifun;
-DATA{1}.fitfun = fitfun;
-DATA{1}.mutfun = mutfun;
-DATA{1}.repfun = repfun;
-DATA{1}.ranfun = ranfun;
-DATA{1}.prifun = prifun;
+DATA{1}{3} = unifun;
+DATA{1}{4} = fitfun;
+DATA{1}{5} = mutfun;
+DATA{1}{6} = repfun;
+DATA{1}{7} = ranfun;
+DATA{1}{8} = prifun;
 
 % Assemble ADE data structure
-DATA{2}.ng = 6;
-DATA{2}.N = [3,... % Number of elites
+DATA{2}{1} = 6;
+DATA{2}{2} = [3,... % Number of elites
     floor(pops(3)*0.7)]; % Number of mutants
-DATA{2}.F = 0.1; % Mutation scaling factor
-DATA{2}.ms = 1; % Mutation strategy (see ade.m)
-DATA{2}.unifun = unifun;
-DATA{2}.fitfun = fitfun;
-DATA{2}.mutfun = mutfun1;
-DATA{2}.ranfun = ranfun;
-DATA{2}.prifun = prifun;
+DATA{2}{3} = 0.1; % Mutation scaling factor
+DATA{2}{4} = 1; % Mutation strategy (see ade.m)
+DATA{2}{5} = unifun;
+DATA{2}{6} = fitfun;
+DATA{2}{7} = mutfun1;
+DATA{2}{8} = ranfun;
+DATA{2}{9} = prifun;
 
 % Assemble APS data structure
-DATA{3}.nitemax = 50; % Maximum number of iterations
-DATA{3}.v = 0.2; % Step size (velocity) allowed in one iteration
-DATA{3}.c1 = 10; % Local learning factor
-DATA{3}.c2 = 20; % Global learning factor
-DATA{3}.vmax = 0.2; % Maximum step size (velocity) allowed in one iteration
-DATA{3}.fitfun = fitfun;
-DATA{3}.posfun = posfun;
-DATA{3}.velfun = velfun;
-DATA{3}.vscfun = vscfun;
-DATA{3}.prifun = prifun;
-DATA{3}.ranfun = ranfun;
-DATA{3}.rvlfun = rvlfun;
+DATA{3}{1} = 50; % Maximum number of iterations
+DATA{3}{2} = 0.2; % Step size (velocity) allowed in one iteration
+DATA{3}{3} = 10; % Local learning factor
+DATA{3}{4} = 20; % Global learning factor
+DATA{3}{5} = 0.2; % Maximum step size (velocity) allowed in one iteration
+DATA{3}{6} = fitfun;
+DATA{3}{7} = posfun;
+DATA{3}{8} = velfun;
+DATA{3}{9} = vscfun;
+DATA{3}{10} = rvlfun;
+DATA{3}{11} = ranfun;
+DATA{3}{12} = prifun;
 
 % Randomize random seed
 rng('shuffle'); % We don't want repeatability in the heuristic
 
 % Execute Hybrid Islands Model
-[bestind, bestfit, nite, lastpop, lastfit, history] = ahim ( ...
-    opts, pops, ngg, nemi, goal, heufun, DATA);
+[ bestind, bestfit, nite, lastpop, lastfit, history ] = ahim ( ...
+    opts, pops, ngg, nemi, goal, heufun, DATA );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1e-8,'Display','none');
@@ -113,10 +113,10 @@ if opts.nhist>1 && iscell(history) % Full history; get fitness values
     fithist = zeros(size(history,1),1);
     for g=1:size(history,1)
         fithist(g) = history{g,ni+2};
-    end;
+    end
 else % Simple history
     fithist = min(history,[],2);
-end;
+end
 
 % Plot data
 if ~isempty(fithist)
@@ -134,5 +134,5 @@ if ~isempty(fithist)
     xlabel('Generation [#]');
     ylabel('Best fitness function value [log]');
 
-end;
+end
 

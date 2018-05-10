@@ -41,22 +41,13 @@ repfun = @(x,y,fx,fy) (x+y)/2; % Reproduction: average of two individuals
 ranfun = @() ranrange(-5,5,2); % Random individual
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 
-% Assemble AGA data structure
-DATA.ng = ng;
-DATA.N = N;
-DATA.unifun = unifun;
-DATA.fitfun = fitfun;
-DATA.mutfun = mutfun;
-DATA.repfun = repfun;
-DATA.ranfun = ranfun;
-DATA.prifun = prifun;
-
 % Randomize random seed
 rng('shuffle'); % We don't want repeatability in the heuristic
 
 % Execute Genetic Algorithm (GA)
 [ bestInd, bestFit, nite, lastPop, lastFit, history ] = aga ( ...
-    opts, np, goal, DATA );
+    opts, np, goal, ng, N, unifun, fitfun, ...
+    mutfun, repfun, ranfun, prifun );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1E-8,'Display','none');
@@ -74,10 +65,10 @@ if opts.nhist>1 && iscell(history) % Full history; get fitness values
     fithist = zeros(length(history),1);
     for i=1:length(history)
         fithist(i) = history{i,2}(1);
-    end;
+    end
 else % Simple history
     fithist = history;
-end;
+end
 
 % Plot fitness history
 if ~isempty(fithist)
@@ -94,7 +85,7 @@ if ~isempty(fithist)
     xlabel('Generation [#]');
     ylabel('Best fitness function value [log]');
 
-end;
+end
 
 %% Generations plot
 
@@ -131,7 +122,7 @@ if opts.nhist>1 && iscell(history)
             elseif i<=ne+nm, marker = 'mo'; % Mutants
             elseif i<=ne+nm+nd, marker = 'bx'; % Descendants
             else, marker = 'ks'; % Newcomers
-            end;
+            end
 
             % Plot individual
             x = history{g,1}{i}(1);
@@ -144,9 +135,9 @@ if opts.nhist>1 && iscell(history)
             elseif i==ne+nm, lh(2) = ph{i}; % Mutant
             elseif i==ne+nm+nd, lh(3) = ph{i}; % Descendant
             elseif i==ne+nm+nd+1, lh(4) = ph{i}; % Newcomer
-            end;
+            end
 
-        end;
+        end
 
         % Legend
         legend(lh(1:4),'Elites','Mutants','Descendants','Newcomers',...
@@ -160,10 +151,10 @@ if opts.nhist>1 && iscell(history)
 
         % Delete individuals
         if g~=length(history) % Keep last frame
-            for i=1:np, delete(ph{i}); end;
-        end;
+            for i=1:np, delete(ph{i}); end
+        end
 
-    end;
+    end
 
-end;
+end
 

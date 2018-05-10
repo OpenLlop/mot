@@ -48,14 +48,14 @@ ranfun = @() ranrange(-5,5,2); % Random individual
 prifun = @(x) fprintf('%f %f',x(1),x(2)); % Print an individual
 
 % Assemble AGA data structure
-DATA.ng = ng;
-DATA.N = N;
-DATA.unifun = unifun;
-DATA.fitfun = fitfun;
-DATA.mutfun = mutfun;
-DATA.repfun = repfun;
-DATA.ranfun = ranfun;
-DATA.prifun = prifun;
+DATA{1} = ng;
+DATA{2} = N;
+DATA{3} = unifun;
+DATA{4} = fitfun;
+DATA{5} = mutfun;
+DATA{6} = repfun;
+DATA{7} = ranfun;
+DATA{8} = prifun;
 
 % Randomize random seed
 rng('shuffle'); % We don't want repeatability in the heuristic
@@ -67,11 +67,11 @@ pops = cell(1,ni);
 for isl=1:ni
     for i=1:np
         pops{isl}{i} = ranfun(); % Create random individual
-    end;
-end;
+    end
+end
 
 % Execute Islands Model + Genetic Algorithm (GA)
-[bestind, bestfit, nite, lastpop, lastfit, history] = aim ( ...
+[ bestind, bestfit, nite, lastpop, lastfit, history ] = aim ( ...
     opts, pops, ngg, nemi, goal, heufun, DATA );
 
 % Now, we can easily improve the accuracy of the local extremum found
@@ -90,10 +90,10 @@ if opts.nhist>1 && iscell(history) % Full history; get fitness values
     fithist = zeros(size(history,1),1);
     for g=1:size(history,1)
         fithist(g) = history{g,ni+2};
-    end;
+    end
 else % Simple history
     fithist = min(history,[],2);
-end;
+end
 
 % Plot data
 if ~isempty(fithist)
@@ -111,7 +111,7 @@ if ~isempty(fithist)
     xlabel('Generation [#]');
     ylabel('Best fitness function value [log]');
 
-end;
+end
 
 %% Generations plot
 
@@ -158,7 +158,7 @@ if opts.nhist>1 && iscell(history)
                     elseif i<=ne+nm, marker = 'mo'; % Mutants range
                     elseif i<=ne+nm+nd, marker = 'bx'; % Descendants range
                     else, marker = 'ks'; % Newcomers range
-                    end;
+                    end
 
                     % Plot individual
                     x = history{gg,s}{1}{g,1}{i}(1);
@@ -171,17 +171,17 @@ if opts.nhist>1 && iscell(history)
                     elseif i==ne+nm, lh(2) = ph{s,i}; % Mutant
                     elseif i==ne+nm+nd, lh(3) = ph{s,i}; % Descendant
                     elseif i==ne+nm+nd+1, lh(4) = ph{s,i}; % Newcomer
-                    end;
+                    end
 
-                end;
+                end
 
-            end;
+            end
 
             % Legend
             try legend(lh(1:4),'Elites','Mutants','Descendants','Newcomers',...
                 'Location','NorthEastOutside');
             catch
-            end;
+            end
 
             % Do events
             drawnow;
@@ -191,12 +191,12 @@ if opts.nhist>1 && iscell(history)
 
             % Delete individuals
             if ~(gg==ngg && g==ng) % Keep only last plot)
-                for s=1:ni, for i=1:np, delete(ph{s,i}); end; end;
-            end;
+                for s=1:ni, for i=1:np, delete(ph{s,i}); end; end
+            end
 
-        end;
+        end
 
-    end;
+    end
 
-end;
+end
 

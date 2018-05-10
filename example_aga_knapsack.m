@@ -50,21 +50,12 @@ rng('shuffle'); % We don't want repetability in the heuristic
 pop = cell(1,np);
 for i=1:np
     pop{i} = ranfun(); 
-end;
-
-% Assemble AGA data structure
-DATA.ng = ng;
-DATA.N = N;
-DATA.unifun = @unifun;
-DATA.fitfun = @fitfun;
-DATA.mutfun = @mutfun;
-DATA.repfun = @repfun;
-DATA.ranfun = @ranfun;
-DATA.prifun = @prifun;
+end
 
 % Execute Genetic Algorithm
 [bestind, bestfit, nite, lastpop, lastfit, history] = aga ( ...
-    opts, pop, goal, DATA );
+    opts, pop, goal, ng, N, @unifun, @fitfun, ...
+    @mutfun, @repfun, @ranfun, @prifun );
 
                     
 %% Plot history
@@ -74,10 +65,10 @@ if opts.nhist>1 && iscell(history) % Full history; get fitness values
     fithist = zeros(length(history),1);
     for i=1:length(history)
         fithist(i) = history{i,2}(1);
-    end;
+    end
 else % Simple history
     fithist = history;
-end;
+end
 
 % Create figure
 figure('Position',[400,200,900,600]);
@@ -105,12 +96,12 @@ ylabel('Best fitness function value');
     end
 
     % Discard identical individuals
-    function [popu,f] = unifun(pop,f)
+    function [pop,f] = unifun(pop,f)
         % Convert population to a matrix, individuals by rows
-        mat = transpose(reshape(cell2mat(pop),NN,np));
-        matu = transpose(unique(mat,'rows')); % Get unique individuals
-        popu = mat2cell(matu,NN,ones(1,size(matu,2)));
-        f = unique(f);
+        %mat = transpose(reshape(cell2mat(pop),NN,np));
+        %matu = transpose(unique(mat,'rows')); % Get unique individuals
+        %popu = mat2cell(matu,NN,ones(1,size(matu,2)));
+        %f = unique(f);
     end
 
     % Mutate an individual
@@ -118,7 +109,7 @@ ylabel('Best fitness function value');
         for ii=1:4
             p=randi(size(x,1));
             x(p)=1-x(p);
-        end;
+        end
     end
                 
     % Reproduction of two individuals
@@ -132,7 +123,7 @@ ylabel('Best fitness function value');
     function prifun(x)
         for ii=1:size(x,1)
             fprintf('%d',x(ii,1));
-        end;
+        end
     end
 
 end

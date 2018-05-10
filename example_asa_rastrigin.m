@@ -33,13 +33,6 @@ fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
 mutfun = @(x,f) x + ranrange(-0.3,0.3,2); % Mutation: small random mov
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 
-% Assemble ASA data structure
-DATA.nitemax = nitemax;
-DATA.mu = mu;
-DATA.fitfun = fitfun;
-DATA.mutfun = mutfun;
-DATA.prifun = prifun;
-
 % Randomize random seed
 rng('shuffle'); % We don't want repeatability in the heuristic
 
@@ -48,7 +41,7 @@ A0 = [2*rand(); 2*rand()];
 
 % Execute Simulated Annealing
 [ bestInd, bestFit, nite, lastPop, lastFit, history ] = asa ( ...
-    opts, A0, goal, DATA );
+    opts, A0, goal, nitemax, mu, fitfun, mutfun, prifun );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1e-8,'Display','none');
@@ -66,10 +59,10 @@ if opts.nhist>1 % Full history; get fitness values
     fithist = zeros(length(history),1);
     for i=1:length(history)
         fithist(i) = history{i,6};
-    end;
+    end
 else % Simple history
     fithist = history;
-end;
+end
 
 % Create figure
 fh1 = figure('Position',[400,200,900,600]);
@@ -132,10 +125,10 @@ if opts.nhist>1 && iscell(history)
 
         % Delete individuals
         if iter~=length(history) % Keep last frame
-            for i=1:3, delete(ph{iter,i}); end;
-        end;
+            for i=1:3, delete(ph{iter,i}); end
+        end
 
-    end;
+    end
 
-end;
+end
 

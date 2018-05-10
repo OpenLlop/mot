@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Example APS</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-12-29"><meta name="DC.source" content="example_aps_rastrigin.m"><style type="text/css">
+      --><title>Example APS</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-05-10"><meta name="DC.source" content="example_aps_rastrigin.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -110,25 +110,12 @@ v = cell(np,1);
 <span class="keyword">for</span> i=1:np
     pop{i} = ranfun();
     v{i} = rvlfun();
-<span class="keyword">end</span>;
-
-<span class="comment">% Assemble APS data structure</span>
-DATA.nitemax = nitemax;
-DATA.v = v;
-DATA.c1 = c1;
-DATA.c2 = c2;
-DATA.vmax = vmax;
-DATA.fitfun = fitfun;
-DATA.posfun = posfun;
-DATA.velfun = velfun;
-DATA.vscfun = vscfun;
-DATA.prifun = prifun;
-DATA.ranfun = ranfun;
-DATA.rvlfun = rvlfun;
+<span class="keyword">end</span>
 
 <span class="comment">% Execute Particle Swarm</span>
 [ bestInd, bestFit, nite, lastPop, lastFit, history ] = aps ( <span class="keyword">...</span>
-    opts, pop, goal, DATA );
+    opts, pop, goal, nitemax, v, c1, c2, vmax, fitfun, posfun, <span class="keyword">...</span>
+    velfun, vscfun, rvlfun, ranfun, prifun );
 
 <span class="comment">% Now, we can easily improve the accuracy of the local extremum found</span>
 options = optimset(<span class="string">'TolFun'</span>,1E-8,<span class="string">'Display'</span>,<span class="string">'none'</span>);
@@ -138,69 +125,69 @@ options = optimset(<span class="string">'TolFun'</span>,1E-8,<span class="string
 fprintf(<span class="string">'\nAlgorithm \tBest individual (x,y) \tValue\n'</span>);
 fprintf(<span class="string">'APS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestInd,bestFit);
 fprintf(<span class="string">'FMS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndFMS,bestFitFMS);
-</pre><pre class="codeoutput">APS label=10 ite= 1 fitbest=1.072985e+00 best=0.022684 0.990895 
-APS label=10 ite= 2 fitbest=1.277521e+01 best=-0.800288 -0.087079 
-APS label=10 ite= 3 fitbest=8.674975e+00 best=-0.192286 0.936042 
-APS label=10 ite= 4 fitbest=1.039177e+00 best=0.001505 0.985491 
-APS label=10 ite= 5 fitbest=7.518851e+00 best=0.195295 1.034940 
-APS label=10 ite= 6 fitbest=1.039177e+00 best=0.001505 0.985491 
-APS label=10 ite= 7 fitbest=4.030599e+00 best=1.057591 1.882569 
-APS label=10 ite= 8 fitbest=1.039177e+00 best=0.001505 0.985491 
-APS label=10 ite= 9 fitbest=4.085877e+00 best=2.966822 1.002237 
-APS label=10 ite=10 fitbest=1.039177e+00 best=0.001505 0.985491 
-APS label=10 ite=11 fitbest=9.971413e-01 best=0.001754 0.999553 
-APS label=10 ite=12 fitbest=1.039177e+00 best=0.001505 0.985491 
-APS label=10 ite=13 fitbest=9.971413e-01 best=0.001754 0.999553 
-APS label=10 ite=14 fitbest=1.030367e+00 best=0.000084 0.987591 
-APS label=10 ite=15 fitbest=9.971413e-01 best=0.001754 0.999553 
-APS label=10 ite=16 fitbest=1.290379e+00 best=-0.032866 1.007481 
-APS label=10 ite=17 fitbest=9.971413e-01 best=0.001754 0.999553 
-APS label=10 ite=18 fitbest=1.295064e+00 best=0.040921 1.015316 
-APS label=10 ite=19 fitbest=2.175394e-01 best=0.966832 0.999388 
-APS label=10 ite=20 fitbest=1.293835e+00 best=0.039194 1.018659 
-APS label=10 ite=21 fitbest=2.175394e-01 best=0.966832 0.999388 
-APS label=10 ite=22 fitbest=7.364887e-03 best=1.000613 0.993938 
-APS label=10 ite=23 fitbest=2.175394e-01 best=0.966832 0.999388 
-APS label=10 ite=24 fitbest=7.364887e-03 best=1.000613 0.993938 
-APS label=10 ite=25 fitbest=2.059598e-01 best=0.967805 1.002264 
-APS label=10 ite=26 fitbest=7.364887e-03 best=1.000613 0.993938 
-APS label=10 ite=27 fitbest=3.911412e-01 best=1.040059 1.019383 
-APS label=10 ite=28 fitbest=7.364887e-03 best=1.000613 0.993938 
-APS label=10 ite=29 fitbest=3.122418e-01 best=1.039758 1.001150 
-APS label=10 ite=30 fitbest=7.364887e-03 best=1.000613 0.993938 
-APS label=10 ite=31 fitbest=3.257959e-01 best=1.038663 0.987560 
-APS label=10 ite=32 fitbest=7.364887e-03 best=1.000613 0.993938 
-APS label=10 ite=33 fitbest=3.254817e-01 best=1.039943 0.992688 
-APS label=10 ite=34 fitbest=5.640396e-03 best=1.000269 0.994674 
-APS label=10 ite=35 fitbest=4.567854e-02 best=0.985061 0.997313 
-APS label=10 ite=36 fitbest=7.148316e-03 best=1.000403 0.994011 
-APS label=10 ite=37 fitbest=7.715184e-03 best=0.993956 1.001538 
-APS label=10 ite=38 fitbest=7.005732e-03 best=1.000250 0.994062 
-APS label=10 ite=39 fitbest=3.544013e-03 best=0.999077 0.995875 
-APS label=10 ite=40 fitbest=2.501947e-03 best=0.997717 0.997279 
-APS label=10 ite=41 fitbest=8.427326e-02 best=1.011593 0.982950 
-APS label=10 ite=42 fitbest=2.651518e-03 best=1.000344 0.996360 
-APS label=10 ite=43 fitbest=6.413348e-03 best=1.004894 0.997106 
-APS label=10 ite=44 fitbest=1.878320e-03 best=1.000357 0.996944 
-APS label=10 ite=45 fitbest=4.990470e-03 best=0.994985 1.000101 
-APS label=10 ite=46 fitbest=1.762317e-01 best=0.970268 0.997382 
-APS label=10 ite=47 fitbest=1.798227e-02 best=1.007301 0.993889 
-APS label=10 ite=48 fitbest=2.248576e-02 best=0.991251 1.006068 
-APS label=10 ite=49 fitbest=2.299253e-01 best=0.970761 1.017513 
-APS label=10 nite=50 fitbest=0.022685 best=0.991010 1.005792  max. iterations reached, leaving
+</pre><pre class="codeoutput">APS label=10 ite= 1 fitbest=5.080671e+00 best=0.002917 1.148827 
+APS label=10 ite= 2 fitbest=5.002275e+00 best=1.094975 1.132018 
+APS label=10 ite= 3 fitbest=5.158313e+00 best=0.895030 1.127342 
+APS label=10 ite= 4 fitbest=5.002275e+00 best=1.094975 1.132018 
+APS label=10 ite= 5 fitbest=8.306088e+00 best=2.114209 3.045892 
+APS label=10 ite= 6 fitbest=5.002275e+00 best=1.094975 1.132018 
+APS label=10 ite= 7 fitbest=4.322107e+00 best=0.898566 1.111033 
+APS label=10 ite= 8 fitbest=5.002275e+00 best=1.094975 1.132018 
+APS label=10 ite= 9 fitbest=4.321354e+00 best=0.896316 1.108893 
+APS label=10 ite=10 fitbest=3.179131e+00 best=0.027247 0.080118 
+APS label=10 ite=11 fitbest=4.296389e+00 best=0.898650 1.110475 
+APS label=10 ite=12 fitbest=3.179131e+00 best=0.027247 0.080118 
+APS label=10 ite=13 fitbest=4.185466e+00 best=0.062277 0.095062 
+APS label=10 ite=14 fitbest=3.179131e+00 best=0.027247 0.080118 
+APS label=10 ite=15 fitbest=2.225445e+00 best=1.999255 0.039341 
+APS label=10 ite=16 fitbest=3.179131e+00 best=0.027247 0.080118 
+APS label=10 ite=17 fitbest=2.225445e+00 best=1.999255 0.039341 
+APS label=10 ite=18 fitbest=2.591982e+00 best=0.090482 0.968859 
+APS label=10 ite=19 fitbest=1.460586e+00 best=0.951600 0.009775 
+APS label=10 ite=20 fitbest=2.038702e+00 best=2.007050 0.015035 
+APS label=10 ite=21 fitbest=1.291625e+00 best=1.002702 -0.033589 
+APS label=10 ite=22 fitbest=2.197334e+00 best=0.960390 0.072797 
+APS label=10 ite=23 fitbest=1.291625e+00 best=1.002702 -0.033589 
+APS label=10 ite=24 fitbest=2.259737e+00 best=0.943697 0.062374 
+APS label=10 ite=25 fitbest=1.012939e+00 best=0.997477 0.014227 
+APS label=10 ite=26 fitbest=6.477559e-01 best=0.984611 1.055307 
+APS label=10 ite=27 fitbest=1.012939e+00 best=0.997477 0.014227 
+APS label=10 ite=28 fitbest=6.477559e-01 best=0.984611 1.055307 
+APS label=10 ite=29 fitbest=1.742690e+00 best=0.038356 0.948138 
+APS label=10 ite=30 fitbest=6.477559e-01 best=0.984611 1.055307 
+APS label=10 ite=31 fitbest=1.917955e+00 best=0.980359 0.902129 
+APS label=10 ite=32 fitbest=3.695980e-02 best=0.986818 0.996446 
+APS label=10 ite=33 fitbest=5.659024e-01 best=1.027985 1.045667 
+APS label=10 ite=34 fitbest=3.695980e-02 best=0.986818 0.996446 
+APS label=10 ite=35 fitbest=9.542704e-02 best=0.987269 1.017870 
+APS label=10 ite=36 fitbest=3.695980e-02 best=0.986818 0.996446 
+APS label=10 ite=37 fitbest=9.640300e-02 best=0.987079 1.017872 
+APS label=10 ite=38 fitbest=3.695980e-02 best=0.986818 0.996446 
+APS label=10 ite=39 fitbest=3.306356e-02 best=0.987432 0.997037 
+APS label=10 ite=40 fitbest=3.695980e-02 best=0.986818 0.996446 
+APS label=10 ite=41 fitbest=5.196750e-02 best=0.987073 0.990255 
+APS label=10 ite=42 fitbest=3.427578e-02 best=0.986923 1.001364 
+APS label=10 ite=43 fitbest=3.390800e-02 best=0.987159 1.002475 
+APS label=10 ite=44 fitbest=4.978940e-03 best=0.997511 1.004348 
+APS label=10 ite=45 fitbest=3.394908e-02 best=0.987151 1.002474 
+APS label=10 ite=46 fitbest=4.978940e-03 best=0.997511 1.004348 
+APS label=10 ite=47 fitbest=1.344285e-02 best=0.991769 0.999867 
+APS label=10 ite=48 fitbest=4.978940e-03 best=0.997511 1.004348 
+APS label=10 ite=49 fitbest=3.234826e-01 best=1.023968 1.032570 
+APS label=10 nite=50 fitbest=0.004979 best=0.997511 1.004348  max. iterations reached, leaving
 
 Algorithm 	Best individual (x,y) 	Value
-APS 		0.991010,1.005792 		2.268540E-02
-FMS 		0.999997,1.000001 		2.051127E-09
+APS 		0.997511,1.004348 		4.978940E-03
+FMS 		0.999995,0.999997 		5.927433E-09
 </pre><h2 id="2">Fitness plot</h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history) <span class="comment">% Full history; get fitness values</span>
     fithist = zeros(length(history),1);
     <span class="keyword">for</span> i=1:length(history)
         fithist(i) = history{i,2}(1);
-    <span class="keyword">end</span>;
+    <span class="keyword">end</span>
 <span class="keyword">else</span> <span class="comment">% Simple history</span>
     fithist = history;
-<span class="keyword">end</span>;
+<span class="keyword">end</span>
 
 <span class="comment">% Plot data</span>
 <span class="keyword">if</span> ~isempty(fithist)
@@ -217,7 +204,7 @@ FMS 		0.999997,1.000001 		2.051127E-09
     xlabel(<span class="string">'Iteration [#]'</span>);
     ylabel(<span class="string">'Best fitness function value [log]'</span>);
 
-<span class="keyword">end</span>;
+<span class="keyword">end</span>
 </pre><img vspace="5" hspace="5" src="example_aps_rastrigin_01.png" alt=""> <h2 id="3">Generations plot</h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history)
 
@@ -247,7 +234,7 @@ FMS 		0.999997,1.000001 		2.051127E-09
             z = 100;
             ph{i} = plot3(x,y,z,<span class="string">'ro'</span>,<span class="string">'MarkerSize'</span>,6);
 
-        <span class="keyword">end</span>;
+        <span class="keyword">end</span>
 
         <span class="comment">% Do events</span>
         axis([-5 5 -5 5]);
@@ -258,13 +245,13 @@ FMS 		0.999997,1.000001 		2.051127E-09
 
         <span class="comment">% Delete individuals</span>
         <span class="keyword">if</span> iter~=length(history) <span class="comment">% Keep last frame</span>
-            <span class="keyword">for</span> i=1:np, delete(ph{i}); <span class="keyword">end</span>;
-        <span class="keyword">end</span>;
+            <span class="keyword">for</span> i=1:np, delete(ph{i}); <span class="keyword">end</span>
+        <span class="keyword">end</span>
 
-    <span class="keyword">end</span>;
+    <span class="keyword">end</span>
 
-<span class="keyword">end</span>;
-</pre><img vspace="5" hspace="5" src="example_aps_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="example_aps_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Example APS
 % Find minima of a function with Particle Swarm (PS) algorithm
@@ -321,25 +308,12 @@ v = cell(np,1);
 for i=1:np
     pop{i} = ranfun();
     v{i} = rvlfun();
-end;
-
-% Assemble APS data structure
-DATA.nitemax = nitemax;
-DATA.v = v;
-DATA.c1 = c1;
-DATA.c2 = c2;
-DATA.vmax = vmax;
-DATA.fitfun = fitfun;
-DATA.posfun = posfun;
-DATA.velfun = velfun;
-DATA.vscfun = vscfun;
-DATA.prifun = prifun;
-DATA.ranfun = ranfun;
-DATA.rvlfun = rvlfun;
+end
 
 % Execute Particle Swarm
 [ bestInd, bestFit, nite, lastPop, lastFit, history ] = aps ( ...
-    opts, pop, goal, DATA );
+    opts, pop, goal, nitemax, v, c1, c2, vmax, fitfun, posfun, ...
+    velfun, vscfun, rvlfun, ranfun, prifun );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1E-8,'Display','none');
@@ -357,10 +331,10 @@ if opts.nhist>1 && iscell(history) % Full history; get fitness values
     fithist = zeros(length(history),1);
     for i=1:length(history)
         fithist(i) = history{i,2}(1);
-    end;
+    end
 else % Simple history
     fithist = history;
-end;
+end
 
 % Plot data
 if ~isempty(fithist)
@@ -377,7 +351,7 @@ if ~isempty(fithist)
     xlabel('Iteration [#]');
     ylabel('Best fitness function value [log]');
 
-end;
+end
 
 %% Generations plot
 
@@ -410,7 +384,7 @@ if opts.nhist>1 && iscell(history)
             z = 100;
             ph{i} = plot3(x,y,z,'ro','MarkerSize',6);
 
-        end;
+        end
 
         % Do events
         axis([-5 5 -5 5]);
@@ -421,12 +395,12 @@ if opts.nhist>1 && iscell(history)
 
         % Delete individuals
         if iter~=length(history) % Keep last frame
-            for i=1:np, delete(ph{i}); end;
-        end;
+            for i=1:np, delete(ph{i}); end
+        end
 
-    end;
+    end
 
-end;
+end
 
 
 ##### SOURCE END #####

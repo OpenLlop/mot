@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Example ASA</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-11-23"><meta name="DC.source" content="example_asa_rastrigin.m"><style type="text/css">
+      --><title>Example ASA</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-05-10"><meta name="DC.source" content="example_asa_rastrigin.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -73,8 +73,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
 <span class="comment">% Define heuristic function options (optional)</span>
-opts.ninfo = 10; <span class="comment">% Verbosity level (print every # iterations)</span>
-opts.einfo = 0; <span class="comment">% Print extended information</span>
+opts.ninfo = 2; <span class="comment">% Verbosity level</span>
 opts.label = 10; <span class="comment">% Label (identification purposes)</span>
 opts.nhist = 2; <span class="comment">% Save history (0=none, 1=fitness, 2=all data)</span>
 
@@ -91,13 +90,6 @@ fitfun = @(x) ras(x(1),x(2)); <span class="comment">% Fitness function - TO BE M
 mutfun = @(x,f) x + ranrange(-0.3,0.3,2); <span class="comment">% Mutation: small random mov</span>
 prifun = @(x) fprintf(<span class="string">'%f %f '</span>,x(1),x(2)); <span class="comment">% Print an individual</span>
 
-<span class="comment">% Assemble ASA data structure</span>
-DATA.nitemax = nitemax;
-DATA.mu = mu;
-DATA.fitfun = fitfun;
-DATA.mutfun = mutfun;
-DATA.prifun = prifun;
-
 <span class="comment">% Randomize random seed</span>
 rng(<span class="string">'shuffle'</span>); <span class="comment">% We don't want repeatability in the heuristic</span>
 
@@ -106,7 +98,7 @@ A0 = [2*rand(); 2*rand()];
 
 <span class="comment">% Execute Simulated Annealing</span>
 [ bestInd, bestFit, nite, lastPop, lastFit, history ] = asa ( <span class="keyword">...</span>
-    opts, A0, goal, DATA );
+    opts, A0, goal, nitemax, mu, fitfun, mutfun, prifun );
 
 <span class="comment">% Now, we can easily improve the accuracy of the local extremum found</span>
 options = optimset(<span class="string">'TolFun'</span>,1e-8,<span class="string">'Display'</span>,<span class="string">'none'</span>);
@@ -116,39 +108,219 @@ options = optimset(<span class="string">'TolFun'</span>,1e-8,<span class="string
 fprintf(<span class="string">'\nAlgorithm \tBest individual (x,y) \tValue\n'</span>);
 fprintf(<span class="string">'ASA \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestInd,bestFit);
 fprintf(<span class="string">'FMS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndFMS,bestFitFMS);
-</pre><pre class="codeoutput">ASA label=10 nite=10  best= 1.170027 0.830480  fitbest=10.397628 
-ASA label=10 nite=20  best= 0.048692 1.110614  fitbest=3.701099 
-ASA label=10 nite=30  best= 0.048692 1.110614  fitbest=3.701099 
-ASA label=10 nite=40  best= 0.048692 1.110614  fitbest=3.701099 
-ASA label=10 nite=50  best= 1.041026 1.010971  fitbest=0.355945 
-ASA label=10 nite=60  best= 0.967263 1.008440  fitbest=0.226004 
-ASA label=10 nite=70  best= 0.967263 1.008440  fitbest=0.226004 
-ASA label=10 nite=80  best= 0.967263 1.008440  fitbest=0.226004 
-ASA label=10 nite=90  best= 0.967263 1.008440  fitbest=0.226004 
-ASA label=10 nite=100  best= 0.967263 1.008440  fitbest=0.226004 
-ASA label=10 nite=110  best= 0.967263 1.008440  fitbest=0.226004 
-ASA label=10 nite=120  best= 0.967263 1.008440  fitbest=0.226004 
-ASA label=10 nite=130  best= 0.967263 1.008440  fitbest=0.226004 
-ASA label=10 nite=140  best= 0.967263 1.008440  fitbest=0.226004 
-ASA label=10 nite=150  best= 0.967263 1.008440  fitbest=0.226004 
-ASA label=10 nite=160  best= 0.967263 1.008440  fitbest=0.226004 
-ASA label=10 nite=170  best= 0.967263 1.008440  fitbest=0.226004 
-ASA label=10 nite=180  best= 0.967263 1.008440  fitbest=0.226004 
-ASA label=10 nite=190  best= 0.967263 1.008440  fitbest=0.226004 
-ASA label=10 nite=200  best= 0.967263 1.008440  fitbest=0.226004 max. iterations reached, leaving
+</pre><pre class="codeoutput">ASA label=10 nite= 1 fitbest=34.684894 best=1.664384 0.420702 
+ASA label=10 nite= 2 fitbest=17.201280 best=1.872260 0.696533 
+ASA label=10 nite= 3 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite= 4 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite= 5 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite= 6 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite= 7 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite= 8 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite= 9 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=10 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=11 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=12 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=13 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=14 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=15 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=16 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=17 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=18 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=19 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=20 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=21 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=22 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=23 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=24 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=25 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=26 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=27 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=28 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=29 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=30 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=31 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=32 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=33 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=34 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=35 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=36 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=37 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=38 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=39 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=40 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=41 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=42 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=43 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=44 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=45 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=46 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=47 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=48 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=49 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=50 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=51 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=52 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=53 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=54 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=55 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=56 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=57 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=58 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=59 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=60 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=61 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=62 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=63 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=64 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=65 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=66 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=67 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=68 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=69 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=70 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=71 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=72 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=73 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=74 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=75 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=76 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=77 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=78 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=79 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=80 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=81 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=82 fitbest=1.979002 best=2.054960 0.962635 
+ASA label=10 nite=83 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=84 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=85 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=86 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=87 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=88 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=89 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=90 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=91 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=92 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=93 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=94 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=95 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=96 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=97 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=98 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=99 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=100 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=101 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=102 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=103 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=104 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=105 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=106 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=107 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=108 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=109 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=110 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=111 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=112 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=113 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=114 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=115 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=116 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=117 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=118 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=119 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=120 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=121 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=122 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=123 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=124 fitbest=1.466506 best=1.044257 0.925530 
+ASA label=10 nite=125 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=126 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=127 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=128 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=129 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=130 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=131 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=132 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=133 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=134 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=135 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=136 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=137 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=138 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=139 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=140 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=141 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=142 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=143 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=144 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=145 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=146 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=147 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=148 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=149 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=150 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=151 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=152 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=153 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=154 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=155 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=156 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=157 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=158 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=159 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=160 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=161 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=162 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=163 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=164 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=165 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=166 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=167 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=168 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=169 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=170 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=171 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=172 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=173 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=174 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=175 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=176 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=177 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=178 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=179 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=180 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=181 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=182 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=183 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=184 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=185 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=186 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=187 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=188 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=189 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=190 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=191 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=192 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=193 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=194 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=195 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=196 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=197 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=198 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=199 fitbest=0.099680 best=0.998221 0.977637 
+ASA label=10 nite=200 fitbest=0.099680 best=0.998221 0.977637  max. iterations reached, leaving
 
 Algorithm 	Best individual (x,y) 	Value
-ASA 		0.967263,1.008440 		2.260041E-01
-FMS 		0.999998,1.000005 		6.037947E-09
+ASA 		0.998221,0.977637 		9.968004E-02
+FMS 		1.000000,1.000006 		7.088847E-09
 </pre><h2 id="2">Plot fitness</h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 <span class="comment">% Full history; get fitness values</span>
     fithist = zeros(length(history),1);
     <span class="keyword">for</span> i=1:length(history)
         fithist(i) = history{i,6};
-    <span class="keyword">end</span>;
+    <span class="keyword">end</span>
 <span class="keyword">else</span> <span class="comment">% Simple history</span>
     fithist = history;
-<span class="keyword">end</span>;
+<span class="keyword">end</span>
 
 <span class="comment">% Create figure</span>
 fh1 = figure(<span class="string">'Position'</span>,[400,200,900,600]);
@@ -207,13 +379,13 @@ hold <span class="string">off</span>;
 
         <span class="comment">% Delete individuals</span>
         <span class="keyword">if</span> iter~=length(history) <span class="comment">% Keep last frame</span>
-            <span class="keyword">for</span> i=1:3, delete(ph{iter,i}); <span class="keyword">end</span>;
-        <span class="keyword">end</span>;
+            <span class="keyword">for</span> i=1:3, delete(ph{iter,i}); <span class="keyword">end</span>
+        <span class="keyword">end</span>
 
-    <span class="keyword">end</span>;
+    <span class="keyword">end</span>
 
-<span class="keyword">end</span>;
-</pre><img vspace="5" hspace="5" src="example_asa_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="example_asa_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Example ASA
 % Find minima of a function with Simulated Annealing (SA) algorithm
@@ -233,8 +405,7 @@ hold <span class="string">off</span>;
 ras = @(x,y) 20+(x-1).^2+(y-1).^2-10*(cos(2*pi*(x-1))+cos(2*pi*(y-1)));
 
 % Define heuristic function options (optional)
-opts.ninfo = 10; % Verbosity level (print every # iterations)
-opts.einfo = 0; % Print extended information
+opts.ninfo = 2; % Verbosity level
 opts.label = 10; % Label (identification purposes)
 opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all data)
 
@@ -251,13 +422,6 @@ fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
 mutfun = @(x,f) x + ranrange(-0.3,0.3,2); % Mutation: small random mov
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 
-% Assemble ASA data structure
-DATA.nitemax = nitemax;
-DATA.mu = mu;
-DATA.fitfun = fitfun;
-DATA.mutfun = mutfun;
-DATA.prifun = prifun;
-
 % Randomize random seed
 rng('shuffle'); % We don't want repeatability in the heuristic
 
@@ -266,7 +430,7 @@ A0 = [2*rand(); 2*rand()];
 
 % Execute Simulated Annealing
 [ bestInd, bestFit, nite, lastPop, lastFit, history ] = asa ( ...
-    opts, A0, goal, DATA );
+    opts, A0, goal, nitemax, mu, fitfun, mutfun, prifun );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1e-8,'Display','none');
@@ -284,10 +448,10 @@ if opts.nhist>1 % Full history; get fitness values
     fithist = zeros(length(history),1);
     for i=1:length(history)
         fithist(i) = history{i,6};
-    end;
+    end
 else % Simple history
     fithist = history;
-end;
+end
 
 % Create figure
 fh1 = figure('Position',[400,200,900,600]);
@@ -350,12 +514,12 @@ if opts.nhist>1 && iscell(history)
 
         % Delete individuals
         if iter~=length(history) % Keep last frame
-            for i=1:3, delete(ph{iter,i}); end;
-        end;
+            for i=1:3, delete(ph{iter,i}); end
+        end
 
-    end;
+    end
 
-end;
+end
 
 
 ##### SOURCE END #####

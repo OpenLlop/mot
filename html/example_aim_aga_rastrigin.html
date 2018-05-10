@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Example Islands Model + AGA</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-11-23"><meta name="DC.source" content="example_aim_aga_rastrigin.m"><style type="text/css">
+      --><title>Example Islands Model + AGA</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-05-10"><meta name="DC.source" content="example_aim_aga_rastrigin.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -105,14 +105,14 @@ ranfun = @() ranrange(-5,5,2); <span class="comment">% Random individual</span>
 prifun = @(x) fprintf(<span class="string">'%f %f'</span>,x(1),x(2)); <span class="comment">% Print an individual</span>
 
 <span class="comment">% Assemble AGA data structure</span>
-DATA.ng = ng;
-DATA.N = N;
-DATA.unifun = unifun;
-DATA.fitfun = fitfun;
-DATA.mutfun = mutfun;
-DATA.repfun = repfun;
-DATA.ranfun = ranfun;
-DATA.prifun = prifun;
+DATA{1} = ng;
+DATA{2} = N;
+DATA{3} = unifun;
+DATA{4} = fitfun;
+DATA{5} = mutfun;
+DATA{6} = repfun;
+DATA{7} = ranfun;
+DATA{8} = prifun;
 
 <span class="comment">% Randomize random seed</span>
 rng(<span class="string">'shuffle'</span>); <span class="comment">% We don't want repeatability in the heuristic</span>
@@ -124,11 +124,11 @@ pops = cell(1,ni);
 <span class="keyword">for</span> isl=1:ni
     <span class="keyword">for</span> i=1:np
         pops{isl}{i} = ranfun(); <span class="comment">% Create random individual</span>
-    <span class="keyword">end</span>;
-<span class="keyword">end</span>;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
 
 <span class="comment">% Execute Islands Model + Genetic Algorithm (GA)</span>
-[bestind, bestfit, nite, lastpop, lastfit, history] = aim ( <span class="keyword">...</span>
+[ bestind, bestfit, nite, lastpop, lastfit, history ] = aim ( <span class="keyword">...</span>
     opts, pops, ngg, nemi, goal, heufun, DATA );
 
 <span class="comment">% Now, we can easily improve the accuracy of the local extremum found</span>
@@ -139,138 +139,137 @@ options = optimset(<span class="string">'TolFun'</span>,1e-8,<span class="string
 fprintf(<span class="string">'\nAlgorithm \tBest individual (x,y) \tValue\n'</span>);
 fprintf(<span class="string">'AGAI \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestind,bestfit);
 fprintf(<span class="string">'FMS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndFMS,bestFitFMS);
-</pre><pre class="codeoutput">AIM begin ni=3 np=40 ngg=6
-AGA label=1011 nite=6 fitbest=1.463184 best=1.954868 1.027718max. iterations reached, leaving
-AIM label=10 end ite global=1 island=1 fbest=1.463184e+00 best: 1.954868 1.027718
-AGA label=1012 nite=6 fitbest=3.350240 best=-0.031772 0.080132max. iterations reached, leaving
-AIM label=10 end ite global=1 island=2 fbest=3.350240e+00 best: -0.031772 0.080132
-AGA label=1013 nite=6 fitbest=0.034631 best=1.000746 0.986805max. iterations reached, leaving
-AIM label=10 end ite global=1 island=3 fbest=3.463094e-02 best: 1.000746 0.986805
-AIM label=10 gg=1 fbest=3.463e-02 island=3 best: 1.000746 0.986805
-AIM label=10 gg=1 migrant from island=2 indi=1 to replace island=1 indi=40
-AIM label=10 gg=1 migrant from island=2 indi=2 to replace island=1 indi=39
-AIM label=10 gg=1 migrant from island=2 indi=3 to replace island=1 indi=38
-AIM label=10 gg=1 migrant from island=2 indi=4 to replace island=1 indi=37
-AIM label=10 gg=1 migrant from island=2 indi=5 to replace island=1 indi=36
-AIM label=10 gg=1 migrant from island=3 indi=1 to replace island=2 indi=40
-AIM label=10 gg=1 migrant from island=3 indi=2 to replace island=2 indi=39
-AIM label=10 gg=1 migrant from island=3 indi=3 to replace island=2 indi=38
-AIM label=10 gg=1 migrant from island=3 indi=4 to replace island=2 indi=37
-AIM label=10 gg=1 migrant from island=3 indi=5 to replace island=2 indi=36
-AIM label=10 gg=1 migrant from island=1 indi=1 to replace island=3 indi=40
-AIM label=10 gg=1 migrant from island=1 indi=2 to replace island=3 indi=39
-AIM label=10 gg=1 migrant from island=1 indi=3 to replace island=3 indi=38
-AIM label=10 gg=1 migrant from island=1 indi=4 to replace island=3 indi=37
-AIM label=10 gg=1 migrant from island=1 indi=5 to replace island=3 indi=36
-AGA label=2011 nite=6 fitbest=1.002207 best=1.988953 1.000704max. iterations reached, leaving
-AIM label=10 end ite global=2 island=1 fbest=1.002207e+00 best: 1.988953 1.000704
-AGA label=2012 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
-AIM label=10 end ite global=2 island=2 fbest=1.816710e-03 best: 1.001576 1.002583
-AGA label=2013 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
-AIM label=10 end ite global=2 island=3 fbest=1.816710e-03 best: 1.001576 1.002583
-AIM label=10 gg=2 fbest=1.817e-03 island=2 best: 1.001576 1.002583
-AIM label=10 gg=2 migrant from island=2 indi=1 to replace island=1 indi=40
-AIM label=10 gg=2 migrant from island=2 indi=2 to replace island=1 indi=39
-AIM label=10 gg=2 migrant from island=2 indi=3 to replace island=1 indi=38
-AIM label=10 gg=2 migrant from island=2 indi=4 to replace island=1 indi=37
-AIM label=10 gg=2 migrant from island=2 indi=5 to replace island=1 indi=36
-AIM label=10 gg=2 migrant from island=3 indi=1 to replace island=2 indi=40
-AIM label=10 gg=2 migrant from island=3 indi=2 to replace island=2 indi=39
-AIM label=10 gg=2 migrant from island=3 indi=3 to replace island=2 indi=38
-AIM label=10 gg=2 migrant from island=3 indi=4 to replace island=2 indi=37
-AIM label=10 gg=2 migrant from island=3 indi=5 to replace island=2 indi=36
-AIM label=10 gg=2 migrant from island=1 indi=1 to replace island=3 indi=40
-AIM label=10 gg=2 migrant from island=1 indi=2 to replace island=3 indi=39
-AIM label=10 gg=2 migrant from island=1 indi=3 to replace island=3 indi=38
-AIM label=10 gg=2 migrant from island=1 indi=4 to replace island=3 indi=37
-AIM label=10 gg=2 migrant from island=1 indi=5 to replace island=3 indi=36
-AGA label=3011 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
-AIM label=10 end ite global=3 island=1 fbest=1.816710e-03 best: 1.001576 1.002583
-AGA label=3012 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
-AIM label=10 end ite global=3 island=2 fbest=1.816710e-03 best: 1.001576 1.002583
-AGA label=3013 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
-AIM label=10 end ite global=3 island=3 fbest=1.816710e-03 best: 1.001576 1.002583
-AIM label=10 gg=3 fbest=1.817e-03 island=1 best: 1.001576 1.002583
-AIM label=10 gg=3 migrant from island=2 indi=1 to replace island=1 indi=40
-AIM label=10 gg=3 migrant from island=2 indi=2 to replace island=1 indi=39
-AIM label=10 gg=3 migrant from island=2 indi=3 to replace island=1 indi=38
-AIM label=10 gg=3 migrant from island=2 indi=4 to replace island=1 indi=37
-AIM label=10 gg=3 migrant from island=2 indi=5 to replace island=1 indi=36
-AIM label=10 gg=3 migrant from island=3 indi=1 to replace island=2 indi=40
-AIM label=10 gg=3 migrant from island=3 indi=2 to replace island=2 indi=39
-AIM label=10 gg=3 migrant from island=3 indi=3 to replace island=2 indi=38
-AIM label=10 gg=3 migrant from island=3 indi=4 to replace island=2 indi=37
-AIM label=10 gg=3 migrant from island=3 indi=5 to replace island=2 indi=36
-AIM label=10 gg=3 migrant from island=1 indi=1 to replace island=3 indi=40
-AIM label=10 gg=3 migrant from island=1 indi=2 to replace island=3 indi=39
-AIM label=10 gg=3 migrant from island=1 indi=3 to replace island=3 indi=38
-AIM label=10 gg=3 migrant from island=1 indi=4 to replace island=3 indi=37
-AIM label=10 gg=3 migrant from island=1 indi=5 to replace island=3 indi=36
-AGA label=4011 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
-AIM label=10 end ite global=4 island=1 fbest=1.816710e-03 best: 1.001576 1.002583
-AGA label=4012 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
-AIM label=10 end ite global=4 island=2 fbest=1.816710e-03 best: 1.001576 1.002583
-AGA label=4013 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
-AIM label=10 end ite global=4 island=3 fbest=1.816710e-03 best: 1.001576 1.002583
-AIM label=10 gg=4 fbest=1.817e-03 island=1 best: 1.001576 1.002583
-AIM label=10 gg=4 migrant from island=2 indi=1 to replace island=1 indi=40
-AIM label=10 gg=4 migrant from island=2 indi=2 to replace island=1 indi=39
-AIM label=10 gg=4 migrant from island=2 indi=3 to replace island=1 indi=38
-AIM label=10 gg=4 migrant from island=2 indi=4 to replace island=1 indi=37
-AIM label=10 gg=4 migrant from island=2 indi=5 to replace island=1 indi=36
-AIM label=10 gg=4 migrant from island=3 indi=1 to replace island=2 indi=40
-AIM label=10 gg=4 migrant from island=3 indi=2 to replace island=2 indi=39
-AIM label=10 gg=4 migrant from island=3 indi=3 to replace island=2 indi=38
-AIM label=10 gg=4 migrant from island=3 indi=4 to replace island=2 indi=37
-AIM label=10 gg=4 migrant from island=3 indi=5 to replace island=2 indi=36
-AIM label=10 gg=4 migrant from island=1 indi=1 to replace island=3 indi=40
-AIM label=10 gg=4 migrant from island=1 indi=2 to replace island=3 indi=39
-AIM label=10 gg=4 migrant from island=1 indi=3 to replace island=3 indi=38
-AIM label=10 gg=4 migrant from island=1 indi=4 to replace island=3 indi=37
-AIM label=10 gg=4 migrant from island=1 indi=5 to replace island=3 indi=36
-AGA label=5011 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
-AIM label=10 end ite global=5 island=1 fbest=1.816710e-03 best: 1.001576 1.002583
-AGA label=5012 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
-AIM label=10 end ite global=5 island=2 fbest=1.816710e-03 best: 1.001576 1.002583
-AGA label=5013 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
-AIM label=10 end ite global=5 island=3 fbest=1.816710e-03 best: 1.001576 1.002583
-AIM label=10 gg=5 fbest=1.817e-03 island=1 best: 1.001576 1.002583
-AIM label=10 gg=5 migrant from island=2 indi=1 to replace island=1 indi=40
-AIM label=10 gg=5 migrant from island=2 indi=2 to replace island=1 indi=39
-AIM label=10 gg=5 migrant from island=2 indi=3 to replace island=1 indi=38
-AIM label=10 gg=5 migrant from island=2 indi=4 to replace island=1 indi=37
-AIM label=10 gg=5 migrant from island=2 indi=5 to replace island=1 indi=36
-AIM label=10 gg=5 migrant from island=3 indi=1 to replace island=2 indi=40
-AIM label=10 gg=5 migrant from island=3 indi=2 to replace island=2 indi=39
-AIM label=10 gg=5 migrant from island=3 indi=3 to replace island=2 indi=38
-AIM label=10 gg=5 migrant from island=3 indi=4 to replace island=2 indi=37
-AIM label=10 gg=5 migrant from island=3 indi=5 to replace island=2 indi=36
-AIM label=10 gg=5 migrant from island=1 indi=1 to replace island=3 indi=40
-AIM label=10 gg=5 migrant from island=1 indi=2 to replace island=3 indi=39
-AIM label=10 gg=5 migrant from island=1 indi=3 to replace island=3 indi=38
-AIM label=10 gg=5 migrant from island=1 indi=4 to replace island=3 indi=37
-AIM label=10 gg=5 migrant from island=1 indi=5 to replace island=3 indi=36
-AGA label=6011 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
-AIM label=10 end ite global=6 island=1 fbest=1.816710e-03 best: 1.001576 1.002583
-AGA label=6012 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
-AIM label=10 end ite global=6 island=2 fbest=1.816710e-03 best: 1.001576 1.002583
-AGA label=6013 nite=6 fitbest=0.001817 best=1.001576 1.002583max. iterations reached, leaving
-AIM label=10 end ite global=6 island=3 fbest=1.816710e-03 best: 1.001576 1.002583
-AIM label=10 gg=6 fbest=1.817e-03 island=1 best: 1.001576 1.002583
-AIM stoping because maximum number of global iterations 6 has been reached
+</pre><pre class="codeoutput">AIM begin ngg=6 ni=3 np=40
+AGA label=1011 nite= 6 fitbest=1.021316 best=0.992131 1.986531 max. iterations reached, leaving
+AIM label=10 gg=1 island=1 fitbest=1.021316e+00 best=0.992131 1.986531
+AGA label=1012 nite= 6 fitbest=1.096565 best=-0.007479 0.981136 max. iterations reached, leaving
+AIM label=10 gg=1 island=2 fitbest=1.096565e+00 best=-0.007479 0.981136
+AGA label=1013 nite= 6 fitbest=0.396988 best=0.988603 0.956609 max. iterations reached, leaving
+AIM label=10 gg=1 island=3 fitbest=3.969876e-01 best=0.988603 0.956609
+AIM label=10 gg=1 fitbest=3.970e-01 islandbest=3 best=0.988603 0.956609
+AIM label=10 gg=1 migrant from island=2 ind= 1 replaces island=1 ind=40
+AIM label=10 gg=1 migrant from island=2 ind= 2 replaces island=1 ind=39
+AIM label=10 gg=1 migrant from island=2 ind= 3 replaces island=1 ind=38
+AIM label=10 gg=1 migrant from island=2 ind= 4 replaces island=1 ind=37
+AIM label=10 gg=1 migrant from island=2 ind= 5 replaces island=1 ind=36
+AIM label=10 gg=1 migrant from island=3 ind= 1 replaces island=2 ind=40
+AIM label=10 gg=1 migrant from island=3 ind= 2 replaces island=2 ind=39
+AIM label=10 gg=1 migrant from island=3 ind= 3 replaces island=2 ind=38
+AIM label=10 gg=1 migrant from island=3 ind= 4 replaces island=2 ind=37
+AIM label=10 gg=1 migrant from island=3 ind= 5 replaces island=2 ind=36
+AIM label=10 gg=1 migrant from island=1 ind= 1 replaces island=3 ind=40
+AIM label=10 gg=1 migrant from island=1 ind= 2 replaces island=3 ind=39
+AIM label=10 gg=1 migrant from island=1 ind= 3 replaces island=3 ind=38
+AIM label=10 gg=1 migrant from island=1 ind= 4 replaces island=3 ind=37
+AIM label=10 gg=1 migrant from island=1 ind= 5 replaces island=3 ind=36
+AGA label=2011 nite= 6 fitbest=0.995419 best=0.006276 0.999109 max. iterations reached, leaving
+AIM label=10 gg=2 island=1 fitbest=9.954188e-01 best=0.006276 0.999109
+AGA label=2012 nite= 6 fitbest=0.361170 best=0.979945 0.962245 max. iterations reached, leaving
+AIM label=10 gg=2 island=2 fitbest=3.611698e-01 best=0.979945 0.962245
+AGA label=2013 nite= 6 fitbest=0.007056 best=1.005885 0.999033 max. iterations reached, leaving
+AIM label=10 gg=2 island=3 fitbest=7.055659e-03 best=1.005885 0.999033
+AIM label=10 gg=2 fitbest=7.056e-03 islandbest=3 best=1.005885 0.999033
+AIM label=10 gg=2 migrant from island=2 ind= 1 replaces island=1 ind=40
+AIM label=10 gg=2 migrant from island=2 ind= 2 replaces island=1 ind=39
+AIM label=10 gg=2 migrant from island=2 ind= 3 replaces island=1 ind=38
+AIM label=10 gg=2 migrant from island=2 ind= 4 replaces island=1 ind=37
+AIM label=10 gg=2 migrant from island=2 ind= 5 replaces island=1 ind=36
+AIM label=10 gg=2 migrant from island=3 ind= 1 replaces island=2 ind=40
+AIM label=10 gg=2 migrant from island=3 ind= 2 replaces island=2 ind=39
+AIM label=10 gg=2 migrant from island=3 ind= 3 replaces island=2 ind=38
+AIM label=10 gg=2 migrant from island=3 ind= 4 replaces island=2 ind=37
+AIM label=10 gg=2 migrant from island=3 ind= 5 replaces island=2 ind=36
+AIM label=10 gg=2 migrant from island=1 ind= 1 replaces island=3 ind=40
+AIM label=10 gg=2 migrant from island=1 ind= 2 replaces island=3 ind=39
+AIM label=10 gg=2 migrant from island=1 ind= 3 replaces island=3 ind=38
+AIM label=10 gg=2 migrant from island=1 ind= 4 replaces island=3 ind=37
+AIM label=10 gg=2 migrant from island=1 ind= 5 replaces island=3 ind=36
+AGA label=3011 nite= 6 fitbest=0.111259 best=1.009318 0.978212 max. iterations reached, leaving
+AIM label=10 gg=3 island=1 fitbest=1.112594e-01 best=1.009318 0.978212
+AGA label=3012 nite= 6 fitbest=0.007056 best=1.005885 0.999033 max. iterations reached, leaving
+AIM label=10 gg=3 island=2 fitbest=7.055659e-03 best=1.005885 0.999033
+AGA label=3013 nite= 6 fitbest=0.007056 best=1.005885 0.999033 max. iterations reached, leaving
+AIM label=10 gg=3 island=3 fitbest=7.055659e-03 best=1.005885 0.999033
+AIM label=10 gg=3 fitbest=7.056e-03 islandbest=2 best=1.005885 0.999033
+AIM label=10 gg=3 migrant from island=2 ind= 1 replaces island=1 ind=40
+AIM label=10 gg=3 migrant from island=2 ind= 2 replaces island=1 ind=39
+AIM label=10 gg=3 migrant from island=2 ind= 3 replaces island=1 ind=38
+AIM label=10 gg=3 migrant from island=2 ind= 4 replaces island=1 ind=37
+AIM label=10 gg=3 migrant from island=2 ind= 5 replaces island=1 ind=36
+AIM label=10 gg=3 migrant from island=3 ind= 1 replaces island=2 ind=40
+AIM label=10 gg=3 migrant from island=3 ind= 2 replaces island=2 ind=39
+AIM label=10 gg=3 migrant from island=3 ind= 3 replaces island=2 ind=38
+AIM label=10 gg=3 migrant from island=3 ind= 4 replaces island=2 ind=37
+AIM label=10 gg=3 migrant from island=3 ind= 5 replaces island=2 ind=36
+AIM label=10 gg=3 migrant from island=1 ind= 1 replaces island=3 ind=40
+AIM label=10 gg=3 migrant from island=1 ind= 2 replaces island=3 ind=39
+AIM label=10 gg=3 migrant from island=1 ind= 3 replaces island=3 ind=38
+AIM label=10 gg=3 migrant from island=1 ind= 4 replaces island=3 ind=37
+AIM label=10 gg=3 migrant from island=1 ind= 5 replaces island=3 ind=36
+AGA label=4011 nite= 6 fitbest=0.007056 best=1.005885 0.999033 max. iterations reached, leaving
+AIM label=10 gg=4 island=1 fitbest=7.055659e-03 best=1.005885 0.999033
+AGA label=4012 nite= 6 fitbest=0.007056 best=1.005885 0.999033 max. iterations reached, leaving
+AIM label=10 gg=4 island=2 fitbest=7.055659e-03 best=1.005885 0.999033
+AGA label=4013 nite= 6 fitbest=0.007056 best=1.005885 0.999033 max. iterations reached, leaving
+AIM label=10 gg=4 island=3 fitbest=7.055659e-03 best=1.005885 0.999033
+AIM label=10 gg=4 fitbest=7.056e-03 islandbest=1 best=1.005885 0.999033
+AIM label=10 gg=4 migrant from island=2 ind= 1 replaces island=1 ind=40
+AIM label=10 gg=4 migrant from island=2 ind= 2 replaces island=1 ind=39
+AIM label=10 gg=4 migrant from island=2 ind= 3 replaces island=1 ind=38
+AIM label=10 gg=4 migrant from island=2 ind= 4 replaces island=1 ind=37
+AIM label=10 gg=4 migrant from island=2 ind= 5 replaces island=1 ind=36
+AIM label=10 gg=4 migrant from island=3 ind= 1 replaces island=2 ind=40
+AIM label=10 gg=4 migrant from island=3 ind= 2 replaces island=2 ind=39
+AIM label=10 gg=4 migrant from island=3 ind= 3 replaces island=2 ind=38
+AIM label=10 gg=4 migrant from island=3 ind= 4 replaces island=2 ind=37
+AIM label=10 gg=4 migrant from island=3 ind= 5 replaces island=2 ind=36
+AIM label=10 gg=4 migrant from island=1 ind= 1 replaces island=3 ind=40
+AIM label=10 gg=4 migrant from island=1 ind= 2 replaces island=3 ind=39
+AIM label=10 gg=4 migrant from island=1 ind= 3 replaces island=3 ind=38
+AIM label=10 gg=4 migrant from island=1 ind= 4 replaces island=3 ind=37
+AIM label=10 gg=4 migrant from island=1 ind= 5 replaces island=3 ind=36
+AGA label=5011 nite= 6 fitbest=0.007056 best=1.005885 0.999033 max. iterations reached, leaving
+AIM label=10 gg=5 island=1 fitbest=7.055659e-03 best=1.005885 0.999033
+AGA label=5012 nite= 6 fitbest=0.007056 best=1.005885 0.999033 max. iterations reached, leaving
+AIM label=10 gg=5 island=2 fitbest=7.055659e-03 best=1.005885 0.999033
+AGA label=5013 nite= 6 fitbest=0.007056 best=1.005885 0.999033 max. iterations reached, leaving
+AIM label=10 gg=5 island=3 fitbest=7.055659e-03 best=1.005885 0.999033
+AIM label=10 gg=5 fitbest=7.056e-03 islandbest=1 best=1.005885 0.999033
+AIM label=10 gg=5 migrant from island=2 ind= 1 replaces island=1 ind=40
+AIM label=10 gg=5 migrant from island=2 ind= 2 replaces island=1 ind=39
+AIM label=10 gg=5 migrant from island=2 ind= 3 replaces island=1 ind=38
+AIM label=10 gg=5 migrant from island=2 ind= 4 replaces island=1 ind=37
+AIM label=10 gg=5 migrant from island=2 ind= 5 replaces island=1 ind=36
+AIM label=10 gg=5 migrant from island=3 ind= 1 replaces island=2 ind=40
+AIM label=10 gg=5 migrant from island=3 ind= 2 replaces island=2 ind=39
+AIM label=10 gg=5 migrant from island=3 ind= 3 replaces island=2 ind=38
+AIM label=10 gg=5 migrant from island=3 ind= 4 replaces island=2 ind=37
+AIM label=10 gg=5 migrant from island=3 ind= 5 replaces island=2 ind=36
+AIM label=10 gg=5 migrant from island=1 ind= 1 replaces island=3 ind=40
+AIM label=10 gg=5 migrant from island=1 ind= 2 replaces island=3 ind=39
+AIM label=10 gg=5 migrant from island=1 ind= 3 replaces island=3 ind=38
+AIM label=10 gg=5 migrant from island=1 ind= 4 replaces island=3 ind=37
+AIM label=10 gg=5 migrant from island=1 ind= 5 replaces island=3 ind=36
+AGA label=6011 nite= 6 fitbest=0.000214 best=1.000174 0.998976 max. iterations reached, leaving
+AIM label=10 gg=6 island=1 fitbest=2.139712e-04 best=1.000174 0.998976
+AGA label=6012 nite= 6 fitbest=0.007056 best=1.005885 0.999033 max. iterations reached, leaving
+AIM label=10 gg=6 island=2 fitbest=7.055659e-03 best=1.005885 0.999033
+AGA label=6013 nite= 6 fitbest=0.007056 best=1.005885 0.999033 max. iterations reached, leaving
+AIM label=10 gg=6 island=3 fitbest=7.055659e-03 best=1.005885 0.999033
+AIM label=10 nite= 6 fitbest=2.140e-04 best=1.000174 0.998976 max. iterations reached, leaving
 
 Algorithm 	Best individual (x,y) 	Value
-AGAI 		1.001576,1.002583 		1.816710E-03
-FMS 		1.000001,1.000003 		1.890186E-09
+AGAI 		1.000174,0.998976 		2.139712E-04
+FMS 		1.000003,0.999995 		6.443365E-09
 </pre><h2 id="2">Fitness plot</h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history) <span class="comment">% Full history; get fitness values</span>
     fithist = zeros(size(history,1),1);
     <span class="keyword">for</span> g=1:size(history,1)
         fithist(g) = history{g,ni+2};
-    <span class="keyword">end</span>;
+    <span class="keyword">end</span>
 <span class="keyword">else</span> <span class="comment">% Simple history</span>
     fithist = min(history,[],2);
-<span class="keyword">end</span>;
+<span class="keyword">end</span>
 
 <span class="comment">% Plot data</span>
 <span class="keyword">if</span> ~isempty(fithist)
@@ -288,7 +287,7 @@ FMS 		1.000001,1.000003 		1.890186E-09
     xlabel(<span class="string">'Generation [#]'</span>);
     ylabel(<span class="string">'Best fitness function value [log]'</span>);
 
-<span class="keyword">end</span>;
+<span class="keyword">end</span>
 </pre><img vspace="5" hspace="5" src="example_aim_aga_rastrigin_01.png" alt=""> <h2 id="3">Generations plot</h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history)
 
@@ -332,7 +331,7 @@ FMS 		1.000001,1.000003 		1.890186E-09
                     <span class="keyword">elseif</span> i&lt;=ne+nm, marker = <span class="string">'mo'</span>; <span class="comment">% Mutants range</span>
                     <span class="keyword">elseif</span> i&lt;=ne+nm+nd, marker = <span class="string">'bx'</span>; <span class="comment">% Descendants range</span>
                     <span class="keyword">else</span>, marker = <span class="string">'ks'</span>; <span class="comment">% Newcomers range</span>
-                    <span class="keyword">end</span>;
+                    <span class="keyword">end</span>
 
                     <span class="comment">% Plot individual</span>
                     x = history{gg,s}{1}{g,1}{i}(1);
@@ -345,17 +344,17 @@ FMS 		1.000001,1.000003 		1.890186E-09
                     <span class="keyword">elseif</span> i==ne+nm, lh(2) = ph{s,i}; <span class="comment">% Mutant</span>
                     <span class="keyword">elseif</span> i==ne+nm+nd, lh(3) = ph{s,i}; <span class="comment">% Descendant</span>
                     <span class="keyword">elseif</span> i==ne+nm+nd+1, lh(4) = ph{s,i}; <span class="comment">% Newcomer</span>
-                    <span class="keyword">end</span>;
+                    <span class="keyword">end</span>
 
-                <span class="keyword">end</span>;
+                <span class="keyword">end</span>
 
-            <span class="keyword">end</span>;
+            <span class="keyword">end</span>
 
             <span class="comment">% Legend</span>
             <span class="keyword">try</span> legend(lh(1:4),<span class="string">'Elites'</span>,<span class="string">'Mutants'</span>,<span class="string">'Descendants'</span>,<span class="string">'Newcomers'</span>,<span class="keyword">...</span>
                 <span class="string">'Location'</span>,<span class="string">'NorthEastOutside'</span>);
             <span class="keyword">catch</span>
-            <span class="keyword">end</span>;
+            <span class="keyword">end</span>
 
             <span class="comment">% Do events</span>
             drawnow;
@@ -365,15 +364,15 @@ FMS 		1.000001,1.000003 		1.890186E-09
 
             <span class="comment">% Delete individuals</span>
             <span class="keyword">if</span> ~(gg==ngg &amp;&amp; g==ng) <span class="comment">% Keep only last plot)</span>
-                <span class="keyword">for</span> s=1:ni, <span class="keyword">for</span> i=1:np, delete(ph{s,i}); <span class="keyword">end</span>; <span class="keyword">end</span>;
-            <span class="keyword">end</span>;
+                <span class="keyword">for</span> s=1:ni, <span class="keyword">for</span> i=1:np, delete(ph{s,i}); <span class="keyword">end</span>; <span class="keyword">end</span>
+            <span class="keyword">end</span>
 
-        <span class="keyword">end</span>;
+        <span class="keyword">end</span>
 
-    <span class="keyword">end</span>;
+    <span class="keyword">end</span>
 
-<span class="keyword">end</span>;
-</pre><img vspace="5" hspace="5" src="example_aim_aga_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="example_aim_aga_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Example Islands Model + AGA
 % Find minima of a function with Islands Model + Genetic Algorithm (GA)
@@ -425,14 +424,14 @@ ranfun = @() ranrange(-5,5,2); % Random individual
 prifun = @(x) fprintf('%f %f',x(1),x(2)); % Print an individual
 
 % Assemble AGA data structure
-DATA.ng = ng;
-DATA.N = N;
-DATA.unifun = unifun;
-DATA.fitfun = fitfun;
-DATA.mutfun = mutfun;
-DATA.repfun = repfun;
-DATA.ranfun = ranfun;
-DATA.prifun = prifun;
+DATA{1} = ng;
+DATA{2} = N;
+DATA{3} = unifun;
+DATA{4} = fitfun;
+DATA{5} = mutfun;
+DATA{6} = repfun;
+DATA{7} = ranfun;
+DATA{8} = prifun;
 
 % Randomize random seed
 rng('shuffle'); % We don't want repeatability in the heuristic
@@ -444,11 +443,11 @@ pops = cell(1,ni);
 for isl=1:ni
     for i=1:np
         pops{isl}{i} = ranfun(); % Create random individual
-    end;
-end;
+    end
+end
 
 % Execute Islands Model + Genetic Algorithm (GA)
-[bestind, bestfit, nite, lastpop, lastfit, history] = aim ( ...
+[ bestind, bestfit, nite, lastpop, lastfit, history ] = aim ( ...
     opts, pops, ngg, nemi, goal, heufun, DATA );
 
 % Now, we can easily improve the accuracy of the local extremum found
@@ -467,10 +466,10 @@ if opts.nhist>1 && iscell(history) % Full history; get fitness values
     fithist = zeros(size(history,1),1);
     for g=1:size(history,1)
         fithist(g) = history{g,ni+2};
-    end;
+    end
 else % Simple history
     fithist = min(history,[],2);
-end;
+end
 
 % Plot data
 if ~isempty(fithist)
@@ -488,7 +487,7 @@ if ~isempty(fithist)
     xlabel('Generation [#]');
     ylabel('Best fitness function value [log]');
 
-end;
+end
 
 %% Generations plot
 
@@ -535,7 +534,7 @@ if opts.nhist>1 && iscell(history)
                     elseif i<=ne+nm, marker = 'mo'; % Mutants range
                     elseif i<=ne+nm+nd, marker = 'bx'; % Descendants range
                     else, marker = 'ks'; % Newcomers range
-                    end;
+                    end
 
                     % Plot individual
                     x = history{gg,s}{1}{g,1}{i}(1);
@@ -548,17 +547,17 @@ if opts.nhist>1 && iscell(history)
                     elseif i==ne+nm, lh(2) = ph{s,i}; % Mutant
                     elseif i==ne+nm+nd, lh(3) = ph{s,i}; % Descendant
                     elseif i==ne+nm+nd+1, lh(4) = ph{s,i}; % Newcomer
-                    end;
+                    end
 
-                end;
+                end
 
-            end;
+            end
 
             % Legend
             try legend(lh(1:4),'Elites','Mutants','Descendants','Newcomers',...
                 'Location','NorthEastOutside');
             catch
-            end;
+            end
 
             % Do events
             drawnow;
@@ -568,14 +567,14 @@ if opts.nhist>1 && iscell(history)
 
             % Delete individuals
             if ~(gg==ngg && g==ng) % Keep only last plot)
-                for s=1:ni, for i=1:np, delete(ph{s,i}); end; end;
-            end;
+                for s=1:ni, for i=1:np, delete(ph{s,i}); end; end
+            end
 
-        end;
+        end
 
-    end;
+    end
 
-end;
+end
 
 
 ##### SOURCE END #####

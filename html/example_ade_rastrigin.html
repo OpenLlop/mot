@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Example ADE</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-11-23"><meta name="DC.source" content="example_ade_rastrigin.m"><style type="text/css">
+      --><title>Example ADE</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-05-10"><meta name="DC.source" content="example_ade_rastrigin.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -97,23 +97,12 @@ mutfun = @(F,a,b,c) a + F * rand() * (b - c); <span class="comment">% Mutation: 
 ranfun = @() ranrange(-5,5,2); <span class="comment">% Random individual</span>
 prifun = @(x) fprintf(<span class="string">'%f %f '</span>,x(1),x(2)); <span class="comment">% Print an individual</span>
 
-<span class="comment">% Assemble ADE data structure</span>
-DATA.ng = ng;
-DATA.N = N;
-DATA.F = F;
-DATA.ms = ms;
-DATA.unifun = unifun;
-DATA.fitfun = fitfun;
-DATA.mutfun = mutfun;
-DATA.ranfun = ranfun;
-DATA.prifun = prifun;
-
 <span class="comment">% Randomize random seed</span>
-rng(<span class="string">'shuffle'</span>); <span class="comment">% We don't want repeatability in the GA</span>
+rng(<span class="string">'shuffle'</span>); <span class="comment">% We don't want repeatability in the heuristic algorithm</span>
 
 <span class="comment">% Execute Differential Evolution (DE)</span>
 [ bestInd, bestFit, nite, lastPop, lastFit, history ] = ade ( <span class="keyword">...</span>
-    opts, np, goal, DATA );
+    opts, np, goal, ng, N, F, ms, unifun, fitfun, mutfun, ranfun, prifun );
 
 <span class="comment">% Now, we can easily improve the accuracy of the local extremum found</span>
 options = optimset(<span class="string">'TolFun'</span>,1E-8,<span class="string">'Display'</span>,<span class="string">'none'</span>);
@@ -123,70 +112,69 @@ options = optimset(<span class="string">'TolFun'</span>,1E-8,<span class="string
 fprintf(<span class="string">'\nAlgorithm \tBest individual (x,y) \tValue\n'</span>);
 fprintf(<span class="string">'ADE \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestInd,bestFit);
 fprintf(<span class="string">'FMS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndFMS,bestFitFMS);
-</pre><pre class="codeoutput">ADE label=10 g=  1 ng=50 best=2.103465e+00 1.971066 1.996890 
-ADE label=10 g=  2 ng=50 best=2.103465e+00 1.971066 1.996890 
-ADE label=10 g=  3 ng=50 best=2.103465e+00 1.971066 1.996890 
-ADE label=10 g=  4 ng=50 best=1.698664e+00 2.047260 0.971187 
-ADE label=10 g=  5 ng=50 best=1.698664e+00 2.047260 0.971187 
-ADE label=10 g=  6 ng=50 best=8.670933e-01 1.066095 1.008008 
-ADE label=10 g=  7 ng=50 best=8.670933e-01 1.066095 1.008008 
-ADE label=10 g=  8 ng=50 best=6.880046e-02 0.988507 0.985340 
-ADE label=10 g=  9 ng=50 best=6.880046e-02 0.988507 0.985340 
-ADE label=10 g= 10 ng=50 best=4.456106e-02 0.985104 1.001695 
-ADE label=10 g= 11 ng=50 best=4.456106e-02 0.985104 1.001695 
-ADE label=10 g= 12 ng=50 best=4.456106e-02 0.985104 1.001695 
-ADE label=10 g= 13 ng=50 best=4.456106e-02 0.985104 1.001695 
-ADE label=10 g= 14 ng=50 best=4.456106e-02 0.985104 1.001695 
-ADE label=10 g= 15 ng=50 best=4.456106e-02 0.985104 1.001695 
-ADE label=10 g= 16 ng=50 best=4.456106e-02 0.985104 1.001695 
-ADE label=10 g= 17 ng=50 best=4.456106e-02 0.985104 1.001695 
-ADE label=10 g= 18 ng=50 best=3.198047e-02 0.988258 0.995163 
-ADE label=10 g= 19 ng=50 best=3.198047e-02 0.988258 0.995163 
-ADE label=10 g= 20 ng=50 best=2.995320e-02 0.988951 0.994619 
-ADE label=10 g= 21 ng=50 best=1.799177e-02 1.005628 1.007683 
-ADE label=10 g= 22 ng=50 best=1.799177e-02 1.005628 1.007683 
-ADE label=10 g= 23 ng=50 best=1.799177e-02 1.005628 1.007683 
-ADE label=10 g= 24 ng=50 best=1.799177e-02 1.005628 1.007683 
-ADE label=10 g= 25 ng=50 best=1.799177e-02 1.005628 1.007683 
-ADE label=10 g= 26 ng=50 best=1.799177e-02 1.005628 1.007683 
-ADE label=10 g= 27 ng=50 best=1.799177e-02 1.005628 1.007683 
-ADE label=10 g= 28 ng=50 best=1.799177e-02 1.005628 1.007683 
-ADE label=10 g= 29 ng=50 best=1.799177e-02 1.005628 1.007683 
-ADE label=10 g= 30 ng=50 best=1.799177e-02 1.005628 1.007683 
-ADE label=10 g= 31 ng=50 best=1.799177e-02 1.005628 1.007683 
-ADE label=10 g= 32 ng=50 best=1.354023e-02 1.004661 1.006822 
-ADE label=10 g= 33 ng=50 best=1.354023e-02 1.004661 1.006822 
-ADE label=10 g= 34 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 35 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 36 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 37 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 38 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 39 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 40 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 41 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 42 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 43 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 44 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 45 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 46 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 47 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 48 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 49 ng=50 best=2.257413e-03 1.002553 0.997795 
-ADE label=10 g= 50 ng=50 best=1.776214e-03 1.001981 0.997758 
-ADE label=10 nite=50  best= 1.001981 0.997758  fitbest=0.001776 max. iterations reached, leaving
+</pre><pre class="codeoutput">ADE label=10 g= 1 fitbest=1.733771e-01 best=1.022745 0.981083 
+ADE label=10 g= 2 fitbest=1.733771e-01 best=1.022745 0.981083 
+ADE label=10 g= 3 fitbest=1.733771e-01 best=1.022745 0.981083 
+ADE label=10 g= 4 fitbest=1.733771e-01 best=1.022745 0.981083 
+ADE label=10 g= 5 fitbest=1.733771e-01 best=1.022745 0.981083 
+ADE label=10 g= 6 fitbest=1.733771e-01 best=1.022745 0.981083 
+ADE label=10 g= 7 fitbest=1.733771e-01 best=1.022745 0.981083 
+ADE label=10 g= 8 fitbest=1.733771e-01 best=1.022745 0.981083 
+ADE label=10 g= 9 fitbest=1.733771e-01 best=1.022745 0.981083 
+ADE label=10 g=10 fitbest=1.733771e-01 best=1.022745 0.981083 
+ADE label=10 g=11 fitbest=1.733771e-01 best=1.022745 0.981083 
+ADE label=10 g=12 fitbest=1.733771e-01 best=1.022745 0.981083 
+ADE label=10 g=13 fitbest=1.733771e-01 best=1.022745 0.981083 
+ADE label=10 g=14 fitbest=1.733771e-01 best=1.022745 0.981083 
+ADE label=10 g=15 fitbest=1.733771e-01 best=1.022745 0.981083 
+ADE label=10 g=16 fitbest=6.443414e-02 best=0.983969 1.008248 
+ADE label=10 g=17 fitbest=6.443414e-02 best=0.983969 1.008248 
+ADE label=10 g=18 fitbest=6.443414e-02 best=0.983969 1.008248 
+ADE label=10 g=19 fitbest=6.443414e-02 best=0.983969 1.008248 
+ADE label=10 g=20 fitbest=6.443414e-02 best=0.983969 1.008248 
+ADE label=10 g=21 fitbest=6.443414e-02 best=0.983969 1.008248 
+ADE label=10 g=22 fitbest=6.443414e-02 best=0.983969 1.008248 
+ADE label=10 g=23 fitbest=6.443414e-02 best=0.983969 1.008248 
+ADE label=10 g=24 fitbest=6.443414e-02 best=0.983969 1.008248 
+ADE label=10 g=25 fitbest=7.614063e-03 best=0.994074 1.001808 
+ADE label=10 g=26 fitbest=7.614063e-03 best=0.994074 1.001808 
+ADE label=10 g=27 fitbest=7.614063e-03 best=0.994074 1.001808 
+ADE label=10 g=28 fitbest=7.614063e-03 best=0.994074 1.001808 
+ADE label=10 g=29 fitbest=7.614063e-03 best=0.994074 1.001808 
+ADE label=10 g=30 fitbest=7.614063e-03 best=0.994074 1.001808 
+ADE label=10 g=31 fitbest=7.614063e-03 best=0.994074 1.001808 
+ADE label=10 g=32 fitbest=7.614063e-03 best=0.994074 1.001808 
+ADE label=10 g=33 fitbest=7.614063e-03 best=0.994074 1.001808 
+ADE label=10 g=34 fitbest=7.614063e-03 best=0.994074 1.001808 
+ADE label=10 g=35 fitbest=7.614063e-03 best=0.994074 1.001808 
+ADE label=10 g=36 fitbest=7.614063e-03 best=0.994074 1.001808 
+ADE label=10 g=37 fitbest=7.614063e-03 best=0.994074 1.001808 
+ADE label=10 g=38 fitbest=7.614063e-03 best=0.994074 1.001808 
+ADE label=10 g=39 fitbest=6.851550e-03 best=0.994228 0.998892 
+ADE label=10 g=40 fitbest=6.851550e-03 best=0.994228 0.998892 
+ADE label=10 g=41 fitbest=6.851550e-03 best=0.994228 0.998892 
+ADE label=10 g=42 fitbest=6.851550e-03 best=0.994228 0.998892 
+ADE label=10 g=43 fitbest=6.851550e-03 best=0.994228 0.998892 
+ADE label=10 g=44 fitbest=6.851550e-03 best=0.994228 0.998892 
+ADE label=10 g=45 fitbest=6.851550e-03 best=0.994228 0.998892 
+ADE label=10 g=46 fitbest=6.851550e-03 best=0.994228 0.998892 
+ADE label=10 g=47 fitbest=3.974580e-03 best=0.996037 0.997920 
+ADE label=10 g=48 fitbest=3.974580e-03 best=0.996037 0.997920 
+ADE label=10 g=49 fitbest=3.974580e-03 best=0.996037 0.997920 
+ADE label=10 nite=50 fitbest=0.003975 best= 0.996037 0.997920  max. iterations reached, leaving
 
 Algorithm 	Best individual (x,y) 	Value
-ADE 		1.001981,0.997758 		1.776214E-03
-FMS 		1.000001,1.000005 		4.469896E-09
+ADE 		0.996037,0.997920 		3.974580E-03
+FMS 		0.999999,1.000003 		2.167997E-09
 </pre><h2 id="2">Fitness plot</h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history) <span class="comment">% Full history; get fitness values</span>
     fithist = zeros(length(history),1);
     <span class="keyword">for</span> i=1:length(history)
         fithist(i) = history{i,2}(1);
-    <span class="keyword">end</span>;
+    <span class="keyword">end</span>
 <span class="keyword">else</span> <span class="comment">% Simple history</span>
     fithist = history;
-<span class="keyword">end</span>;
+<span class="keyword">end</span>
 
 <span class="comment">% Plot fitness histroy</span>
 <span class="keyword">if</span> ~isempty(fithist)
@@ -203,7 +191,7 @@ FMS 		1.000001,1.000005 		4.469896E-09
     xlabel(<span class="string">'Generation [#]'</span>);
     ylabel(<span class="string">'Best fitness function value [log]'</span>);
 
-<span class="keyword">end</span>;
+<span class="keyword">end</span>
 </pre><img vspace="5" hspace="5" src="example_ade_rastrigin_01.png" alt=""> <h2 id="3">Generations plot</h2><pre class="codeinput"><span class="comment">% Only show generations when outputting full history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history)
 
@@ -235,7 +223,7 @@ FMS 		1.000001,1.000005 		4.469896E-09
             <span class="keyword">if</span> i&lt;=ne, marker = <span class="string">'rv'</span>; <span class="comment">% Elites</span>
             <span class="keyword">elseif</span> i&lt;=ne+nm, marker = <span class="string">'mo'</span>; <span class="comment">% Mutants</span>
             <span class="keyword">else</span>, marker = <span class="string">'ks'</span>; <span class="comment">% Newcomers</span>
-            <span class="keyword">end</span>;
+            <span class="keyword">end</span>
 
             <span class="comment">% Plot individual</span>
             x = history{g,1}{i}(1);
@@ -247,9 +235,9 @@ FMS 		1.000001,1.000005 		4.469896E-09
             <span class="keyword">if</span> i==ne, lh(1) = ph{i}; <span class="comment">% Elite</span>
             <span class="keyword">elseif</span> i==ne+nm, lh(2) = ph{i}; <span class="comment">% Mutant</span>
             <span class="keyword">elseif</span> i==ne+nm+1, lh(3) = ph{i}; <span class="comment">% Newcomer</span>
-            <span class="keyword">end</span>;
+            <span class="keyword">end</span>
 
-        <span class="keyword">end</span>;
+        <span class="keyword">end</span>
 
         <span class="comment">% Legend</span>
         legend(lh(1:3),<span class="string">'Elites'</span>,<span class="string">'Mutants'</span>,<span class="string">'Newcomers'</span>,<span class="keyword">...</span>
@@ -263,13 +251,13 @@ FMS 		1.000001,1.000005 		4.469896E-09
 
         <span class="comment">% Delete individuals</span>
         <span class="keyword">if</span> g~=length(history) <span class="comment">% Keep last frame</span>
-            <span class="keyword">for</span> i=1:np, delete(ph{i}); <span class="keyword">end</span>;
-        <span class="keyword">end</span>;
+            <span class="keyword">for</span> i=1:np, delete(ph{i}); <span class="keyword">end</span>
+        <span class="keyword">end</span>
 
-    <span class="keyword">end</span>;
+    <span class="keyword">end</span>
 
-<span class="keyword">end</span>;
-</pre><img vspace="5" hspace="5" src="example_ade_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="example_ade_rastrigin_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Example ADE
 % Find minima of a function with Differential Evolution (DE)
@@ -313,23 +301,12 @@ mutfun = @(F,a,b,c) a + F * rand() * (b - c); % Mutation: random vector movement
 ranfun = @() ranrange(-5,5,2); % Random individual
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 
-% Assemble ADE data structure
-DATA.ng = ng;
-DATA.N = N;
-DATA.F = F;
-DATA.ms = ms;
-DATA.unifun = unifun;
-DATA.fitfun = fitfun;
-DATA.mutfun = mutfun;
-DATA.ranfun = ranfun;
-DATA.prifun = prifun;
-
 % Randomize random seed
-rng('shuffle'); % We don't want repeatability in the GA
+rng('shuffle'); % We don't want repeatability in the heuristic algorithm
 
 % Execute Differential Evolution (DE)
 [ bestInd, bestFit, nite, lastPop, lastFit, history ] = ade ( ...
-    opts, np, goal, DATA );
+    opts, np, goal, ng, N, F, ms, unifun, fitfun, mutfun, ranfun, prifun );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1E-8,'Display','none');
@@ -347,10 +324,10 @@ if opts.nhist>1 && iscell(history) % Full history; get fitness values
     fithist = zeros(length(history),1);
     for i=1:length(history)
         fithist(i) = history{i,2}(1);
-    end;
+    end
 else % Simple history
     fithist = history;
-end;
+end
 
 % Plot fitness histroy
 if ~isempty(fithist)
@@ -367,7 +344,7 @@ if ~isempty(fithist)
     xlabel('Generation [#]');
     ylabel('Best fitness function value [log]');
 
-end;
+end
 
 %% Generations plot
 
@@ -402,7 +379,7 @@ if opts.nhist>1 && iscell(history)
             if i<=ne, marker = 'rv'; % Elites
             elseif i<=ne+nm, marker = 'mo'; % Mutants
             else, marker = 'ks'; % Newcomers
-            end;
+            end
 
             % Plot individual
             x = history{g,1}{i}(1);
@@ -414,9 +391,9 @@ if opts.nhist>1 && iscell(history)
             if i==ne, lh(1) = ph{i}; % Elite
             elseif i==ne+nm, lh(2) = ph{i}; % Mutant
             elseif i==ne+nm+1, lh(3) = ph{i}; % Newcomer
-            end;
+            end
 
-        end;
+        end
 
         % Legend
         legend(lh(1:3),'Elites','Mutants','Newcomers',...
@@ -430,12 +407,12 @@ if opts.nhist>1 && iscell(history)
 
         % Delete individuals
         if g~=length(history) % Keep last frame
-            for i=1:np, delete(ph{i}); end;
-        end;
+            for i=1:np, delete(ph{i}); end
+        end
 
-    end;
+    end
 
-end;
+end
 
 
 ##### SOURCE END #####

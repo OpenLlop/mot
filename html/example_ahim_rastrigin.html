@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Example Hybrid Islands Model + AGA/ADE/APS</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-12-29"><meta name="DC.source" content="example_ahim_rastrigin.m"><style type="text/css">
+      --><title>Example Hybrid Islands Model + AGA/ADE/APS</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-05-10"><meta name="DC.source" content="example_ahim_rastrigin.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -82,7 +82,7 @@ opts.nhist = 2; <span class="comment">% Save history (0=none, 1=fitness, 2=all{p
 ni = 3; <span class="comment">% Number of islands</span>
 ngg = 6; <span class="comment">% Number of global iterations</span>
 pops = [ni,40,40,40]; <span class="comment">% Islands, and Population size of each island</span>
-nemi = 5; <span class="comment">% Number of emigrants (must be higher than population of each island)</span>
+nemi = 5; <span class="comment">% Number of emigrants (must be lower than population of each island)</span>
 goal = -Inf; <span class="comment">% Target fitness value</span>
 heufun = {@aga,@ade,@aps}; <span class="comment">% Heuristic functions to use with the Hybrid Islands Model</span>
 
@@ -109,50 +109,50 @@ prifun = @(x) fprintf(<span class="string">'%f %f'</span>,x(1),x(2)); <span clas
 DATA = cell(ni,1);
 
 <span class="comment">% Assemble AGA data structure</span>
-DATA{1}.ng = 6; <span class="comment">% Number of local generations</span>
-DATA{1}.N = [3,<span class="keyword">...</span><span class="comment"> % Number of elites</span>
+DATA{1}{1} = 6; <span class="comment">% Number of local generations</span>
+DATA{1}{2} = [3,<span class="keyword">...</span><span class="comment"> % Number of elites</span>
     floor(pops(2)*0.1),<span class="keyword">...</span><span class="comment"> % Number of mutants</span>
     floor(pops(2)*0.05),<span class="keyword">...</span><span class="comment">% Number of newcomers</span>
     floor(pops(2)*0.2)]; <span class="comment">% Number of parents</span>
-DATA{1}.unifun = unifun;
-DATA{1}.fitfun = fitfun;
-DATA{1}.mutfun = mutfun;
-DATA{1}.repfun = repfun;
-DATA{1}.ranfun = ranfun;
-DATA{1}.prifun = prifun;
+DATA{1}{3} = unifun;
+DATA{1}{4} = fitfun;
+DATA{1}{5} = mutfun;
+DATA{1}{6} = repfun;
+DATA{1}{7} = ranfun;
+DATA{1}{8} = prifun;
 
 <span class="comment">% Assemble ADE data structure</span>
-DATA{2}.ng = 6;
-DATA{2}.N = [3,<span class="keyword">...</span><span class="comment"> % Number of elites</span>
+DATA{2}{1} = 6;
+DATA{2}{2} = [3,<span class="keyword">...</span><span class="comment"> % Number of elites</span>
     floor(pops(3)*0.7)]; <span class="comment">% Number of mutants</span>
-DATA{2}.F = 0.1; <span class="comment">% Mutation scaling factor</span>
-DATA{2}.ms = 1; <span class="comment">% Mutation strategy (see ade.m)</span>
-DATA{2}.unifun = unifun;
-DATA{2}.fitfun = fitfun;
-DATA{2}.mutfun = mutfun1;
-DATA{2}.ranfun = ranfun;
-DATA{2}.prifun = prifun;
+DATA{2}{3} = 0.1; <span class="comment">% Mutation scaling factor</span>
+DATA{2}{4} = 1; <span class="comment">% Mutation strategy (see ade.m)</span>
+DATA{2}{5} = unifun;
+DATA{2}{6} = fitfun;
+DATA{2}{7} = mutfun1;
+DATA{2}{8} = ranfun;
+DATA{2}{9} = prifun;
 
 <span class="comment">% Assemble APS data structure</span>
-DATA{3}.nitemax = 50; <span class="comment">% Maximum number of iterations</span>
-DATA{3}.v = 0.2; <span class="comment">% Step size (velocity) allowed in one iteration</span>
-DATA{3}.c1 = 10; <span class="comment">% Local learning factor</span>
-DATA{3}.c2 = 20; <span class="comment">% Global learning factor</span>
-DATA{3}.vmax = 0.2; <span class="comment">% Maximum step size (velocity) allowed in one iteration</span>
-DATA{3}.fitfun = fitfun;
-DATA{3}.posfun = posfun;
-DATA{3}.velfun = velfun;
-DATA{3}.vscfun = vscfun;
-DATA{3}.prifun = prifun;
-DATA{3}.ranfun = ranfun;
-DATA{3}.rvlfun = rvlfun;
+DATA{3}{1} = 50; <span class="comment">% Maximum number of iterations</span>
+DATA{3}{2} = 0.2; <span class="comment">% Step size (velocity) allowed in one iteration</span>
+DATA{3}{3} = 10; <span class="comment">% Local learning factor</span>
+DATA{3}{4} = 20; <span class="comment">% Global learning factor</span>
+DATA{3}{5} = 0.2; <span class="comment">% Maximum step size (velocity) allowed in one iteration</span>
+DATA{3}{6} = fitfun;
+DATA{3}{7} = posfun;
+DATA{3}{8} = velfun;
+DATA{3}{9} = vscfun;
+DATA{3}{10} = rvlfun;
+DATA{3}{11} = ranfun;
+DATA{3}{12} = prifun;
 
 <span class="comment">% Randomize random seed</span>
 rng(<span class="string">'shuffle'</span>); <span class="comment">% We don't want repeatability in the heuristic</span>
 
 <span class="comment">% Execute Hybrid Islands Model</span>
-[bestind, bestfit, nite, lastpop, lastfit, history] = ahim ( <span class="keyword">...</span>
-    opts, pops, ngg, nemi, goal, heufun, DATA);
+[ bestind, bestfit, nite, lastpop, lastfit, history ] = ahim ( <span class="keyword">...</span>
+    opts, pops, ngg, nemi, goal, heufun, DATA );
 
 <span class="comment">% Now, we can easily improve the accuracy of the local extremum found</span>
 options = optimset(<span class="string">'TolFun'</span>,1e-8,<span class="string">'Display'</span>,<span class="string">'none'</span>);
@@ -163,13 +163,13 @@ fprintf(<span class="string">'\nAlgorithm \tBest individual (x,y) \tValue\n'</sp
 fprintf(<span class="string">'AGAI \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestind,bestfit);
 fprintf(<span class="string">'FMS \t\t%1.6f,%1.6f \t\t%1.6E\n'</span>,bestIndFMS,bestFitFMS);
 </pre><pre class="codeoutput">AHIM begin ngg=6 ni=3 np=40 40 40
-AGA label=1011 nite= 6 fitbest=1.023090 best=1.011898 1.994408 max. iterations reached, leaving
-AHIM label=10 gg=  1 island= 1 (aga) fitbest=1.023090e+00 best=1.011898 1.994408
-ADE label=1012 nite= 6 fitbest=2.174670 best= 0.016094 2.023425 max. iterations reached, leaving
-AHIM label=10 gg=  1 island= 2 (ade) fitbest=2.174670e+00 best=0.016094 2.023425
-APS label=1013 nite=50 fitbest=0.995397 best=1.000130 0.003561 max. iterations reached, leaving
-AHIM label=10 gg=  1 island= 3 (aps) fitbest=9.953971e-01 best=1.000130 0.003561
-AHIM label=10 gg=  1 fitbest=9.954e-01 islandbest= 3 best=1.000130 0.003561
+AGA label=1011 nite= 6 fitbest=4.992023 best=2.002619 -0.995225 max. iterations reached, leaving
+AHIM label=10 gg=  1 island= 1 (aga) fitbest=4.992023e+00 best=2.002619 -0.995225
+ADE label=1012 nite= 6 fitbest=1.554905 best= 1.042540 1.962871 max. iterations reached, leaving
+AHIM label=10 gg=  1 island= 2 (ade) fitbest=1.554905e+00 best=1.042540 1.962871
+APS label=1013 nite=50 fitbest=0.012109 best=1.001180 0.992276 max. iterations reached, leaving
+AHIM label=10 gg=  1 island= 3 (aps) fitbest=1.210901e-02 best=1.001180 0.992276
+AHIM label=10 gg=  1 fitbest=1.211e-02 islandbest= 3 best=1.001180 0.992276
 AHIM label=10 gg=  1 migrant from island= 2 ind= 1 replaces island= 1 ind=40
 AHIM label=10 gg=  1 migrant from island= 2 ind= 2 replaces island= 1 ind=39
 AHIM label=10 gg=  1 migrant from island= 2 ind= 3 replaces island= 1 ind=38
@@ -185,13 +185,13 @@ AHIM label=10 gg=  1 migrant from island= 1 ind= 2 replaces island= 3 ind=39
 AHIM label=10 gg=  1 migrant from island= 1 ind= 3 replaces island= 3 ind=38
 AHIM label=10 gg=  1 migrant from island= 1 ind= 4 replaces island= 3 ind=37
 AHIM label=10 gg=  1 migrant from island= 1 ind= 5 replaces island= 3 ind=36
-AGA label=2011 nite= 6 fitbest=0.995772 best=0.998972 1.996703 max. iterations reached, leaving
-AHIM label=10 gg=  2 island= 1 (aga) fitbest=9.957722e-01 best=0.998972 1.996703
-ADE label=2012 nite= 6 fitbest=0.995397 best= 1.000130 0.003561 max. iterations reached, leaving
-AHIM label=10 gg=  2 island= 2 (ade) fitbest=9.953971e-01 best=1.000130 0.003561
-APS label=2013 nite=50 fitbest=0.211032 best=0.978621 0.975331 max. iterations reached, leaving
-AHIM label=10 gg=  2 island= 3 (aps) fitbest=2.110322e-01 best=0.978621 0.975331
-AHIM label=10 gg=  2 fitbest=2.110e-01 islandbest= 3 best=0.978621 0.975331
+AGA label=2011 nite= 6 fitbest=0.995640 best=1.001258 1.996320 max. iterations reached, leaving
+AHIM label=10 gg=  2 island= 1 (aga) fitbest=9.956403e-01 best=1.001258 1.996320
+ADE label=2012 nite= 6 fitbest=0.001580 best= 1.002069 0.998081 max. iterations reached, leaving
+AHIM label=10 gg=  2 island= 2 (ade) fitbest=1.580124e-03 best=1.002069 0.998081
+APS label=2013 nite=50 fitbest=0.000047 best=0.999681 0.999630 max. iterations reached, leaving
+AHIM label=10 gg=  2 island= 3 (aps) fitbest=4.726521e-05 best=0.999681 0.999630
+AHIM label=10 gg=  2 fitbest=4.727e-05 islandbest= 3 best=0.999681 0.999630
 AHIM label=10 gg=  2 migrant from island= 2 ind= 1 replaces island= 1 ind=40
 AHIM label=10 gg=  2 migrant from island= 2 ind= 2 replaces island= 1 ind=39
 AHIM label=10 gg=  2 migrant from island= 2 ind= 3 replaces island= 1 ind=38
@@ -207,13 +207,13 @@ AHIM label=10 gg=  2 migrant from island= 1 ind= 2 replaces island= 3 ind=39
 AHIM label=10 gg=  2 migrant from island= 1 ind= 3 replaces island= 3 ind=38
 AHIM label=10 gg=  2 migrant from island= 1 ind= 4 replaces island= 3 ind=37
 AHIM label=10 gg=  2 migrant from island= 1 ind= 5 replaces island= 3 ind=36
-AGA label=3011 nite= 6 fitbest=0.000043 best=0.999551 1.000132 max. iterations reached, leaving
-AHIM label=10 gg=  3 island= 1 (aga) fitbest=4.348191e-05 best=0.999551 1.000132
-ADE label=3012 nite= 6 fitbest=0.000114 best= 0.999505 0.999427 max. iterations reached, leaving
-AHIM label=10 gg=  3 island= 2 (ade) fitbest=1.137491e-04 best=0.999505 0.999427
-APS label=3013 nite=50 fitbest=0.122715 best=0.997587 1.024778 max. iterations reached, leaving
-AHIM label=10 gg=  3 island= 3 (aps) fitbest=1.227148e-01 best=0.997587 1.024778
-AHIM label=10 gg=  3 fitbest=4.348e-05 islandbest= 1 best=0.999551 1.000132
+AGA label=3011 nite= 6 fitbest=0.001580 best=1.002069 0.998081 max. iterations reached, leaving
+AHIM label=10 gg=  3 island= 1 (aga) fitbest=1.580124e-03 best=1.002069 0.998081
+ADE label=3012 nite= 6 fitbest=0.001207 best= 1.002278 0.999056 max. iterations reached, leaving
+AHIM label=10 gg=  3 island= 2 (ade) fitbest=1.206589e-03 best=1.002278 0.999056
+APS label=3013 nite=50 fitbest=0.000338 best=1.000438 0.998770 max. iterations reached, leaving
+AHIM label=10 gg=  3 island= 3 (aps) fitbest=3.382740e-04 best=1.000438 0.998770
+AHIM label=10 gg=  3 fitbest=3.383e-04 islandbest= 3 best=1.000438 0.998770
 AHIM label=10 gg=  3 migrant from island= 2 ind= 1 replaces island= 1 ind=40
 AHIM label=10 gg=  3 migrant from island= 2 ind= 2 replaces island= 1 ind=39
 AHIM label=10 gg=  3 migrant from island= 2 ind= 3 replaces island= 1 ind=38
@@ -229,13 +229,13 @@ AHIM label=10 gg=  3 migrant from island= 1 ind= 2 replaces island= 3 ind=39
 AHIM label=10 gg=  3 migrant from island= 1 ind= 3 replaces island= 3 ind=38
 AHIM label=10 gg=  3 migrant from island= 1 ind= 4 replaces island= 3 ind=37
 AHIM label=10 gg=  3 migrant from island= 1 ind= 5 replaces island= 3 ind=36
-AGA label=4011 nite= 6 fitbest=0.000043 best=0.999551 1.000132 max. iterations reached, leaving
-AHIM label=10 gg=  4 island= 1 (aga) fitbest=4.348191e-05 best=0.999551 1.000132
-ADE label=4012 nite= 6 fitbest=0.000114 best= 0.999505 0.999427 max. iterations reached, leaving
-AHIM label=10 gg=  4 island= 2 (ade) fitbest=1.137491e-04 best=0.999505 0.999427
-APS label=4013 nite=50 fitbest=0.037935 best=0.994231 1.012570 max. iterations reached, leaving
-AHIM label=10 gg=  4 island= 3 (aps) fitbest=3.793534e-02 best=0.994231 1.012570
-AHIM label=10 gg=  4 fitbest=4.348e-05 islandbest= 1 best=0.999551 1.000132
+AGA label=4011 nite= 6 fitbest=0.001207 best=1.002278 0.999056 max. iterations reached, leaving
+AHIM label=10 gg=  4 island= 1 (aga) fitbest=1.206589e-03 best=1.002278 0.999056
+ADE label=4012 nite= 6 fitbest=0.000640 best= 1.001131 0.998605 max. iterations reached, leaving
+AHIM label=10 gg=  4 island= 2 (ade) fitbest=6.399048e-04 best=1.001131 0.998605
+APS label=4013 nite=50 fitbest=0.000641 best=0.998554 1.001068 max. iterations reached, leaving
+AHIM label=10 gg=  4 island= 3 (aps) fitbest=6.410958e-04 best=0.998554 1.001068
+AHIM label=10 gg=  4 fitbest=6.399e-04 islandbest= 2 best=1.001131 0.998605
 AHIM label=10 gg=  4 migrant from island= 2 ind= 1 replaces island= 1 ind=40
 AHIM label=10 gg=  4 migrant from island= 2 ind= 2 replaces island= 1 ind=39
 AHIM label=10 gg=  4 migrant from island= 2 ind= 3 replaces island= 1 ind=38
@@ -251,13 +251,13 @@ AHIM label=10 gg=  4 migrant from island= 1 ind= 2 replaces island= 3 ind=39
 AHIM label=10 gg=  4 migrant from island= 1 ind= 3 replaces island= 3 ind=38
 AHIM label=10 gg=  4 migrant from island= 1 ind= 4 replaces island= 3 ind=37
 AHIM label=10 gg=  4 migrant from island= 1 ind= 5 replaces island= 3 ind=36
-AGA label=5011 nite= 6 fitbest=0.000043 best=0.999551 1.000132 max. iterations reached, leaving
-AHIM label=10 gg=  5 island= 1 (aga) fitbest=4.348191e-05 best=0.999551 1.000132
-ADE label=5012 nite= 6 fitbest=0.000027 best= 1.000122 0.999653 max. iterations reached, leaving
-AHIM label=10 gg=  5 island= 2 (ade) fitbest=2.686208e-05 best=1.000122 0.999653
-APS label=5013 nite=50 fitbest=0.012333 best=1.006645 1.004244 max. iterations reached, leaving
-AHIM label=10 gg=  5 island= 3 (aps) fitbest=1.233268e-02 best=1.006645 1.004244
-AHIM label=10 gg=  5 fitbest=2.686e-05 islandbest= 2 best=1.000122 0.999653
+AGA label=5011 nite= 6 fitbest=0.000573 best=1.001358 0.998978 max. iterations reached, leaving
+AHIM label=10 gg=  5 island= 1 (aga) fitbest=5.730454e-04 best=1.001358 0.998978
+ADE label=5012 nite= 6 fitbest=0.000620 best= 1.001105 0.998620 max. iterations reached, leaving
+AHIM label=10 gg=  5 island= 2 (ade) fitbest=6.203458e-04 best=1.001105 0.998620
+APS label=5013 nite=50 fitbest=0.001207 best=1.002278 0.999056 max. iterations reached, leaving
+AHIM label=10 gg=  5 island= 3 (aps) fitbest=1.206589e-03 best=1.002278 0.999056
+AHIM label=10 gg=  5 fitbest=5.730e-04 islandbest= 1 best=1.001358 0.998978
 AHIM label=10 gg=  5 migrant from island= 2 ind= 1 replaces island= 1 ind=40
 AHIM label=10 gg=  5 migrant from island= 2 ind= 2 replaces island= 1 ind=39
 AHIM label=10 gg=  5 migrant from island= 2 ind= 3 replaces island= 1 ind=38
@@ -273,26 +273,26 @@ AHIM label=10 gg=  5 migrant from island= 1 ind= 2 replaces island= 3 ind=39
 AHIM label=10 gg=  5 migrant from island= 1 ind= 3 replaces island= 3 ind=38
 AHIM label=10 gg=  5 migrant from island= 1 ind= 4 replaces island= 3 ind=37
 AHIM label=10 gg=  5 migrant from island= 1 ind= 5 replaces island= 3 ind=36
-AGA label=6011 nite= 6 fitbest=0.000007 best=0.999853 0.999882 max. iterations reached, leaving
-AHIM label=10 gg=  6 island= 1 (aga) fitbest=7.047523e-06 best=0.999853 0.999882
-ADE label=6012 nite= 6 fitbest=0.000011 best= 0.999986 0.999766 max. iterations reached, leaving
-AHIM label=10 gg=  6 island= 2 (ade) fitbest=1.094667e-05 best=0.999986 0.999766
-APS label=6013 nite=50 fitbest=0.136484 best=0.984646 1.021285 max. iterations reached, leaving
-AHIM label=10 gg=  6 island= 3 (aps) fitbest=1.364844e-01 best=0.984646 1.021285
-AHIM label=10 nite=  6 fitbest=7.048e-06 best=0.999853 0.999882 max. iterations reached, leaving
+AGA label=6011 nite= 6 fitbest=0.000101 best=1.000666 0.999741 max. iterations reached, leaving
+AHIM label=10 gg=  6 island= 1 (aga) fitbest=1.013677e-04 best=1.000666 0.999741
+ADE label=6012 nite= 6 fitbest=0.000618 best= 1.001103 0.998622 max. iterations reached, leaving
+AHIM label=10 gg=  6 island= 2 (ade) fitbest=6.182022e-04 best=1.001103 0.998622
+APS label=6013 nite=50 fitbest=0.000083 best=1.000611 0.999793 max. iterations reached, leaving
+AHIM label=10 gg=  6 island= 3 (aps) fitbest=8.256076e-05 best=1.000611 0.999793
+AHIM label=10 nite=  6 fitbest=4.727e-05 best=0.999681 0.999630 max. iterations reached, leaving
 
 Algorithm 	Best individual (x,y) 	Value
-AGAI 		0.999853,0.999882 		7.047523E-06
-FMS 		0.999997,0.999999 		2.652271E-09
+AGAI 		0.999681,0.999630 		4.726521E-05
+FMS 		0.999998,0.999996 		3.408946E-09
 </pre><h2 id="2">Fitness plot</h2><pre class="codeinput"><span class="comment">% Get fitness history</span>
 <span class="keyword">if</span> opts.nhist&gt;1 &amp;&amp; iscell(history) <span class="comment">% Full history; get fitness values</span>
     fithist = zeros(size(history,1),1);
     <span class="keyword">for</span> g=1:size(history,1)
         fithist(g) = history{g,ni+2};
-    <span class="keyword">end</span>;
+    <span class="keyword">end</span>
 <span class="keyword">else</span> <span class="comment">% Simple history</span>
     fithist = min(history,[],2);
-<span class="keyword">end</span>;
+<span class="keyword">end</span>
 
 <span class="comment">% Plot data</span>
 <span class="keyword">if</span> ~isempty(fithist)
@@ -310,8 +310,8 @@ FMS 		0.999997,0.999999 		2.652271E-09
     xlabel(<span class="string">'Generation [#]'</span>);
     ylabel(<span class="string">'Best fitness function value [log]'</span>);
 
-<span class="keyword">end</span>;
-</pre><img vspace="5" hspace="5" src="example_ahim_rastrigin_01.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="example_ahim_rastrigin_01.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Example Hybrid Islands Model + AGA/ADE/APS
 % Find minima of a function with Hybrid Islands Model
@@ -340,7 +340,7 @@ opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 ni = 3; % Number of islands
 ngg = 6; % Number of global iterations
 pops = [ni,40,40,40]; % Islands, and Population size of each island
-nemi = 5; % Number of emigrants (must be higher than population of each island)
+nemi = 5; % Number of emigrants (must be lower than population of each island)
 goal = -Inf; % Target fitness value
 heufun = {@aga,@ade,@aps}; % Heuristic functions to use with the Hybrid Islands Model
 
@@ -367,50 +367,50 @@ prifun = @(x) fprintf('%f %f',x(1),x(2)); % Print an individual (generic)
 DATA = cell(ni,1);
 
 % Assemble AGA data structure
-DATA{1}.ng = 6; % Number of local generations
-DATA{1}.N = [3,... % Number of elites
+DATA{1}{1} = 6; % Number of local generations
+DATA{1}{2} = [3,... % Number of elites
     floor(pops(2)*0.1),... % Number of mutants
     floor(pops(2)*0.05),...% Number of newcomers
     floor(pops(2)*0.2)]; % Number of parents
-DATA{1}.unifun = unifun;
-DATA{1}.fitfun = fitfun;
-DATA{1}.mutfun = mutfun;
-DATA{1}.repfun = repfun;
-DATA{1}.ranfun = ranfun;
-DATA{1}.prifun = prifun;
+DATA{1}{3} = unifun;
+DATA{1}{4} = fitfun;
+DATA{1}{5} = mutfun;
+DATA{1}{6} = repfun;
+DATA{1}{7} = ranfun;
+DATA{1}{8} = prifun;
 
 % Assemble ADE data structure
-DATA{2}.ng = 6;
-DATA{2}.N = [3,... % Number of elites
+DATA{2}{1} = 6;
+DATA{2}{2} = [3,... % Number of elites
     floor(pops(3)*0.7)]; % Number of mutants
-DATA{2}.F = 0.1; % Mutation scaling factor
-DATA{2}.ms = 1; % Mutation strategy (see ade.m)
-DATA{2}.unifun = unifun;
-DATA{2}.fitfun = fitfun;
-DATA{2}.mutfun = mutfun1;
-DATA{2}.ranfun = ranfun;
-DATA{2}.prifun = prifun;
+DATA{2}{3} = 0.1; % Mutation scaling factor
+DATA{2}{4} = 1; % Mutation strategy (see ade.m)
+DATA{2}{5} = unifun;
+DATA{2}{6} = fitfun;
+DATA{2}{7} = mutfun1;
+DATA{2}{8} = ranfun;
+DATA{2}{9} = prifun;
 
 % Assemble APS data structure
-DATA{3}.nitemax = 50; % Maximum number of iterations
-DATA{3}.v = 0.2; % Step size (velocity) allowed in one iteration
-DATA{3}.c1 = 10; % Local learning factor
-DATA{3}.c2 = 20; % Global learning factor
-DATA{3}.vmax = 0.2; % Maximum step size (velocity) allowed in one iteration
-DATA{3}.fitfun = fitfun;
-DATA{3}.posfun = posfun;
-DATA{3}.velfun = velfun;
-DATA{3}.vscfun = vscfun;
-DATA{3}.prifun = prifun;
-DATA{3}.ranfun = ranfun;
-DATA{3}.rvlfun = rvlfun;
+DATA{3}{1} = 50; % Maximum number of iterations
+DATA{3}{2} = 0.2; % Step size (velocity) allowed in one iteration
+DATA{3}{3} = 10; % Local learning factor
+DATA{3}{4} = 20; % Global learning factor
+DATA{3}{5} = 0.2; % Maximum step size (velocity) allowed in one iteration
+DATA{3}{6} = fitfun;
+DATA{3}{7} = posfun;
+DATA{3}{8} = velfun;
+DATA{3}{9} = vscfun;
+DATA{3}{10} = rvlfun;
+DATA{3}{11} = ranfun;
+DATA{3}{12} = prifun;
 
 % Randomize random seed
 rng('shuffle'); % We don't want repeatability in the heuristic
 
 % Execute Hybrid Islands Model
-[bestind, bestfit, nite, lastpop, lastfit, history] = ahim ( ...
-    opts, pops, ngg, nemi, goal, heufun, DATA);
+[ bestind, bestfit, nite, lastpop, lastfit, history ] = ahim ( ...
+    opts, pops, ngg, nemi, goal, heufun, DATA );
 
 % Now, we can easily improve the accuracy of the local extremum found
 options = optimset('TolFun',1e-8,'Display','none');
@@ -428,10 +428,10 @@ if opts.nhist>1 && iscell(history) % Full history; get fitness values
     fithist = zeros(size(history,1),1);
     for g=1:size(history,1)
         fithist(g) = history{g,ni+2};
-    end;
+    end
 else % Simple history
     fithist = min(history,[],2);
-end;
+end
 
 % Plot data
 if ~isempty(fithist)
@@ -449,7 +449,7 @@ if ~isempty(fithist)
     xlabel('Generation [#]');
     ylabel('Best fitness function value [log]');
 
-end;
+end
 
 
 ##### SOURCE END #####

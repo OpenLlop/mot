@@ -1,15 +1,18 @@
 function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aps ( ...
-    opts, pop, goal, DATA )
+    opts, pop, goal, nitemax, v, c1, c2, vmax, fitfun, posfun, ...
+    velfun, vscfun, rvlfun, ranfun, prifun )
 %APS finds minimum of a function using Particle Swarm (PS)
 %
 %Programmers:   Manel Soria         (UPC/ETSEIAT)
 %               David de la Torre   (UPC/ETSEIAT)
 %               Arnau Miro          (UPC/ETSEIAT)
-%Date:          17/11/2016
-%Revision:      2
+%Date:          10/05/2018
+%Revision:      3
 %
 %Usage:         [bestind, bestfit, nite, lastpop, lastfit, history] = ...
-%                   APS( opts, pop, goal, DATA )
+%                   APS ( opts, pop, goal, nitemax, v, c1, c2, vmax, ...
+%                   fitfun, posfun, velfun, vscfun, ranfun, rvlfun, ...
+%                   prifun )
 %
 %Inputs:
 %   opts:       function control parameters [struct] (optional)
@@ -23,22 +26,20 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aps ( ...
 %           2:  history{ng,1:2} = {pop,fitness}
 %   pop:        initial population
 %   goal:       If function value is below goal, iterations are stopped
-%   DATA:       structure with the specific parameters and callback
-%               functions of the APS heuristic function.
-%       nitemax:maximum number of iterations allowed
-%       v:      initial population velocity
-%       c1:     local learning factor
-%       c2:     global learning factor
-%       vmax:   maximum value for particle velocity
+%   nitemax:    maximum number of iterations allowed
+%   v:          initial population velocity
+%   c1:         local learning factor
+%   c2:         global learning factor
+%   vmax:       maximum value for particle velocity
 %
-%       Call back functions to be provided by the user:
-%       fitfun: fitness function
-%       posfun: position update function
-%       velfun: velocity update function
-%       vscfun: velocity scaling function
-%       prifun: prints best individual
-%       rpsfun: returns a random position
-%       rvlfun: returns a random velocity
+%   Call back functions to be provided by the user:
+%   fitfun:     fitness function
+%   posfun:     position update function
+%   velfun:     velocity update function
+%   vscfun:     velocity scaling function
+%   rvlfun:     returns a random velocity
+%   ranfun:     returns a random position
+%   prifun:     prints individual
 %
 %Outputs:
 %   bestind:    best individual from the last generation
@@ -49,24 +50,10 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aps ( ...
 %   history:    array with saved history array
 
 % Get options
-if isfield(opts,'ninfo'), ninfo = opts.ninfo; else, ninfo = 1; end;
-if isfield(opts,'label'), label = opts.label; else, label = 0; end;
-if isfield(opts,'dopar'), dopar = opts.dopar; else, dopar = 0; end;
-if isfield(opts,'nhist'), nhist = opts.nhist; else, nhist = 1; end;
-
-% Get heuristic parameters from data structure
-nitemax = DATA.nitemax;
-v = DATA.v;
-c1 = DATA.c1;
-c2 = DATA.c2;
-vmax = DATA.vmax;
-fitfun = DATA.fitfun;
-posfun = DATA.posfun;
-velfun = DATA.velfun;
-vscfun = DATA.vscfun;
-prifun = DATA.prifun;
-ranfun = DATA.ranfun;
-rvlfun = DATA.rvlfun;
+if isfield(opts,'ninfo'), ninfo = opts.ninfo; else, ninfo = 1; end
+if isfield(opts,'label'), label = opts.label; else, label = 0; end
+if isfield(opts,'dopar'), dopar = opts.dopar; else, dopar = 0; end
+if isfield(opts,'nhist'), nhist = opts.nhist; else, nhist = 1; end
 
 % Build population if required
 if isnumeric(pop) % Population size is given as input
@@ -74,8 +61,8 @@ if isnumeric(pop) % Population size is given as input
     pop = cell(1,np); % Preallocate population variable
     for i=1:np % Fill population
         pop{i} = ranfun(); % Generate random particle
-    end;
-end;
+    end
+end
 
 % Create history array
 history = [];
@@ -94,26 +81,26 @@ if isnumeric(v) % Population size is given as input
     for i=1:np % Fill population
         v{i} = rvlfun(vfact); % Generate random velocity
         v{i} = vscfun(v{i},vmax); % Limit velocity
-    end;
-end;
+    end
+end
 
 % Iterate until convergence or max iterations
 for ite=1:nitemax
 
     % Evaluate fitness function
     if dopar % Parallel execution
-        parfor i=1:np, fi(i) = feval(fitfun,pop{i}); end;
+        parfor i=1:np, fi(i) = feval(fitfun,pop{i}); end
     else % Serial execution
-        for i=1:np, fi(i) = feval(fitfun,pop{i}); end;
-    end;
+        for i=1:np, fi(i) = feval(fitfun,pop{i}); end
+    end
 
     % Update personal best of each particle
     for i=1:np
         if fi(i)<fib(i) || ite==1
             fib(i) = fi(i); % Best fitness
             popb{i} = pop{i}; % Best particle position
-        end;
-    end;
+        end
+    end
     
     % Sort population individuals by their fitness level
     [fi,i] = sort(fi); % Sort fitness by increasing value (lower is best)
@@ -126,7 +113,7 @@ for ite=1:nitemax
     if fi(1)<bestfit || ite==1
         bestind = pop{1}; % New global best particle
         bestfit = fi(1); % New global best fitness
-    end;
+    end
     
     % Save history
     if nhist>1 % Save full history {population,fitness}
@@ -134,14 +121,12 @@ for ite=1:nitemax
         history{ite,2} = fi; %#ok
     elseif nhist>0 % Save best fitness only
         history(ite) = fi(1); %#ok
-    end;
+    end
     
     % Check if reached target fitness or max iterations
     if fi(1)<goal || ite>=nitemax % Target achieved
         
         % Save last iteration data
-        bestind = pop{1}; % Save best individual
-        bestfit = fi(1); % Save fitness level of last best individual
         nite = ite; % Save current generation index
         lastpop = pop; % Save last population
         lastfit = fi; % Save last fitness values
@@ -149,25 +134,25 @@ for ite=1:nitemax
         % Show info
         if ninfo>0
             fprintf('APS label=%d nite=%2d fitbest=%f',label,nite,bestfit);
-            if ~isempty(prifun), fprintf(' best='); prifun(bestind); end;
+            if ~isempty(prifun), fprintf(' best='); prifun(bestind); end
             if bestfit<goal % Goal achieved
                 fprintf(' goal=%e achieved, leaving\n',goal);
             else % Maximum generations reached (goal not achieved)
                 fprintf(' max. iterations reached, leaving\n');
-            end;
-        end;
+            end
+        end
         
         % Stop iterating
         break;
         
-    end;
+    end
     
     % Show info if required
     if ninfo>1
         fprintf('APS label=%d ite=%2d fitbest=%e',label,ite,fi(1));
-        if ~isempty(prifun), fprintf(' best='); prifun(pop{1}); end;
+        if ~isempty(prifun), fprintf(' best='); prifun(pop{1}); end
         fprintf('\n');
-    end;
+    end
     
     % Update positions
     for i=1:np
@@ -177,14 +162,14 @@ for ite=1:nitemax
     % Update velocities
     for i=1:np
         v{i} = velfun(v{i},pop{i},popb{i},bestind,c1,c2);
-    end;
+    end
    
     % Limit velocities
     for i=1:np
         v{i} = vscfun(v{i},vmax);
-    end;
+    end
     
-end;
+end
 
 end
 

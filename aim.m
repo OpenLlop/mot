@@ -5,8 +5,8 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aim ( ...
 %Programmers:   David de la Torre   (UPC/ETSEIAT)
 %               Manel Soria         (UPC/ETSEIAT)
 %               Arnau Miro          (UPC/ETSEIAT)
-%Date:          12/11/2016
-%Revision:      1
+%Date:          10/05/2018
+%Revision:      2
 %
 %Usage:         [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
 %                   AIM( opts, pops, ngg, nemi, goal, fheu, DATA )
@@ -28,12 +28,14 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aim ( ...
 %   nemi:       number of emigrations between islands per global generation
 %   goal:       if function value is below goal, iterations are stopped
 %   heufun:     handle to the heuristic function (@aga, @ade, etc.)
-%   DATA:       structure with the specific parameters and callback
+%   DATA:       cell array with the specific parameters and callback
 %               functions of the heuristic function.
 %               The heuristic is called in the following way:
 %               [outputs] = fheu(opts,pop,goal,DATA);
-%               Do ensure the DATA array has all the structure fields
+%               Do ensure the DATA array has all the variables in the order
 %               required by the heuristic function.
+%               Note that last variable in DATA should be prifun(), and
+%               last-1 variable in DATA should be ranfun().
 %
 %Outputs:
 %   bestind:    best individual (among all the islands)
@@ -44,10 +46,10 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aim ( ...
 %   history:    array with saved global history array
 
 % Get configuration options
-if isfield(opts,'ninfo'), ninfo = opts.ninfo; else, ninfo = 0; end;
-if isfield(opts,'label'), label = opts.label; else, label = 0; end;
-if isfield(opts,'dopar'), dopar = opts.dopar; else, dopar = 0; end;
-if isfield(opts,'nhist'), nhist = opts.nhist; else, nhist = 0; end;
+if isfield(opts,'ninfo'), ninfo = opts.ninfo; else, ninfo = 0; end
+if isfield(opts,'label'), label = opts.label; else, label = 0; end
+if isfield(opts,'dopar'), dopar = opts.dopar; else, dopar = 0; end
+if isfield(opts,'nhist'), nhist = opts.nhist; else, nhist = 0; end
 
 % Create history array
 history = [];
@@ -59,30 +61,30 @@ if (~iscell(pops)) % Only population size is given
     pops = cell(1,ni); % Preallocate var
     for island=1:ni % Fill islands with population
         for i=1:np % Fill population with individuals
-            pops{island}{i} = DATA.ranfun(); % Create random individual
-        end;
-    end;
+            pops{island}{i} = DATA{end-1}(); % Create random individual
+        end
+    end
 else % Initial population is given. Check structural consistency
     ss = size(pops); % Size (m,n) of input population
     if (ss(1)~=1) % Error in pops shape
         error('AIM global population shape must be: pops{1,ni}');
-    end;
+    end
     ni = ss(2); % Number of islands
     for i=1:ni
         ss = size(pops{i}); % Size
         if (ss(1)~=1)
             error('AIM population shape must be: pop{1,ni}');
-        end;
+        end
         if i==1, np = ss(2); % Population length
-        else, if np~=ss(2), error('AIM population length mismatch'); end;
-        end;
-    end;
-end;
+        else, if np~=ss(2), error('AIM population length mismatch'); end
+        end
+    end
+end
 
 % Show info
 if ninfo>0
     fprintf('AIM begin ngg=%d ni=%d np=%2d\n',ngg,ni,np);
-end;
+end
 
 % Preallocate top best fitness
 topbestfit = 0;
@@ -105,7 +107,7 @@ for gg=1:ngg
         
         % Execute heuristic algorithm
         [ibestind, ibestfit, initer, ilastpop, ~, hist] = heufun ( ...
-            iopts, pops{island}, goal, DATA);
+            iopts, pops{island}, goal, DATA{:} );
         
         % Save values at the end of local island iteration
         pops{island} = ilastpop; % Save last population
@@ -117,19 +119,19 @@ for gg=1:ngg
             history{gg,island} = {hist,initer}; %#ok
         elseif nhist>0 % Save best fitness only
             history(gg,island) = ibestfit; %#ok
-        end;
+        end
 
         % Show extended info
         if ninfo>1
             fprintf('AIM label=%d gg=%d island=%d fitbest=%e',...
                 label,gg,island,ibestfit);
-            if ~isempty(DATA.prifun) % Print best individual
-                fprintf(' best='); DATA.prifun(ibestind);
-            end;
+            if ~isempty(DATA{end}) % Print best individual
+                fprintf(' best='); DATA{end}(ibestind);
+            end
             fprintf('\n');
-        end;
+        end
         
-    end;
+    end
     
     % Find best individual of all islands and island where it lives
     [fbest, ibest] = min(ibestfits);
@@ -138,13 +140,13 @@ for gg=1:ngg
     if fbest<topbestfit || gg==1 % Better individual found, or first gg
         topbestind = ibestinds{ibest};
         topbestfit = fbest;
-    end;
+    end
     
     % Save history
     if nhist>1 % Save full history for each island
         history{gg,ni+1} = ibestinds{ibest}; %#ok % Best individual
         history{gg,ni+2} = fbest; %#ok % Fitness of best individual
-    end;
+    end
 
     % Check if reached target fitness or max generations 
     if fbest<=goal || gg>=ngg % Target achieved; end simulation
@@ -159,30 +161,30 @@ for gg=1:ngg
         % Show info if required
         if ninfo>0
             fprintf('AIM label=%d nite=%2d fitbest=%8.3e',label,gg,bestfit);
-            if ~isempty(DATA.prifun) % Print best individual
-                fprintf(' best='); DATA.prifun(bestind);
-            end;
+            if ~isempty(DATA{end}) % Print best individual
+                fprintf(' best='); DATA{end}(bestind);
+            end
             if gg==ngg % Maximum number of iterations reached
                 fprintf(' max. iterations reached, leaving\n');
             else % Goal has been reached
                 fprintf(' goal=%e achieved, leaving\n',goal);
-            end;
-        end;
+            end
+        end
         
         % Stop iterating
         break;
         
-    end;
+    end
     
     % Show info
     if ninfo>0
         fprintf('AIM label=%d gg=%d fitbest=%8.3e islandbest=%d',...
             label,gg,fbest,ibest);
-        if ~isempty(DATA.prifun)
-            fprintf(' best='); DATA.prifun(ibestinds{ibest});
-        end;
+        if ~isempty(DATA{end})
+            fprintf(' best='); DATA{end}(ibestinds{ibest});
+        end
         fprintf('\n');
-    end;
+    end
     
     % Emigration
     % Copy nemi individuals (among the best) on origin island, and then
@@ -191,7 +193,7 @@ for gg=1:ngg
         
         % Select origin and destination islands (ring topology)
         dest = island; % Destination island
-        orig = island+1; if orig>ni, orig=1; end; % Origin island
+        orig = island+1; if orig>ni, orig=1; end % Origin island
         
         % Migrate individuals
         for migrant=1:nemi
@@ -207,13 +209,13 @@ for gg=1:ngg
                 fprintf(['AIM label=%d gg=%d migrant from ',...
                     'island=%d ind=%2d replaces island=%d ind=%2d\n'],...
                     label,gg,orig,migrant,dest,killed);
-            end;
+            end
             
-        end;
+        end
         
-    end;
+    end
 
-end;
+end
 
 end
 

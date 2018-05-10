@@ -1,12 +1,13 @@
 function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aga ( ...
-    opts, pop, goal, DATA )
+    opts, pop, goal, ng, N, unifun, fitfun, ...
+    mutfun, repfun, ranfun, prifun )
 %AGA finds minimum of a function using Genetic Algorithm (GA)
 %
 %Programmers:   Manel Soria         (UPC/ETSEIAT)
 %               David de la Torre   (UPC/ETSEIAT)
 %               Arnau Miro          (UPC/ETSEIAT)
-%Date:          17/11/2016
-%Revision:      3
+%Date:          10/05/2018
+%Revision:      4
 %
 %Usage:         [bestind, bestfit, nite, lastpop, lastfit, history] = ...
 %                   AGA( opts, pop, ng, N, goal, ...
@@ -24,36 +25,34 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aga ( ...
 %                   2: history{ng,1:2} = {pop,fitness}
 %   pop:        list with initial population elements
 %   goal:       if function value is below goal, iterations are stopped
-%   DATA:       structure with the specific parameters and callback
-%               functions of the AGA heuristic function.
-%       ng:     maximum number of generations allowed
-%       N:      population control parameters
-%           N(1)    ne: number of elite individuals that remain unchanged
-%           N(2)    nm: number of mutants
-%           N(3)    nn: number of newcomers
-%           The rest are descendants
-%           N(4)    na: number of parents. The descendants are choosen
+%   ng:         maximum number of generations allowed
+%   N:          population control parameters
+%       N(1)        ne: number of elite individuals that remain unchanged
+%       N(2)        nm: number of mutants
+%       N(3)        nn: number of newcomers
+%                   The rest are descendants
+%       N(4)        na: number of parents. The descendants are choosen
 %                   among the na best individuals
 %                   The rest of individuals (ie: nn=length(pop)-ne+nm+nd)
 %                   are newcomers, randomly choosen
 % 
-%       If there are less than nm-1 non-identical indivials, population is 
-%       considered degenerate and iterations stop
+%   If there are less than nm-1 non-identical indivials, population is 
+%   considered degenerate and iterations stop
 %
-%       Call back functions to be provided by the user:
-%       unifun: deletes repeated individuals in a population
+%   Call back functions to be provided by the user:
+%   unifun:     deletes repeated individuals in a population
 %               receives a population+fitness and returns a
 %               population+fitness (a population is a list of individuals)
-%       fitfun: fitness function, given one individual returns its fitness
+%   fitfun:     fitness function, given one individual returns its fitness
 %               (RECALL that in this GA algoritm fitness is MINIMIZED)
-%       mutfun: mutation funcion, given one individual and its fitness,
+%   mutfun:     mutation funcion, given one individual and its fitness,
 %               mutfun should return a mutant individual. Fitness is given
 %               in case mutation intensity is to be decreased when close
 %               to the goal
-%       repfun: given two individuals and their fitnesses, returns a
+%   repfun:     given two individuals and their fitnesses, returns a
 %               descendant
-%       ranfun: returns a random individual
-%       prifun: prints best individual
+%   ranfun:     returns a random individual
+%   prifun:     prints best individual
 %
 %Outputs:
 %   bestind:    best individual from the last generation
@@ -64,20 +63,10 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aga ( ...
 %   history:    array with saved history array
 
 % Get configuration options
-if isfield(opts,'ninfo'), ninfo = opts.ninfo; else, ninfo = 1; end;
-if isfield(opts,'label'), label = opts.label; else, label = 0; end;
-if isfield(opts,'dopar'), dopar = opts.dopar; else, dopar = 0; end;
-if isfield(opts,'nhist'), nhist = opts.nhist; else, nhist = 1; end;
-
-% Get heuristic parameters from data structure
-ng = DATA.ng;
-N = DATA.N;
-unifun = DATA.unifun;
-fitfun = DATA.fitfun;
-mutfun = DATA.mutfun;
-repfun = DATA.repfun;
-ranfun = DATA.ranfun;
-prifun = DATA.prifun;
+if isfield(opts,'ninfo'), ninfo = opts.ninfo; else, ninfo = 1; end
+if isfield(opts,'label'), label = opts.label; else, label = 0; end
+if isfield(opts,'dopar'), dopar = opts.dopar; else, dopar = 0; end
+if isfield(opts,'nhist'), nhist = opts.nhist; else, nhist = 1; end
 
 % Create history array
 history = [];
@@ -88,8 +77,8 @@ if isnumeric(pop) % Population size is given as input
     pop = cell(1,np); % Preallocate population variable
     for i=1:np % Fill population
         pop{i} = ranfun(); % Generate random individual
-    end;
-end;
+    end
+end
 
 % Population size
 ne = N(1); % Number of elites
@@ -100,8 +89,8 @@ np = length(pop); % Population size
 nd = np - N(1) - N(2) - N(3); % Number of descendants
 
 % Safety checks
-if na<=0, na=1; end;
-if nn<0, error('AGA nn (number of newcomers) must be positive'); end;
+if na<=0, na=1; end
+if nn<0, error('AGA nn (number of newcomers) must be positive'); end
 
 % Iterate through generations
 for g=1:ng
@@ -114,14 +103,14 @@ for g=1:ng
     pop = pop(~cellfun('isempty',pop)); % Remove empty individuals
     fi = fi(~cellfun('isempty',pop)); % Remove empty fitness
     ncleanpop = length(pop); % Length of clean population
-
+       
     % Avoid population degeneration (i.e., poor genetic pool)
     if ncleanpop<na % Clean population size is less than breeders size
         
         % Show info
         if ninfo>0
             fprintf('AGA label=%d degenerate population, leaving\n',label);
-        end;
+        end
         
         % Save last iteration data
         bestind = pop{1}; % Save best individual
@@ -133,19 +122,19 @@ for g=1:ng
         % Stop iterating
         break;
         
-    end;
+    end
 
     % Repopulation: fill clean population pool with new individuals
     for i=ncleanpop+1:np % Fill up to initial population size
         pop{i} = ranfun(); % Create new random individual
-    end;
+    end
 
     % Evaluate fitness function
     if dopar % Parallel execution
-        parfor i=1:np, fi(i) = feval(fitfun,pop{i}); end;
+        parfor i=1:np, fi(i) = feval(fitfun,pop{i}); end
     else % Serial execution
-        for i=1:np, fi(i) = feval(fitfun,pop{i}); end;
-    end;
+        for i=1:np, fi(i) = feval(fitfun,pop{i}); end
+    end
 
     % Sort population individuals by their fitness level
     [fi,i] = sort(fi); % Sort fitness by increasing value (lower is best)
@@ -157,7 +146,7 @@ for g=1:ng
         history{g,2} = fi; %#ok
     elseif nhist>0 % Save best fitness only
         history(g) = fi(1); %#ok
-    end;
+    end
     
     % Check if reached target fitness or max generations 
     if fi(1)<=goal || g>=ng % Target achieved
@@ -172,25 +161,25 @@ for g=1:ng
         % Show info
         if ninfo>0
             fprintf('AGA label=%d nite=%2d fitbest=%f',label,nite,bestfit);
-            if ~isempty(prifun), fprintf(' best='); prifun(bestind); end;
+            if ~isempty(prifun), fprintf(' best='); prifun(bestind); end
             if bestfit<goal % Goal achieved
                 fprintf(' goal=%e achieved, leaving\n',goal);
             else % Maximum generations reached (goal not achieved)
                 fprintf(' max. iterations reached, leaving\n');
-            end;
-        end;
+            end
+        end
         
         % Stop iterating
         break;
         
-    end;
+    end
 
     % Show extended info
     if ninfo>1
         fprintf('AGA label=%d g=%2d fitbest=%f',label,g,fi(1));
-        if ~isempty(prifun), fprintf(' best='); prifun(pop{1}); end;
+        if ~isempty(prifun), fprintf(' best='); prifun(pop{1}); end
         fprintf('\n');
-    end;
+    end
     
     % Compute population for next generation:
     % <<[elites, mutants, descendants, newcomers]<<
@@ -200,14 +189,14 @@ for g=1:ng
     for i=1:ne % Elites
         nextpop{k} = pop{k}; % Copy elite into next generation
         k = k + 1; % Next individual
-    end;
+    end
 
     for i=1:nm % Mutants
         if isempty(mutfun), nextpop{k} = pop{k}; % Do not mutate
         else, nextpop{k} = mutfun(pop{k},fi(k)); % Mutate
-        end;
+        end
         k = k + 1; % Next individual
-    end;
+    end
 
     for i=1:nd % Descendants
         parentA = randi([1,na]); % Parent A is choosen among the na best 
@@ -215,17 +204,17 @@ for g=1:ng
         nextpop{k} = repfun(pop{parentA}, pop{parentB}, ...
             fi(parentA), fi(parentB)); % Breed individuals A and B
         k = k + 1; % Next individual
-    end;
+    end
 
     for i=1:nn % Newcommers
         nextpop{k} = ranfun(); % Random individual
         k = k + 1; % Next individual
-    end;
+    end
     
     % Update population
     pop = nextpop;
     
-end;
+end
 
 end
 

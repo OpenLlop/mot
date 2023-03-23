@@ -6,6 +6,7 @@
 %                Arnau Miro          (UPC/ETSEIAT)
 % Date:          23/11/2016
 % Revision:      3
+close all; clc;
 
 %% AGA
 
@@ -18,7 +19,7 @@ opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 % Define AGA algorithm parameters
 goal = -1E99; % Target fitness value
 ng = 10; % Number of generations
-np = 100; % Population size
+np = 5000; % Population size
 N = [1,... % Number of elites
     floor(np*0.1),... % Number of mutants
     floor(np*0.05),...% Number of newcomers
@@ -28,14 +29,21 @@ N = [1,... % Number of elites
 ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a and b
 perfun = @(x) 2 * (x(1) + x(2)); % Perimeter
 
-xa = [0,0];
-xb = [2,2];
-xc = [2,0];
+xa = [0,0]';
+xb = [2,0]';
+xc = [1,sqrt(3)]';
+% xc = [1,0]';
+% xc = [0,1]';
+% xd = [2,1]';
+
+xa = [0.5,0]';
+xb = [1.5,0]';
+xc = [1,0.5*sqrt(3)]';
 
 % Define AGA algorithm functions
 unifun = @(x,f) deal(x,f); % Discard identical individuals (unimplemented)
-fitfun = @(x) [norm(x-xc), 0*norm(x-xb), norm(x-xa)]; % Fitness function (to be minimized)
-mutfun = @(x,f) x + ranrange(0,0.1,2); % Mutation: small random movement
+fitfun = @(x) [norm(x-xa), norm(x-xb), norm(x-xc)]; % Fitness function (to be minimized)
+mutfun = @(x,f) x + ranrange(-0.1,0.1,2); % Mutation: small random movement
 repfun = @(x,y,fx,fy) (x+y)/2; % Reproduction: average of two individuals
 ranfun = @() ranrange(0,2,2); % Random individual
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
@@ -98,17 +106,24 @@ if opts.nhist>1 && iscell(history)
     hold on; 
     grid on;
     box on;
+    axis equal;
     
     % Limits
-    xlim([0,3]);
-    ylim([0,3]);
+    xlim([0,2]);
+    ylim([0,2]);
     
     % Labels
     xlabel('Rectangle base [length]');
     ylabel('Rectangle height [length]');
+
+    % Plot targets
+    plot(xa(1),xa(2),'ro');
+    plot(xb(1),xb(2),'ro');
+    plot(xc(1),xc(2),'ro');
+%     plot(xd(1),xd(2),'ro');
     
     % Colormap
-    cm = jet(10);
+    cm = jet(50);
     colormap(cm);
     hc = colorbar;
     title(hc, '# pareto front');
@@ -144,7 +159,7 @@ if opts.nhist>1 && iscell(history)
             % Plot individual
             x = history{g,1}{i}(1);
             y = history{g,1}{i}(2);
-            z = 100;
+            z = idx_front;
             ph{i} = plot3(x,y,z,marker,'MarkerSize',4,'color',c);
 
             % Save legend ticks

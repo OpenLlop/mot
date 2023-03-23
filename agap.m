@@ -96,7 +96,10 @@ nd = np - N(1) - N(2) - N(3); % Number of descendants
 
 % Check number of objectives of fitfun
 fi0 = feval(fitfun,pop{1});
-no = size(fi0, 2);
+no = size(fi0(:), 1);
+
+fh = figure();
+fh1 = [];
 
 % Safety checks
 if na<=0, na=1; end
@@ -147,7 +150,7 @@ for g=1:ng
     end
 
     % Sort population fitness into pareto fronts
-    [idx_front] = sort_pareto(fi,np,no,g,dirname);
+    [idx_front,fh,fh1] = sort_pareto(fi,np,no,g,dirname,fh,fh1);
     %[idx_crowd] = sort_crowding(fi,idx_front);
 
     % Sort population individuals by their pareto front
@@ -234,12 +237,12 @@ end
 
 end
 
-
-function [idx_front] = sort_pareto(fi, np, no, g, dirname)
+% Check dominance on all population
+function [idx_front, fh,fh1] = sort_pareto(fi, np, no, g, dirname, fh,fh1)
 
     % Build pareto fronts
     idx_front = NaN(np,1);
-    for pf=1:10 % Recursively, check dominance on all pop_eval
+    for pf=1:50 % for each pareto front...
 
         fprintf("Pareto %d...\n", pf);
 
@@ -251,25 +254,25 @@ function [idx_front] = sort_pareto(fi, np, no, g, dirname)
             end
 
             % Check dominance on current individual
-            fit_pp = fi(i,:); % Fitness of current individual
-            dom_pp = ones(np,1); % Assume pp is dominated. TODO: CLARIFY
-            for oo=1:no
+            fi_pp = fi(i,:); % Fitness of current individual
+            dominated_pp = ones(np,1); % Assume pp is dominated
+            for oo=1:no % For each objective...
 
-                % Check if any other individual is dominant over pp
-                % (has lower fitness than pp), on objective "oo"
-                dom_oo = fi(:,oo) < fit_pp(oo);
+                % Check if pp is dominated by someone, on objective "oo"
+                % someone is dominant over pp = has lower fitness than pp
+                dominated_oo = fi(:,oo) < fi_pp(oo);
 
                 % Ignore individuals on other pareto fronts 
                 % (but not those on the current one)
-                dom_oo(idx_front<pf) = 0;
+                dominated_oo(idx_front<pf) = 0;
 
-                % Accumulate dominance over all objectives
-                dom_pp = dom_pp & dom_oo; 
+                % Aggregate dominance over all objectives
+                dominated_pp = dominated_pp & dominated_oo; 
 
             end
 
-            % If there's no "dominant" over pp, then pp is dominant
-            pp_is_dominant = ~any(dom_pp);
+            % If pp is not dominated by anyone else, then pp is dominant
+            pp_is_dominant = ~any(dominated_pp);
 
             fprintf("  %d: dominant? %d\n", i, pp_is_dominant);
 
@@ -288,9 +291,9 @@ function [idx_front] = sort_pareto(fi, np, no, g, dirname)
     end
 
     % Plot pareto fronts
-    fh = figure();
-    hold on; grid on; box on;
-    cm = jet(10);
+%     fh = figure();
+    hold on; grid on; box on; axis equal;
+    cm = jet(50);
     colormap(cm);
     hc = colorbar;
     title(hc, '# pareto front');
@@ -298,19 +301,23 @@ function [idx_front] = sort_pareto(fi, np, no, g, dirname)
 %     ylim([-10,0]);
     xlim([0,4]);
     ylim([0,4]);
-    xlabel('Objective #1: area/perimeter');
-    ylabel('Objective #2: base/height');
-    title('Optimising dimensions of a quadrilateral');
-    scatter(fi(:,1), fi(:,2), 30, idx_front, 'o', 'filled');
-    for pf=1:10
-        fi_idx = fi(idx_front==pf,:);
-        [~, idx_sorted] = sort(fi_idx(:,1));
-        fi_idx = fi_idx(idx_sorted,:);
-        plot(fi_idx(:,1), fi_idx(:,2), '-', 'color', cm(pf,:));
-    end
+    zlim([0,4]);
+    xlabel('Objective #1: dist to xa');
+    ylabel('Objective #2: dist to xb');
+    zlabel('Objective #3: dist to xc');
+    title('Optimising distances to 3 points');
+    view(40,0);
+    delete(fh1);
+    fh1 = scatter3(fi(:,1), fi(:,2), fi(:,3), 30, idx_front, 'o', 'filled');
+%     for pf=1:10
+%         fi_idx = fi(idx_front==pf,:);
+%         [~, idx_sorted] = sort(fi_idx(:,1));
+%         fi_idx = fi_idx(idx_sorted,:);
+%         plot3(fi_idx(:,1), fi_idx(:,2), fi_idx(:,3), '-', 'color', cm(pf,:));
+%     end
     fname = fullfile(dirname,sprintf('gen_%03d.png',g));
     print(fh,'-dpng','-r300',fname);
-    close(fh);
+%     close(fh);
 
 end
 

@@ -52,9 +52,9 @@ fprintf('AGA \t\t%1.6f,%1.6f \t\t%1.6E\n',bestInd,bestFit);
 
 % Get fitness history
 if opts.nhist>1 && iscell(history) % Full history; get fitness values
-    fithist = zeros(length(history),1);
+    fithist = zeros(length(history),2);
     for i=1:length(history)
-        fithist(i) = history{i,2}(1);
+        fithist(i,:) = history{i,2}(1,:);
     end
 else % Simple history
     fithist = history;
@@ -66,14 +66,20 @@ if ~isempty(fithist)
     % Create figure
     fh1 = figure('Position',[400,200,900,600]);
 
-    % Plot history
-    semilogy(fithist,'o-');
-
     % Beautify plot
     grid minor;
     title('Genetic Algorithm optimization | Rastrigin function');
     xlabel('Generation [#]');
-    ylabel('Best fitness function value [log]');
+    
+    % Plot history
+    yyaxis left; 
+    ylabel('Best fitness function value #1 [log]');
+    semilogy(fithist(:,1),'o-');
+
+    % Plot history
+    yyaxis right; 
+    ylabel('Best fitness function value #2 [log]');
+    semilogy(fithist(:,2),'x-');
 
 end
 
@@ -84,12 +90,24 @@ if opts.nhist>1 && iscell(history)
 
     % Create figure
     fh2 = figure('Position',[400,200,900,600]);
-
-    % Plot rastrigin function
-    [x,y] = meshgrid(-5:0.05:5,-5:0.05:5); z = rect(x,y);
-    bh = surf(x,y,z,'LineStyle','none');
-    colorbar('Location','EastOutside');
-    view(0,90); hold on;
+    view(0,90);
+    hold on; 
+    grid on;
+    box on;
+    
+    % Limits
+    xlim([0,3]);
+    ylim([0,3]);
+    
+    % Labels
+    xlabel('Rectangle base [length]');
+    ylabel('Rectangle height [length]');
+    
+    % Colormap
+    cm = jet(10);
+    colormap(cm);
+    hc = colorbar;
+    title(hc, '# pareto front');
 
     % Population size
     ne = N(1); % Number of elites
@@ -108,17 +126,22 @@ if opts.nhist>1 && iscell(history)
         for i=1:np
 
             % Select plotting marker
-            if i<=ne, marker = 'rv'; % Elites
-            elseif i<=ne+nm, marker = 'mo'; % Mutants
-            elseif i<=ne+nm+nd, marker = 'bx'; % Descendants
-            else, marker = 'ks'; % Newcomers
+            if i<=ne, marker = 'v'; % Elites (rv)
+            elseif i<=ne+nm, marker = 'o'; % Mutants (mo)
+            elseif i<=ne+nm+nd, marker = 'x'; % Descendants (bx)
+            else, marker = 's'; % Newcomers (ks)
             end
+            
+            % Select color
+            idx_front = history{g,3}(i);
+            if isnan(idx_front), c = 'k';
+            else, c = cm(idx_front,:); end
 
             % Plot individual
             x = history{g,1}{i}(1);
             y = history{g,1}{i}(2);
             z = 100;
-            ph{i} = plot3(x,y,z,marker,'MarkerSize',4);
+            ph{i} = plot3(x,y,z,marker,'MarkerSize',4,'color',c);
 
             % Save legend ticks
             if i==ne, lh(1) = ph{i}; % Elite

@@ -148,9 +148,10 @@ for g=1:ng
 
     % Sort population fitness into pareto fronts
     [idx_front] = sort_pareto(fi,np,no,g,dirname);
+    %[idx_crowd] = sort_crowding(fi,idx_front);
 
     % Sort population individuals by their pareto front
-    [~, idx] = sort(idx_front); % Sort pareto fronts (increasing)
+    [idx_front, idx] = sort(idx_front); % Sort pareto fronts (increasing)
     fi = fi(idx,:); % Sort fitness by pareto fronts
     pop = pop(idx); % Sort population by pareto fronts
 
@@ -158,6 +159,7 @@ for g=1:ng
     if nhist>1 % Save full history {population,fitness}
         history{g,1} = pop; %#ok
         history{g,2} = fi; %#ok
+        history{g,3} = idx_front; %#ok
     elseif nhist>0 % Save best fitness only
         history{g} = fi(idx_front==1,:); %#ok
     end
@@ -250,7 +252,7 @@ function [idx_front] = sort_pareto(fi, np, no, g, dirname)
 
             % Check dominance on current individual
             fit_pp = fi(i,:); % Fitness of current individual
-            dom_pp = ones(np,1); % Assume pp is dominated
+            dom_pp = ones(np,1); % Assume pp is dominated. TODO: CLARIFY
             for oo=1:no
 
                 % Check if any other individual is dominant over pp
@@ -292,8 +294,10 @@ function [idx_front] = sort_pareto(fi, np, no, g, dirname)
     colormap(cm);
     hc = colorbar;
     title(hc, '# pareto front');
-    xlim([-0.5,0]);
-    ylim([-10,0]);
+%     xlim([-0.5,0]);
+%     ylim([-10,0]);
+    xlim([0,4]);
+    ylim([0,4]);
     xlabel('Objective #1: area/perimeter');
     ylabel('Objective #2: base/height');
     title('Optimising dimensions of a quadrilateral');

@@ -1,5 +1,5 @@
 function [ bestind, bestfit, nite, lastpop, lastfit, history ] = agap ( ...
-    opts, pop, goal, ng, N, unifun, fitfun, ...
+    opts, pop, goal, ng, N, npf, unifun, fitfun, ...
     mutfun, repfun, ranfun, prifun )
 %AGA finds minimum of a function using Genetic Algorithm (GA)
 %
@@ -69,7 +69,7 @@ if isfield(opts,'label'), label = opts.label; else, label = 0; end
 if isfield(opts,'dopar'), dopar = opts.dopar; else, dopar = 0; end
 if isfield(opts,'nhist'), nhist = opts.nhist; else, nhist = 1; end
 
-% Create output folder
+% Create output folder for simulation frames
 date_now = datetime('now','Format','yyyyMMddHHmmss');
 dirname = fullfile('output','pareto',string(date_now));
 mkdir(dirname);
@@ -97,9 +97,6 @@ nd = np - N(1) - N(2) - N(3); % Number of descendants
 % Check number of objectives of fitfun
 fi0 = feval(fitfun,pop{1});
 no = size(fi0(:), 1);
-
-fh = figure();
-fh1 = [];
 
 % Safety checks
 if na<=0, na=1; end
@@ -150,13 +147,17 @@ for g=1:ng
     end
 
     % Sort population fitness into pareto fronts
-    [idx_front,fh,fh1] = sort_pareto(fi,np,no,g,dirname,fh,fh1);
+    idx_front = sort_pareto();
     %[idx_crowd] = sort_crowding(fi,idx_front);
 
     % Sort population individuals by their pareto front
     [idx_front, idx] = sort(idx_front); % Sort pareto fronts (increasing)
     fi = fi(idx,:); % Sort fitness by pareto fronts
     pop = pop(idx); % Sort population by pareto fronts
+
+    % Plot population & pareto fronts
+    plot_population();
+    plot_pareto_fronts();
 
     % Save history
     if nhist>1 % Save full history {population,fitness}
@@ -235,89 +236,232 @@ for g=1:ng
     
 end
 
-end
 
-% Check dominance on all population
-function [idx_front, fh,fh1] = sort_pareto(fi, np, no, g, dirname, fh,fh1)
+    % Check dominance on all population
+    function [idx_front] = sort_pareto()
+    
+        % Build pareto fronts
+        idx_front = NaN(np,1);
+        for pf=1:npf % for each pareto front...
+    
+            % Info
+            if np > 1E4, fprintf("Pareto %d...\n", pf); end
+    
+            % Local pareto front copy (for parfor loop)
+            idx_front_current = idx_front;
 
-    % Build pareto fronts
-    idx_front = NaN(np,1);
-    for pf=1:50 % for each pareto front...
-
-        fprintf("Pareto %d...\n", pf);
-
-        for i=1:np % For each individual of pop...
-
-            % If individual is already assigned to front, skip
-            if ~isnan(idx_front(i))
-                continue
+            % Run in parallel
+            parfor ii=1:np % For each individual of population...
+    
+                % If individual is already assigned to front, skip
+                if ~isnan(idx_front_current(ii))
+                    continue
+                end
+            
+                % Check dominance on current individual
+                fi_pp = fi(ii,:); % Fitness of current individual
+                dominated_pp = ones(np,1); % Assume pp is dominated
+                for oo=1:no % For each objective...
+            
+                    % Check if pp is dominated by someone, on objective oo
+                    % someone is dominant over pp: it has lower fitness
+                    dominated_oo = fi(:,oo) < fi_pp(oo); %#ok
+            
+                    % Ignore individuals on other pareto fronts 
+                    % (but not those on the current one)
+                    dominated_oo(idx_front_current<pf) = 0; %#ok
+            
+                    % Aggregate dominance over all objectives
+                    dominated_pp = dominated_pp & dominated_oo; 
+            
+                end
+            
+                % If pp is not dominated by anyone else --> pp is dominant
+                pp_is_dominant = ~any(dominated_pp);
+            
+                % Debug info
+                % fprintf("  %d: dominant? %d\n", i, pp_is_dominant);
+    
+                % If pp is dominant, add it to Pareto front pf
+                if pp_is_dominant
+                    idx_front(ii) = pf;
+                end
+    
             end
-
-            % Check dominance on current individual
-            fi_pp = fi(i,:); % Fitness of current individual
-            dominated_pp = ones(np,1); % Assume pp is dominated
-            for oo=1:no % For each objective...
-
-                % Check if pp is dominated by someone, on objective "oo"
-                % someone is dominant over pp = has lower fitness than pp
-                dominated_oo = fi(:,oo) < fi_pp(oo);
-
-                % Ignore individuals on other pareto fronts 
-                % (but not those on the current one)
-                dominated_oo(idx_front<pf) = 0;
-
-                % Aggregate dominance over all objectives
-                dominated_pp = dominated_pp & dominated_oo; 
-
+    
+            % If all individuals are assigned to paretos, stop searching
+            if ~any(isnan(idx_front))
+                break;
             end
-
-            % If pp is not dominated by anyone else, then pp is dominant
-            pp_is_dominant = ~any(dominated_pp);
-
-            fprintf("  %d: dominant? %d\n", i, pp_is_dominant);
-
-            % If pp is dominant, add it to Pareto front
-            if pp_is_dominant
-                idx_front(i) = pf; % Individual pp is assigned to front pf
-            end
-
+    
         end
-
-        % If all the individuals are assigned to paretos, stop searching
-        if ~any(isnan(idx_front))
-            break;
-        end
-
+    
     end
 
     % Plot pareto fronts
-%     fh = figure();
-    hold on; grid on; box on; axis equal;
-    cm = jet(50);
-    colormap(cm);
-    hc = colorbar;
-    title(hc, '# pareto front');
-%     xlim([-0.5,0]);
-%     ylim([-10,0]);
-    xlim([0,4]);
-    ylim([0,4]);
-    zlim([0,4]);
-    xlabel('Objective #1: dist to xa');
-    ylabel('Objective #2: dist to xb');
-    zlabel('Objective #3: dist to xc');
-    title('Optimising distances to 3 points');
-    view(40,0);
-    delete(fh1);
-    fh1 = scatter3(fi(:,1), fi(:,2), fi(:,3), 30, idx_front, 'o', 'filled');
-%     for pf=1:10
-%         fi_idx = fi(idx_front==pf,:);
-%         [~, idx_sorted] = sort(fi_idx(:,1));
-%         fi_idx = fi_idx(idx_sorted,:);
-%         plot3(fi_idx(:,1), fi_idx(:,2), fi_idx(:,3), '-', 'color', cm(pf,:));
-%     end
-    fname = fullfile(dirname,sprintf('gen_%03d.png',g));
-    print(fh,'-dpng','-r300',fname);
-%     close(fh);
+    function plot_pareto_fronts()
+    
+        % Create figure
+        fh = figure();
+        fh.Position = [400,200,900,600];
+        hold on;
+        grid on;
+        box on;
+        axis equal;
+        view(40,0);
+
+        % Limits
+        xlim([0,5]);
+        ylim([0,5]);
+        zlim([0,5]);
+
+        % Labels
+        xlabel('Objective #1: dist to xa');
+        ylabel('Objective #2: dist to xb');
+        zlabel('Objective #3: dist to xc');
+        title('Optimising distances to 3 points');
+
+        % Colormap
+        cm = jet(npf);
+        colormap(cm);
+
+        % Marker size
+        if np <= 1000, mkrsz = 30; % Small population
+        elseif np <= 10000, mkrsz = 15; % Medium population
+        else, mkrsz = 5; % Large population
+        end
+
+        % Plot fitnesses, color by pareto fronts
+        scatter3(fi(:,1),fi(:,2),fi(:,3),mkrsz,idx_front,'o','filled');
+
+        % Plot pareto fronts lines
+        if np < 100 % Low population
+            for pf=1:10
+                fi_idx = fi(idx_front==pf,:);
+                [~, idx_sorted] = sort(fi_idx(:,1));
+                fi_idx = fi_idx(idx_sorted,:);
+                plot3(fi_idx(:,1),fi_idx(:,2),fi_idx(:,3), ...
+                    '-','color',cm(pf,:));
+            end
+        end
+
+        % Colorbar
+        hcb = colorbar;
+        title(hcb, '# pareto front');
+
+        % Save figure
+        fname = fullfile(dirname,sprintf('pf_gen_%03d',g));
+        print(fh,'-dpng','-r300',fname + '.png');
+        savefig(fh,fname + '.fig');
+        close(fh);
+
+    end
+
+    % Plot population
+    function plot_population()
+    
+        % Create figure
+        fh = figure();
+        fh.Position = [400,200,900,600];
+        hold on;
+        grid on;
+        box on;
+        axis equal;
+        view(0,90);
+        
+        % Limits
+        xlim([0,10]);
+        ylim([0,10]);
+        zlim([0,npf]);
+
+        % Scale z-axis down
+        daspect([1,1,npf/5]);
+        
+        % Labels
+        xlabel('x');
+        ylabel('y');
+        zlabel('# pareto front');
+    
+        % Colormap
+        cm = jet(npf);
+        colormap(cm);
+
+        % Equilateral triangle
+        x0 = [5,5]'; % Offset
+        xa = x0 + [0,0]';
+        xb = x0 + [2,0]';
+        xc = x0 + [1,sqrt(3)]';
+    
+        % Plot targets
+        plot3(xa(1),xa(2),0,'ko');
+        plot3(xb(1),xb(2),0,'ko');
+        plot3(xc(1),xc(2),0,'ko');
+        plot3([xa(1),xb(1)],[xa(2),xb(2)],[0,0],'k-');
+        plot3([xb(1),xc(1)],[xb(2),xc(2)],[0,0],'k-');
+        plot3([xa(1),xc(1)],[xa(2),xc(2)],[0,0],'k-');
+        
+        % Marker size
+        if np <= 200, mkrsz = 5; % Smol population
+        elseif np <= 1000, mkrsz = 10; % Small population
+        elseif np <= 10000, mkrsz = 5; % Medium population
+        else, mkrsz = 3; % Large population
+        end
+
+        % Plot individuals
+        for ii=1:np
+    
+            % Select plotting marker
+            if np < 200 % Smol population
+                if ii<=ne, marker = 'v'; % Elites (rv)
+                elseif ii<=ne+nm, marker = 'o'; % Mutants (mo)
+                elseif ii<=ne+nm+nd, marker = 'x'; % Descendants (bx)
+                else, marker = 's'; % Newcomers (ks)
+                end
+            else % High population
+                marker = '.';
+            end
+            
+            % Select color
+            if isnan(idx_front(ii)), c = 'k';
+            else, c = cm(idx_front(ii),:); end
+            if np > 1000 % High population
+                if idx_front(ii) == 1, c = 'r'; end
+            end
+    
+            % Plot individual
+            x = pop{ii}(1);
+            y = pop{ii}(2);
+            z = idx_front(ii);
+            ph = plot3(x,y,z,marker,'MarkerSize',mkrsz,'color',c);
+    
+            % Save legend ticks
+            if ii==ne, lh(1) = ph; % Elite
+            elseif ii==ne+nm, lh(2) = ph; % Mutant
+            elseif ii==ne+nm+nd, lh(3) = ph; % Descendant
+            elseif ii==ne+nm+nd+1, lh(4) = ph; % Newcomer
+            end
+
+        end
+
+        % Legend (only for smol population)
+        if np < 200
+            legend(lh(1:4),'Elites','Mutants','Descendants','Newcomers',...
+                'Location','NorthEastOutside');
+        end
+
+        % Colorbar (with ticks manually adjusted)
+        hcb = colorbar;
+        title(hcb, '# pareto front');
+        hcb.Ticks = linspace(0, 1, npf);
+        hcb.TickLabels = cellstr(num2str((1:npf)'));
+
+        % Save figure
+        fname = fullfile(dirname,sprintf('pop_gen_%03d',g));
+        print(fh,'-dpng','-r300',fname + '.png');
+        savefig(fh,fname + '.fig');
+        close(fh);
+
+    end
 
 end
 

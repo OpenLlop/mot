@@ -1,6 +1,6 @@
 function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aga ( ...
     opts, pop, goal, ng, N, unifun, fitfun, ...
-    mutfun, repfun, ranfun, prifun )
+    mutfun, repfun, ranfun, prifun, savfun, loafun )
 %AGA finds minimum of a function using Genetic Algorithm (GA)
 %
 %Programmers:   Manel Soria         (UPC/ETSEIAT)
@@ -53,6 +53,8 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aga ( ...
 %               descendant
 %   ranfun:     returns a random individual
 %   prifun:     prints best individual
+%   savfun:     saves current generation to disk (if desired)
+%   loafun:     loads some individuals from disk (if desired)
 %
 %Outputs:
 %   bestind:    best individual from the last generation
@@ -140,6 +142,9 @@ for g=1:ng
     [fi,i] = sort(fi); % Sort fitness by increasing value (lower is best)
     pop = pop(i); % Sort population by fitness
 
+    % Save population (if required)
+    savfun(pop, fi, g)
+    
     % Save history
     if nhist>1 % Save full history {population,fitness}
         history{g,1} = pop; %#ok
@@ -206,11 +211,9 @@ for g=1:ng
         k = k + 1; % Next individual
     end
 
-    for i=1:nn % Newcommers
-        nextpop{k} = ranfun(); % Random individual
-        k = k + 1; % Next individual
-    end
-    
+    % Newcomers
+    nextpop(k:k+nn-1) = loafun(g,nn); % Backupped|Random individual
+
     % Update population
     pop = nextpop;
     

@@ -237,11 +237,13 @@ for g=1:ng
 end
 
 
-    % Check dominance on all population
+    % Compute dominance on all population
     function [idx_front] = sort_pareto()
     
-        % Build pareto fronts
+        % Pareto fronts
         idx_front = NaN(np,1);
+
+        % Build pareto fronts
         for pf=1:npf % for each pareto front...
     
             % Info
@@ -296,6 +298,29 @@ end
     
         end
     
+    end
+
+    % Compute crowding distance on all population on each pareto front
+    function [idx_crowd] = sort_crowding(fi,idx_front)
+
+        % Crowding distance ordering
+        idx_crowd = NaN(np,1);
+
+        for ii=1:np % for each individual of population...
+
+            % Build crowding distance
+            for pf=1:npf % for each pareto front...
+    
+                % Compute crowding distances "CD":
+                % CD = distances from the current individual to the other
+                % individuals on pareto front "pf"
+            
+            end
+
+        end
+
+        % Order population individuals by their crowding distance
+        
     end
 
     % Plot pareto fronts

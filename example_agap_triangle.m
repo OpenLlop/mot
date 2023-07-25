@@ -19,7 +19,7 @@ opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 goal = -1; % Target fitness value
 npf = 20; % Maximum number of pareto fronts
 ng = 10; % Number of generations
-np = 500; % Population size
+np = 100; % Population size
 N = [1,... % Number of elites
     floor(np*0.1),... % Number of mutants
     floor(np*0.05),...% Number of newcomers

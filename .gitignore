@@ -1,5 +1,7 @@
 # Temp files & cache
+.idea/
 *.asv
 
 # Specific directories
+/backup*
 /output

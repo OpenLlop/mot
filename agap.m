@@ -207,37 +207,40 @@ for g=1:ng
         fprintf('\n');
     end
     
-    % Compute population for next generation:
+    % Preallocate population for next generation
     % <<[elites, mutants, descendants, newcomers]<<
-    nextpop = cell(1,ne+nm+nd+nn); % Preallocate/clear next population
-    k = 1; % Start individual counter index
+    nextpop = cell(1, ne + nm + nd + nn);
 
-    for i=1:ne % Elites
-        nextpop{k} = pop{k}; % Copy elite into next generation
-        k = k + 1; % Next individual
+    % Elites selection: top 'ne' individuals
+    for i=1:ne
+        nextpop{i} = pop{i}; % Copy elite into next generation
     end
 
-    for i=1:nm % Mutants
+    % Mutation: select 'nm' individuals based on crowding distance
+    for i=1:nm
+        k = ne + i; % Next individual in the population
         if isempty(mutfun), nextpop{k} = pop{k}; % Do not mutate
-        else, nextpop{k} = mutfun(pop{k},fi(k)); % Mutate
+        else, nextpop{k} = mutfun(pop{k}, fi(k)); % Mutate
         end
-        k = k + 1; % Next individual
     end
 
-    for i=1:nd % Descendants
+    % Descendants: perform crossover among selected parents
+    % Parents are selected based on their ranking and crowding distance
+    for i=1:nd
+        k = ne + nm + i; % Next individual in the population
         parentA = randi([1,na]); % Parent A is choosen among the na best 
         parentB = randi([1,na]); % Parent B is choosen among the na best 
         nextpop{k} = repfun(pop{parentA}, pop{parentB}, ...
             fi(parentA), fi(parentB)); % Breed individuals A and B
-        k = k + 1; % Next individual
     end
 
-    for i=1:nn % Newcommers
-        nextpop{k} = ranfun(); % Random individual
-        k = k + 1; % Next individual
+    % Newcomers: randomly generated individuals
+    for i=1:nn
+        k = ne + nm + nd + i; % Next individual in the population
+        nextpop{k} = ranfun(); % Generate random individual
     end
     
-    % Update population
+    % Update population for the next generation
     pop = nextpop;
     
 end

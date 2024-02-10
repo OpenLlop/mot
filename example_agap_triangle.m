@@ -46,12 +46,12 @@ prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 % Randomize random seed
 rng('shuffle'); % We don't want repeatability in the heuristic
 
-% Execute Genetic Algorithm (GA)
+% Execute Genetic Algorithm with Pareto Front (GAP)
 [ bestInd, bestFit, nite, lastPop, lastFit, history ] = agap ( ...
     opts, np, goal, ng, N, npf, unifun, fitfun, ...
     mutfun, repfun, ranfun, prifun );
 
-% Display results of aga and fminsearch algorithms
+% Display results of agap
 fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
 fprintf('AGA \t\t%1.6f,%1.6f \t\t%1.6E,%1.6E,%1.6E\n',bestInd,bestFit);
 

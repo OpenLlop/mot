@@ -31,12 +31,12 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aga ( ...
 %       N(2)        nm: number of mutants
 %       N(3)        nn: number of newcomers
 %                   The rest are descendants
-%       N(4)        na: number of parents. The descendants are choosen
+%       N(4)        na: number of parents. The descendants are chosen
 %                   among the na best individuals
 %                   The rest of individuals (ie: nn=length(pop)-ne+nm+nd)
-%                   are newcomers, randomly choosen
+%                   are newcomers, randomly chosen
 % 
-%   If there are less than nm-1 non-identical indivials, population is 
+%   If there are less than nm-1 non-identical individuals, population is 
 %   considered degenerate and iterations stop
 %
 %   Call back functions to be provided by the user:
@@ -44,8 +44,8 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aga ( ...
 %               receives a population+fitness and returns a
 %               population+fitness (a population is a list of individuals)
 %   fitfun:     fitness function, given one individual returns its fitness
-%               (RECALL that in this GA algoritm fitness is MINIMIZED)
-%   mutfun:     mutation funcion, given one individual and its fitness,
+%               (RECALL that in this GA algorithm fitness is MINIMIZED)
+%   mutfun:     mutation function, given one individual and its fitness,
 %               mutfun should return a mutant individual. Fitness is given
 %               in case mutation intensity is to be decreased when close
 %               to the goal
@@ -204,8 +204,8 @@ for g=1:ng
     end
 
     for i=1:nd % Descendants
-        parentA = randi([1,na]); % Parent A is choosen among the na best 
-        parentB = randi([1,na]); % Parent B is choosen among the na best 
+        parentA = randi([1,na]); % Parent A is chosen among the na best 
+        parentB = randi([1,na]); % Parent B is chosen among the na best 
         nextpop{k} = repfun(pop{parentA}, pop{parentB}, ...
             fi(parentA), fi(parentB)); % Breed individuals A and B
         k = k + 1; % Next individual

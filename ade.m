@@ -28,7 +28,7 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ade ( ...
 %       N(1)        ne: number of elite individuals that remain unchanged
 %       N(2)        nm: number of mutants
 %                   The rest of individuals (ie: nn=length(pop)-ne+nm) are
-%                   newcomers, randomly choosen
+%                   newcomers, randomly chosen
 %   F:          mutation scaling factor (usually between 0-1)
 %   ms:         mutation strategy
 %       1:      DE/rand/1/exp -> p = mutfun(F,a,b,c)
@@ -46,7 +46,7 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ade ( ...
 %               receives a population+fitness and returns a
 %               population+fitness (a population is a list of individuals)
 %   fitfun:     fitness function, given one individual returns its fitness
-%               (RECALL that in this DE algoritm fitness is MINIMIZED)
+%               (RECALL that in this DE algorithm fitness is MINIMIZED)
 %   mutfun:     given X individuals and their fitnesses, returns a
 %               combination of the individuals (X will depend on the
 %               mutation strategy)
@@ -195,7 +195,7 @@ for g=1:ng
             
             case 1 % DE/rand/1/exp
 
-                % Individuals are choosen among the nm best
+                % Individuals are chosen among the nm best
                 p = num2cell(randperm(nm,3));
                 [a,b,c] = p{:};
 
@@ -204,7 +204,7 @@ for g=1:ng
                 
             case 2 % DE/rand/1/exp
 
-                % Individuals are choosen among the nm best
+                % Individuals are chosen among the nm best
                 p = num2cell(randperm(nm,5));
                 [a,b,c,d,e] = p{:};
 
@@ -214,7 +214,7 @@ for g=1:ng
                 
             case 3 % DE/best/1/exp
 
-                % Individuals are choosen among the nm best
+                % Individuals are chosen among the nm best
                 p = num2cell(randperm(nm,2));
                 [b,c] = p{:};
 
@@ -223,7 +223,7 @@ for g=1:ng
                 
             case 4 % DE/best/2/exp
 
-                % Individuals are choosen among the nm best
+                % Individuals are chosen among the nm best
                 p = num2cell(randperm(nm,4));
                 [b,c,d,e] = p{:};
 
@@ -233,7 +233,7 @@ for g=1:ng
                 
             case 5 % DE/rand-to-best/1/exp
 
-                % Individuals are choosen among the nm best
+                % Individuals are chosen among the nm best
                 p = num2cell(randperm(nm,3));
                 [a,b,c] = p{:};
 
@@ -243,7 +243,7 @@ for g=1:ng
                 
             case 6 % DE/rand-to-best/2/exp
 
-                % Individuals are choosen among the nm best
+                % Individuals are chosen among the nm best
                 p = num2cell(randperm(nm,5));
                 [a,b,c,d,e] = p{:};
 
@@ -253,7 +253,7 @@ for g=1:ng
                 
             otherwise % DE/rand/1/exp
                 
-                % Individuals are choosen among the nm best
+                % Individuals are chosen among the nm best
                 p = num2cell(randperm(nm,3));
                 [a,b,c] = p{:};
 

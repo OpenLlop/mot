@@ -146,14 +146,20 @@ for g=1:ng
         for i=1:np, fi(i,:) = feval(fitfun,pop{i}); end
     end
 
-    % Sort population fitness into pareto fronts
+    % Sort population into pareto fronts
     idx_front = sort_pareto();
-    %[idx_crowd] = sort_crowding(fi,idx_front);
 
-    % Sort population individuals by their pareto front
-    [idx_front, idx] = sort(idx_front); % Sort pareto fronts (increasing)
-    fi = fi(idx,:); % Sort fitness by pareto fronts
-    pop = pop(idx); % Sort population by pareto fronts
+    % Compute crowding distance between individuals on each front
+    crowding_dist = sort_crowding(fi, idx_front, npf);
+
+    % Combine Pareto front and crowding distance for sorting
+    % Sort first by pareto fronts (increasing), then:
+    % For each pareto group, sort by crowding distance (decreasing)
+    [~, idx] = sortrows([idx_front, -crowding_dist]);
+
+    % Sort population individuals by pareto front & crowding distance
+    fi = fi(idx,:); % Sort fitness
+    pop = pop(idx); % Sort population
 
     % Plot population & pareto fronts
     plot_population();

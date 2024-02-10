@@ -149,6 +149,10 @@ for g=1:ng
     % Sort population into pareto fronts
     idx_front = sort_pareto();
 
+    % Plot population & pareto fronts
+    plot_population();
+    plot_pareto_fronts();
+
     % Compute crowding distance between individuals on each front
     crowding_dist = sort_crowding(fi, idx_front, npf);
 
@@ -160,10 +164,6 @@ for g=1:ng
     % Sort population individuals by pareto front & crowding distance
     fi = fi(idx,:); % Sort fitness
     pop = pop(idx); % Sort population
-
-    % Plot population & pareto fronts
-    plot_population();
-    plot_pareto_fronts();
 
     % Save history
     if nhist>1 % Save full history {population,fitness}

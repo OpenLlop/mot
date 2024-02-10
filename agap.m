@@ -301,26 +301,58 @@ end
     end
 
     % Compute crowding distance on all population on each pareto front
-    function [idx_crowd] = sort_crowding(fi,idx_front)
+    function [crowding_dist] = sort_crowding(fi, idx_front, npf)
 
-        % Crowding distance ordering
-        idx_crowd = NaN(np,1);
-
-        for ii=1:np % for each individual of population...
-
-            % Build crowding distance
-            for pf=1:npf % for each pareto front...
+        % Initialize crowding distance array
+        crowding_dist = zeros(size(fi, 1), 1);
     
-                % Compute crowding distances "CD":
-                % CD = distances from the current individual to the other
-                % individuals on pareto front "pf"
-            
+        % For each pareto front...
+        for pf = 1:npf
+
+            % Find the individuals in the current Pareto front
+            idy = find(idx_front == pf);
+            if isempty(idy) % Skip if no individuals in this front
+                continue;
             end
+            
+            % Extract fitness values of individuals in the current front
+            fi_pf = fi(idy, :);
+            
+            % Initialize crowding distance for individuals in this front
+            cd_pf = zeros(length(idy), 1);
+            
+            % Number of objectives
+            n_obj = size(fi, 2);
+            
+            % For each objective...
+            for m = 1:n_obj
+
+                % Sort individuals based on the m-th objective
+                [fi_s, idk] = sort(fi_pf(:, m));
+                
+                % Assign infinite crowding distance to boundary individuals
+                cd_pf(idk(1)) = Inf;
+                cd_pf(idk(end)) = Inf;
+                
+                % Maximum and minimum fitness values for normalization
+                fi_max = max(fi_s);
+                fi_min = min(fi_s);
+                if fi_max == fi_min
+                    fi_max = fi_min + 1; % Avoid division by zero
+                end
+                
+                % Calculate crowding distances for intermediate individuals
+                for ii = 2:(length(idk)-1)
+                    cd_ii = (fi_s(ii+1) - fi_s(ii-1)) / (fi_max - fi_min);
+                    cd_pf(idk(ii)) = cd_pf(idk(ii)) + cd_ii;
+                end
+            end
+            
+            % Assign calculated distances back to the main array
+            crowding_dist(idy) = cd_pf;
 
         end
 
-        % Order population individuals by their crowding distance
-        
     end
 
     % Plot pareto fronts

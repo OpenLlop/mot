@@ -5,7 +5,7 @@
 %                David de la Torre   (UPC/ETSEIAT)
 %                Arnau Miro          (UPC/ETSEIAT)
 % Date:          29/12/2016
-% Revision:      1
+% Revision:      2
 
 %% AHIM
 
@@ -108,10 +108,13 @@ fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 %% Fitness plot
 
+% Number of generations in history array
+ngens = size(history,1);
+
 % Get fitness history
 if opts.nhist>1 && iscell(history) % Full history; get fitness values
-    fithist = zeros(size(history,1),1);
-    for g=1:size(history,1)
+    fithist = zeros(ngens,1);
+    for g=1:ngens
         fithist(g) = history{g,ni+2};
     end
 else % Simple history

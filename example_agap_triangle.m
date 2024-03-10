@@ -1,5 +1,5 @@
-%% Example AGA
-% Find minima of a function with Genetic Algorithm + Pareto fronts (GAP)
+%% Example AGA Multi-objective
+% Find minima of a function with Genetic Algorithm + Pareto fronts (AGAP)
 %
 % Programmers:   Manel Soria         (UPC/ETSEIAT)
 %                David de la Torre   (UPC/ETSEIAT)
@@ -7,7 +7,7 @@
 % Revision:      1
 close all; clc;
 
-%% AGA
+%% AGAP
 
 % Define heuristic function options (optional)
 opts.ninfo = 2; % Verbosity level (0=none, 1=minimal, 2=extended)
@@ -15,7 +15,7 @@ opts.label = 10; % Label (identification purposes)
 opts.dopar = 1; % Parallel execution of fitness function
 opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 
-% Define AGA algorithm parameters
+% Define AGAP algorithm parameters
 goal = -1; % Target fitness value
 npf = 20; % Maximum number of pareto fronts
 ng = 10; % Number of generations
@@ -35,7 +35,7 @@ xa = x0 + [0,0]';
 xb = x0 + [2,0]';
 xc = x0 + [1,sqrt(3)]';
 
-% Define AGA algorithm functions
+% Define AGAP algorithm functions
 unifun = @(x,f) deal(x,f); % Discard identical individuals (unimplemented)
 fitfun = @(x) [norm(x-xa), norm(x-xb), norm(x-xc)]; % Fitness function (to be minimized)
 mutfun = @(x,f) x + ranrange(-0.5,0.5,2); % Mutation: small random movement
@@ -46,12 +46,12 @@ prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 % Randomize random seed
 rng('shuffle'); % We don't want repeatability in the heuristic
 
-% Execute Genetic Algorithm with Pareto Front (GAP)
+% Execute A Genetic Algorithm with Pareto Front (AGAP)
 [ bestInd, bestFit, nite, lastPop, lastFit, history ] = agap ( ...
     opts, np, goal, ng, N, npf, unifun, fitfun, ...
     mutfun, repfun, ranfun, prifun );
 
 % Display results of agap
 fprintf('\nAlgorithm \tBest individual (x,y) \tValue\n');
-fprintf('AGA \t\t%1.6f,%1.6f \t\t%1.6E,%1.6E,%1.6E\n',bestInd,bestFit);
+fprintf('AGAP \t\t%1.6f,%1.6f \t\t%1.6E,%1.6E,%1.6E\n',bestInd,bestFit);
 

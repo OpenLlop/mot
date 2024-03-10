@@ -1,16 +1,16 @@
 function [ bestind, bestfit, nite, lastpop, lastfit, history ] = agap ( ...
     opts, pop, goal, ng, N, npf, unifun, fitfun, ...
     mutfun, repfun, ranfun, prifun )
-%AGA finds minimum of a function using Genetic Algorithm (GA)
+%AGAP finds minimum of a function using Multi-Objective 
+%     Genetic Algorithm with Pareto Fronts (AGAP)
 %
 %Programmers:   Manel Soria         (UPC/ETSEIAT)
 %               David de la Torre   (UPC/ETSEIAT)
-%               Arnau Miro          (UPC/ETSEIAT)
-%Date:          10/05/2018
-%Revision:      4
+%Date:          25/02/2023
+%Revision:      1
 %
 %Usage:         [bestind, bestfit, nite, lastpop, lastfit, history] = ...
-%                   AGA( opts, pop, ng, N, goal, ...
+%                   AGAP ( opts, pop, goal, ng, N, npf, ...
 %                   unifun, fitfun, mutfun, repfun, ranfun, prifun )
 %
 %Inputs:
@@ -35,6 +35,7 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = agap ( ...
 %                   among the na best individuals
 %                   The rest of individuals (ie: nn=length(pop)-ne+nm+nd)
 %                   are newcomers, randomly choosen
+%   npf:        maximum number of pareto fronts allowed
 % 
 %   If there are less than nm-1 non-identical indivials, population is 
 %   considered degenerate and iterations stop
@@ -100,7 +101,7 @@ no = size(fi0(:), 1);
 
 % Safety checks
 if na<=0, na=1; end
-if nn<0, error('AGA nn (number of newcomers) must be positive'); end
+if nn<0, error('AGAP nn (number of newcomers) must be positive'); end
 
 % Iterate through generations
 for g=1:ng
@@ -119,7 +120,8 @@ for g=1:ng
         
         % Show info
         if ninfo>0
-            fprintf('AGA label=%d degenerate population, leaving\n',label);
+            fprintf('AGAP label=%d degenerate population, leaving\n',...
+                label);
         end
         
         % Save last iteration data
@@ -186,7 +188,8 @@ for g=1:ng
         
         % Show info
         if ninfo>0
-            fprintf('AGA label=%d nite=%2d fitbest=%f',label,nite,bestfit);
+            fprintf('AGAP label=%d nite=%2d fitbest=%f', ...
+                label,nite,bestfit);
             if ~isempty(prifun), fprintf(' best='); prifun(bestind); end
             if bestfit<goal % Goal achieved
                 fprintf(' goal=%e achieved, leaving\n',goal);
@@ -202,7 +205,7 @@ for g=1:ng
 
     % Show extended info
     if ninfo>1
-        fprintf('AGA label=%d g=%2d fitbest=%f',label,g,fi(1));
+        fprintf('AGAP label=%d g=%2d fitbest=%f',label,g,fi(1));
         if ~isempty(prifun), fprintf(' best='); prifun(pop{1}); end
         fprintf('\n');
     end

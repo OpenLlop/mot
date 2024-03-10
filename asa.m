@@ -9,7 +9,7 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = asa ( ...
 %Revision:      3
 %
 %Usage:         [bestind, bestfit, nite, lastpop, lastfit, history] = ...
-%                   ASA( opts, A0, goal, DATA )
+%                   ASA ( opts, A0, goal, DATA )
 %
 %Inputs:
 %   opts:       function control parameters [struct] (optional)

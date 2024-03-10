@@ -9,7 +9,7 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = aim ( ...
 %Revision:      2
 %
 %Usage:         [ bestind, bestfit, nite, lastpop, lastfit, history ] = ...
-%                   AIM( opts, pops, ngg, nemi, goal, fheu, DATA )
+%                   AIM ( opts, pops, ngg, nemi, goal, fheu, DATA )
 %
 %Inputs:
 %   opts:       function control parameters [struct] (optional)

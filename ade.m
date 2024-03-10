@@ -9,7 +9,8 @@ function [ bestind, bestfit, nite, lastpop, lastfit, history ] = ade ( ...
 %Revision:      3
 %
 %Usage:         [bestind, bestfit, nite, lastpop, lastfit, history] = ...
-%                   ADE ( opts, pop, goal, DATA )
+%                   ADE ( opts, pop, goal, ng, N, F, ms, ...
+%                   unifun, fitfun, mutfun, ranfun, prifun )
 %
 %Inputs:
 %   opts:       function control parameters [struct] (optional)

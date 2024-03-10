@@ -5,7 +5,7 @@
 %                David de la Torre   (UPC/ETSEIAT)
 %                Arnau Miro          (UPC/ETSEIAT)
 % Date:          29/12/2016
-% Revision:      3
+% Revision:      4
 
 %% APS
 
@@ -71,10 +71,13 @@ fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 %% Fitness plot
 
+% Number of generations in history array
+ngens = size(history,1);
+
 % Get fitness history
 if opts.nhist>1 && iscell(history) % Full history; get fitness values
-    fithist = zeros(length(history),1);
-    for i=1:length(history)
+    fithist = zeros(ngens,1);
+    for i=1:ngens
         fithist(i) = history{i,2}(1);
     end
 else % Simple history
@@ -114,7 +117,7 @@ if opts.nhist>1 && iscell(history)
 
     % Plot generations
     ph = cell(np,1); % Handles
-    for iter=1:length(history)
+    for iter=1:ngens
 
         % Title
         title({'Particle Swarm optimization | Rastrigin function';...
@@ -139,7 +142,7 @@ if opts.nhist>1 && iscell(history)
         pause(0.1);
 
         % Delete individuals
-        if iter~=length(history) % Keep last frame
+        if iter~=ngens % Keep last frame
             for i=1:np, delete(ph{i}); end
         end
 

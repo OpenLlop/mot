@@ -5,7 +5,7 @@
 %                David de la Torre   (UPC/ETSEIAT)
 %                Arnau Miro          (UPC/ETSEIAT)
 % Date:          23/11/2016
-% Revision:      3
+% Revision:      4
 
 function example_aga_knapsack
 % Knapsack problem solved with GA
@@ -60,10 +60,13 @@ end
                     
 %% Plot history
 
+% Number of generations in history array
+ngens = size(history,1);
+
 % Get fitness history
 if opts.nhist>1 && iscell(history) % Full history; get fitness values
-    fithist = zeros(length(history),1);
-    for i=1:length(history)
+    fithist = zeros(ngens,1);
+    for i=1:ngens
         fithist(i) = history{i,2}(1);
     end
 else % Simple history

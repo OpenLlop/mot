@@ -5,7 +5,7 @@
 %                David de la Torre   (UPC/ETSEIAT)
 %                Arnau Miro          (UPC/ETSEIAT)
 % Date:          23/11/2016
-% Revision:      3
+% Revision:      4
 
 %% ASA
 
@@ -30,7 +30,7 @@ ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 
 % Define ASA functions
 fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
-mutfun = @(x,f) x + ranrange(-0.3,0.3,2); % Mutation: small random mov
+mutfun = @(x,f) x + ranrange(-0.5,0.5,2); % Mutation: small random mov
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 
 % Randomize random seed
@@ -54,10 +54,13 @@ fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 %% Plot fitness
 
+% Number of generations in history array
+ngens = size(history,1);
+
 % Get fitness history
 if opts.nhist>1 % Full history; get fitness values
-    fithist = zeros(length(history),1);
-    for i=1:length(history)
+    fithist = zeros(ngens,1);
+    for i=1:ngens
         fithist(i) = history{i,6};
     end
 else % Simple history
@@ -101,8 +104,8 @@ if opts.nhist>1 && iscell(history)
     legend(lh,'Best','A','B','Location','NorthEastOutside');
 
     % Plot generations
-    ph = cell(length(history),3); % Handles
-    for iter=1:length(history)
+    ph = cell(ngens,3); % Handles
+    for iter=1:ngens
 
         % Title
         title({'Simulated Annealing optimization | Rastrigin function';...
@@ -124,7 +127,7 @@ if opts.nhist>1 && iscell(history)
         pause(0.1);
 
         % Delete individuals
-        if iter~=length(history) % Keep last frame
+        if iter~=ngens % Keep last frame
             for i=1:3, delete(ph{iter,i}); end
         end
 

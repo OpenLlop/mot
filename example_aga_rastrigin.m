@@ -5,7 +5,7 @@
 %                David de la Torre   (UPC/ETSEIAT)
 %                Arnau Miro          (UPC/ETSEIAT)
 % Date:          23/11/2016
-% Revision:      3
+% Revision:      4
 
 %% AGA
 
@@ -23,8 +23,8 @@ opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 
 % Define AGA algorithm parameters
 goal = 1E-5; % Target fitness value
-ng = 50; % Number of generations
-np = 200; % Population size
+ng = 10; % Number of generations
+np = 100; % Population size
 N = [3,... % Number of elites
     floor(np*0.1),... % Number of mutants
     floor(np*0.05),...% Number of newcomers
@@ -60,10 +60,13 @@ fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 %% Fitness plot
 
+% Number of generations in history array
+ngens = size(history,1);
+
 % Get fitness history
 if opts.nhist>1 && iscell(history) % Full history; get fitness values
-    fithist = zeros(length(history),1);
-    for i=1:length(history)
+    fithist = zeros(ngens,1);
+    for i=1:ngens
         fithist(i) = history{i,2}(1);
     end
 else % Simple history
@@ -108,7 +111,7 @@ if opts.nhist>1 && iscell(history)
 
     % Plot generations
     ph = cell(np,1); % Handles
-    for g=1:length(history)
+    for g=1:ngens
 
         % Title
         title({'Genetic Algorithm optimization | Rastrigin function';...
@@ -150,7 +153,7 @@ if opts.nhist>1 && iscell(history)
         pause(1);
 
         % Delete individuals
-        if g~=length(history) % Keep last frame
+        if g~=ngens % Keep last frame
             for i=1:np, delete(ph{i}); end
         end
 

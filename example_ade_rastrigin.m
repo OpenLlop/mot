@@ -5,7 +5,7 @@
 %                Manel Soria         (UPC/ETSEIAT)
 %                Arnau Miro          (UPC/ETSEIAT)
 % Date:          23/11/2016
-% Revision:      2
+% Revision:      3
 
 %% ADE
 
@@ -58,10 +58,13 @@ fprintf('FMS \t\t%1.6f,%1.6f \t\t%1.6E\n',bestIndFMS,bestFitFMS);
 
 %% Fitness plot
 
+% Number of generations in history array
+ngens = size(history,1);
+
 % Get fitness history
 if opts.nhist>1 && iscell(history) % Full history; get fitness values
-    fithist = zeros(length(history),1);
-    for i=1:length(history)
+    fithist = zeros(ngens,1);
+    for i=1:ngens
         fithist(i) = history{i,2}(1);
     end
 else % Simple history
@@ -105,7 +108,7 @@ if opts.nhist>1 && iscell(history)
 
     % Plot generations
     ph = cell(np,1); % Handles
-    for g=1:length(history)
+    for g=1:ngens
 
         % Title
         title({['Differential Evolution optimization',...
@@ -145,7 +148,7 @@ if opts.nhist>1 && iscell(history)
         pause(1);
 
         % Delete individuals
-        if g~=length(history) % Keep last frame
+        if g~=ngens % Keep last frame
             for i=1:np, delete(ph{i}); end
         end
 

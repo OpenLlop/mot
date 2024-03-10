@@ -30,7 +30,7 @@ ranrange = @(a,b,n) a + (b-a)*rand(n,1); % n random values between a i b
 
 % Define ASA functions
 fitfun = @(x) ras(x(1),x(2)); % Fitness function - TO BE MINIMIZED
-mutfun = @(x,f) x + ranrange(-0.3,0.3,2); % Mutation: small random mov
+mutfun = @(x,f) x + ranrange(-0.5,0.5,2); % Mutation: small random mov
 prifun = @(x) fprintf('%f %f ',x(1),x(2)); % Print an individual
 
 % Randomize random seed

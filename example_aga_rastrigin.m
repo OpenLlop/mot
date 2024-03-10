@@ -23,8 +23,8 @@ opts.nhist = 2; % Save history (0=none, 1=fitness, 2=all{pop,fit})
 
 % Define AGA algorithm parameters
 goal = 1E-5; % Target fitness value
-ng = 50; % Number of generations
-np = 200; % Population size
+ng = 10; % Number of generations
+np = 100; % Population size
 N = [3,... % Number of elites
     floor(np*0.1),... % Number of mutants
     floor(np*0.05),...% Number of newcomers

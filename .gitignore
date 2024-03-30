@@ -5,3 +5,7 @@
 # Specific directories
 /backup*
 /output
+
+# Temp dirs for builder
+GUI_AGA/
+GUI_AGA_resources/

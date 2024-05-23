@@ -8,7 +8,7 @@
       <file>${PROJECT_ROOT}\GUI_AGA_resources\icon_24.png</file>
       <file>${PROJECT_ROOT}\GUI_AGA_resources\icon_16.png</file>
     </param.icons>
-    <param.version>1.0</param.version>
+    <param.version>2.0</param.version>
     <param.authnamewatermark>David de la Torre</param.authnamewatermark>
     <param.email>david.de.la.torre.sangra@upc.edu</param.email>
     <param.company>Universitat Politècnica de Catalunya (UPC)</param.company>
@@ -48,7 +48,9 @@
 	 -?  print help on how to use the application 
 	 input arguments</param.help.text>
     <unset>
-      <param.version />
+      <param.authnamewatermark />
+      <param.email />
+      <param.company />
       <param.description />
       <param.screenshot />
       <param.guid />
